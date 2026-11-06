@@ -881,7 +881,9 @@ function compressImage(file, maxW=800, quality=0.7){
 
 /* ---------------------------------------------------------- 路由（支持浏览器返回键） */
 const SCREENS = ['gate','desk','letter','cake','fortune','blog','game'];
-const S = { screen:'gate', gameFrom:'desk', letterOpened:false, cakeDone:false, fortuneTyping:false, gameInited:false };
+/* authed = 本次会话已登录（内存态，不写磁盘）；auth_token = 勾选「记住我」后才持久化 */
+const S = { screen:'gate', gameFrom:'desk', authed:false, gateOpening:false,
+            letterOpened:false, cakeDone:false, fortuneTyping:false, gameInited:false };
 function hashName(){ const h = location.hash.replace('#',''); return SCREENS.includes(h) ? h : null; }
 function go(name, opts={}){
   if(!SCREENS.includes(name)) name='desk';
@@ -891,7 +893,8 @@ function go(name, opts={}){
 }
 function renderRoute(name, state){
   let target = SCREENS.includes(name) ? name : 'gate';
-  const authed = !!DB.read(KEYS.auth, null);
+  /* 放行条件：本次会话已登录 或 有持久凭证（记住我） */
+  const authed = S.authed || !!DB.read(KEYS.auth, null);
   if(target !== 'gate' && !authed) target='gate';
   if(target === 'gate' && authed) target='desk';
   if(target === 'game' && state && state.from) S.gameFrom = state.from;
@@ -910,14 +913,28 @@ window.addEventListener('popstate', e => renderRoute((e.state && e.state.screen)
 window.addEventListener('hashchange', () => { const h=hashName(); if(h && h!==S.screen) renderRoute(h); });
 
 /* ---------------------------------------------------------- 门禁页 */
+/* 容错：去掉空白、把全角数字转成半角 */
+function normalizePw(v){
+  return String(v||'').replace(/[\s\u3000]/g,'')
+    .replace(/[\uFF10-\uFF19]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+}
 function initGate(){
   const env = $('#envelope'), pw = $('#pw');
   const attempt = () => {
-    if(pw.value.trim() === PASSWORD){
-      pw.classList.remove('wrong'); $('#gateHint').textContent='';
+    if(S.gateOpening) return;                         // 动画期间防重复触发
+    if(normalizePw(pw.value) === PASSWORD){
+      S.authed = true;                               // 本次会话放行（不依赖 localStorage）
+      S.gateOpening = true;
+      pw.classList.remove('wrong');
+      $('#gateHint').textContent='拆开啦，正在带你进去 ✦';
       if($('#remember').checked) DB.write(KEYS.auth, {ok:true, at:Date.now()});
       env.classList.add('opened');
-      setTimeout(()=>{ env.classList.remove('opened'); pw.value=''; go('desk',{replace:true}); }, 1650);
+      setTimeout(()=>{
+        env.classList.remove('opened'); pw.value=''; $('#gateHint').textContent='';
+        S.gateOpening=false;
+        go('desk',{replace:true});
+        toast('欢迎回来 ✦');
+      }, 1500);
     } else {
       env.classList.remove('shake'); void env.offsetWidth; env.classList.add('shake');
       pw.classList.add('wrong'); $('#gateHint').textContent='好像不太对，再想想那串数字 ✦';
@@ -931,7 +948,7 @@ function initGate(){
 }
 function lockScreen(){
   /* 只删除登录凭证；blog_posts / tree_hole_msgs / game_save / fortune_history 全部保留 */
-  DB.clearAuth();
+  S.authed=false; S.gateOpening=false; DB.clearAuth();
   S.letterOpened=false; S.cakeDone=false;
   $('#letterPaper').classList.add('folded'); $('#letterPaper').classList.remove('opened');
   $('#letterSeal').classList.remove('broken');
@@ -2047,8 +2064,8 @@ function boot(){
   /* 首次访问写入初始数据；之后永远只读取，不覆盖 */
   getPosts(); getTree(); gameGet();
   const h = hashName();
-  const authed = !!DB.read(KEYS.auth,null);
-  const start = authed ? (h && h!=='gate' ? h : 'desk') : 'gate';
+  S.authed = !!DB.read(KEYS.auth,null);              // 刷新时只有「记住我」能自动进入
+  const start = S.authed ? (h && h!=='gate' ? h : 'desk') : 'gate';
   renderRoute(start, {from:'desk'});
   history.replaceState({screen:S.screen,from:S.gameFrom},'', '#'+S.screen);
 }
