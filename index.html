@@ -155,15 +155,23 @@ button{cursor:pointer;border:0;background:none}
 .desk-items{position:relative;z-index:2;max-width:1000px;height:min(62vh,520px);margin:24px auto 0}
 .desk-item{position:absolute;display:flex;flex-direction:column;align-items:center;gap:12px;
   transition:transform .55s cubic-bezier(.2,.8,.3,1),filter .55s;filter:drop-shadow(0 12px 18px rgba(130,110,95,.16))}
-.desk-item:hover{transform:translateY(-3px) !important;filter:drop-shadow(0 16px 22px rgba(130,110,95,.24))}
+.desk-item:hover{transform:translateY(-3px);filter:drop-shadow(0 24px 30px rgba(120,100,86,.36))}
+.desk-item:hover .obj{filter:brightness(1.05)}
+.desk-item:active{transform:translateY(2px) scale(.975);transition-duration:.09s}
 .desk-item .tip{font-family:var(--hand);font-size:21px;color:#8B8078;opacity:0;transform:translateY(6px);transition:.5s;white-space:nowrap}
 .desk-item:hover .tip{opacity:1;transform:none}
-.desk-item .obj{position:relative;transition:transform .6s}
-.item-letter{left:4%;top:24%;transform:rotate(-8deg)}
-.item-book{left:50%;top:16%;transform:translateX(-50%) rotate(1deg)}
-.item-cake{right:5%;top:28%;transform:rotate(5deg)}
-.item-bottle{right:8%;top:-4%;transform:rotate(-3deg)}
-.item-star{right:3%;bottom:2%;transform:rotate(-6deg)}
+.desk-item .obj{position:relative;transition:transform .6s,filter .5s}
+/* 物件自身的倾斜交给 .obj，让 .desk-item 的 transform 完全留给 hover / 按下动画 */
+.item-letter{left:4%;top:24%}
+.item-book{left:calc(50% - 115px);top:16%}
+.item-cake{right:5%;top:28%}
+.item-bottle{right:8%;top:-4%}
+.item-star{right:3%;bottom:2%}
+.item-letter .obj{transform:rotate(-8deg)}
+.item-book .obj{transform:rotate(1deg)}
+.item-cake .obj{transform:rotate(5deg)}
+.item-bottle .obj{transform:rotate(-3deg)}
+.item-star .obj{transform:rotate(-6deg)}
 /* 火漆信 */
 .obj-letter{width:132px;height:88px;background:linear-gradient(150deg,#FFFDF7,#F7E9DE);border:1px solid var(--line);border-radius:3px;
   box-shadow:inset 0 0 0 5px rgba(255,255,255,.55),3px 5px 12px rgba(140,120,100,.14)}
@@ -186,8 +194,8 @@ button{cursor:pointer;border:0;background:none}
 .obj-cake .cream{position:absolute;bottom:44px;left:16px;width:94px;height:12px;border-radius:50%;background:#FFFCF6;box-shadow:0 3px 5px rgba(180,155,140,.15)}
 .obj-cake .candle{position:absolute;bottom:84px;left:60px;width:5px;height:22px;background:repeating-linear-gradient(45deg,#F2D8D8 0 4px,#E8C7C7 4px 8px);border-radius:2px}
 .obj-cake .flame{position:absolute;bottom:104px;left:57px;width:11px;height:16px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
-  background:radial-gradient(circle at 50% 70%,#FFF4C9,#F5B95F 60%,#E88F55);box-shadow:0 0 18px 6px rgba(245,190,110,.45);animation:breathe 2.4s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:scale(1) rotate(-3deg);opacity:.92}50%{transform:scale(1.12) rotate(3deg);opacity:1}}
+  background:radial-gradient(circle at 50% 70%,#FFF4C9,#F5B95F 60%,#E88F55);box-shadow:0 0 18px 6px rgba(245,190,110,.45);animation:flameBreathe 2.4s ease-in-out infinite}
+@keyframes flameBreathe{0%,100%{transform:scale(1) rotate(-3deg);opacity:.92}50%{transform:scale(1.12) rotate(3deg);opacity:1}}
 /* 玻璃许愿瓶 */
 .obj-bottle{width:76px;height:112px;position:relative}
 .obj-bottle .glass{position:absolute;inset:0;border:1.5px solid rgba(180,200,210,.85);border-radius:28px 28px 14px 14px;
@@ -306,7 +314,8 @@ button{cursor:pointer;border:0;background:none}
 .fortune-card{position:relative;z-index:2;width:min(500px,92vw);margin-top:36px;min-height:210px;text-align:center;
   background:linear-gradient(160deg,rgba(255,253,248,.94),rgba(250,241,232,.9));
   border:1px solid var(--gold);border-radius:18px;
-  box-shadow:0 16px 40px rgba(150,130,110,.16);animation:cardUnfold 1s cubic-bezier(.2,.8,.3,1) both;transform-origin:center}
+  box-shadow:0 16px 40px rgba(150,130,110,.16);transform-origin:center top}
+.fortune-card.reveal{animation:cardUnfold 1s cubic-bezier(.2,.8,.3,1) both}
 @keyframes cardUnfold{from{opacity:0;transform:perspective(900px) rotateX(-70deg) scale(.7)}to{opacity:1;transform:none}}
 .fortune-card::before{content:"";position:absolute;inset:7px;border:1px dashed rgba(217,198,165,.6);border-radius:12px;pointer-events:none}
 .fortune-card::after{content:"✦  ✦  ✦";position:absolute;left:0;right:0;bottom:8px;font-size:9px;color:#D8C4A0;letter-spacing:1em}
@@ -663,6 +672,243 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   .gs-char .px-avatar{width:96px;height:96px}
   .gs-mate{width:44px;height:44px;margin-left:-22px}
 }
+
+/* ==========================================================================================
+   微观交互 / 动作帧 / 物理校准层
+   原则：一切位移都走 transform；角色只允许 left 水平移动；切场景时舞台 DOM 全量重建。
+   ========================================================================================== */
+
+/* ---------- 全站：每一个按钮都有「按下 → 回弹」的物理反馈 ---------- */
+.btn:active,.gm-btn:active,.gm-tab:active,.gs-panel button:active,
+.ribbon-nav button:active,#pwGo:active,#treeSend:active,#newPost:active{
+  transform:translateY(2px) scale(.975);transition-duration:.08s}
+.gm-chip{transition:transform .28s cubic-bezier(.2,.8,.3,1),border-color .4s,background .4s}
+
+/* ---------- 书桌：悬停上浮 3px + 阴影加深；点击按下回弹 ---------- */
+.desk-item.pressed{animation:deskPress .48s cubic-bezier(.22,.7,.3,1)}
+@keyframes deskPress{
+  0%{transform:translateY(-3px)}
+  26%{transform:translateY(3px) scale(.965)}
+  58%{transform:translateY(-7px) scale(1.022)}
+  100%{transform:translateY(0) scale(1)}}
+.desk-item.pressed .obj{filter:drop-shadow(0 8px 12px rgba(120,100,86,.32))}
+
+/* ---------- 门禁：火漆碎裂的碎片粒子 ---------- */
+.wax-shard{position:absolute;left:calc(50% - 3px);top:76px;width:7px;height:7px;z-index:6;
+  pointer-events:none;border-radius:1px;background:linear-gradient(135deg,#E8A79E,#A95F60);
+  box-shadow:1px 1px 0 rgba(255,235,225,.4);animation:waxFly .9s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes waxFly{0%{opacity:1;transform:translate(0,0) rotate(0) scale(1)}
+  100%{opacity:0;transform:translate(var(--dx,40px),var(--dy,40px)) rotate(var(--rot,180deg)) scale(.4)}}
+.envelope.opened{animation:envOpenRecoil 1.1s cubic-bezier(.22,.7,.3,1)}
+@keyframes envOpenRecoil{0%{transform:translateY(0)}16%{transform:translateY(4px) scale(.98)}44%{transform:translateY(-8px) scale(1.06)}100%{transform:scale(1.35) rotate(-1deg)}}
+
+/* ---------- 信件：长按 1 秒进度累积（圆环逐渐闭合 + 印章被按下去） ---------- */
+.letter-seal .ring{opacity:.5;transition:opacity .3s}
+.letter-seal.holding{transform:scale(.93);box-shadow:0 2px 7px rgba(140,80,80,.28),inset 0 0 0 4px rgba(255,232,222,.35)}
+.letter-seal.holding .ring{opacity:1;filter:drop-shadow(0 0 7px rgba(240,215,165,.9))}
+.letter-seal.holding small{letter-spacing:0;font-variant-numeric:tabular-nums}
+.letter-seal.unlocking{animation:sealBurst .5s ease forwards}
+@keyframes sealBurst{0%{transform:scale(.93)}35%{transform:scale(1.12) rotate(-8deg)}100%{transform:scale(1.8) rotate(18deg);opacity:0}}
+
+/* ---------- 占卜：玻璃瓶像素摇晃 + 卡片从瓶口飞出并展开 ---------- */
+.fortune-bottle.shaking{animation:fbShake .62s steps(1,end)}
+@keyframes fbShake{
+  0%{transform:translateX(0) rotate(0)}
+  12%{transform:translateX(-5px) rotate(-4deg)}
+  25%{transform:translateX(5px) rotate(3deg)}
+  38%{transform:translateX(-4px) rotate(-3deg)}
+  50%{transform:translateX(4px) rotate(2deg)}
+  63%{transform:translateX(-3px) rotate(-2deg)}
+  76%{transform:translateX(2px) rotate(1deg)}
+  88%{transform:translateX(-1px) rotate(0)}
+  100%{transform:translateX(0) rotate(0)}}
+.fortune-bottle.shaking .fb-star{animation-duration:.24s}
+.fortune-card.fly{animation:cardFlyOut 1.08s cubic-bezier(.2,.75,.3,1) both}
+@keyframes cardFlyOut{
+  0%{opacity:0;transform:translateY(-238px) perspective(900px) rotateX(-78deg) scale(.16)}
+  42%{opacity:1;transform:translateY(-96px) perspective(900px) rotateX(-42deg) scale(.66)}
+  74%{opacity:1;transform:translateY(-14px) perspective(900px) rotateX(-8deg) scale(.95)}
+  100%{opacity:1;transform:none}}
+.fortune-card.fly::before{animation:laceIn .8s .35s ease both}
+@keyframes laceIn{from{opacity:0}to{opacity:1}}
+
+/* ---------- 博客：换装回来时 Profile 柔光淡入（不生硬闪烁） ---------- */
+#profileAvatar.soft-swap{animation:profileSoft 1.25s ease both}
+@keyframes profileSoft{
+  0%{opacity:.15;filter:brightness(1.65) blur(4px);transform:scale(.96)}
+  45%{opacity:.88;filter:brightness(1.18) blur(1px);transform:scale(1.02)}
+  100%{opacity:1;filter:none;transform:none}}
+.profile-frame.soft-glow::after{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,rgba(255,244,208,.85),rgba(247,225,225,.35) 52%,transparent 78%);
+  animation:softGlowFade 1.5s ease forwards}
+@keyframes softGlowFade{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+
+/* ---------- 树洞：像真实纸张一样轻微错落（静态，绝无消失/模糊动画） ---------- */
+.tree-msg{margin-left:var(--jitter,0px);
+  box-shadow:1px 2px 0 rgba(190,175,158,.14),2px 4px 8px rgba(160,140,120,.05)}
+.tree-msg:nth-child(5n+1){transform:rotate(-.42deg)}
+.tree-msg:nth-child(5n+2){transform:rotate(.32deg)}
+.tree-msg:nth-child(5n+3){transform:rotate(-.18deg) translateX(2px)}
+.tree-msg:nth-child(5n+4){transform:rotate(.46deg)}
+.tree-msg:nth-child(5n){transform:rotate(-.3deg) translateX(-2px)}
+.tree-msg.self{transform:rotate(.28deg)}
+
+/* ==========================================================================================
+   一、像素小人：贴地基准 + 全套动作帧
+   结构： .gs-char(left 位移) > .gs-char-ground(贴地偏移) > .gs-char-float(呼吸/步态)
+          > .gs-char-pose(蹲/坐/伸手/转圈/秋千) > .px-avatar
+   ========================================================================================== */
+.gs-char{bottom:0;perspective:620px;transform-style:preserve-3d}
+.gs-char-ground{width:100%;height:100%;transform:translateY(calc(-1 * var(--ground-px,44px)))}
+.gs-char-float{animation:breathe 2s ease-in-out infinite alternate}
+@keyframes breathe{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+.gs-char-pose{width:100%;height:100%;transform-origin:50% 100%;
+  transition:transform .42s cubic-bezier(.22,.75,.3,1)}
+.gs-char.travel{transition:left .9s cubic-bezier(.22,.75,.3,1)}
+
+/* 眨眼：豆豆眼与高光的透明度变化 */
+.px-avatar .px-eye,.px-avatar .px-eye-hi{animation:pxBlink 4.8s steps(1,end) infinite}
+@keyframes pxBlink{0%,91%{opacity:1}93%,96%{opacity:.08}100%{opacity:1}}
+
+/* Walk：身体 0.3s 一次起伏 + 两帧腿像素交替（拒绝生硬平移） */
+.gs-char.walking .gs-char-float{animation:charWalkBob .3s steps(2,end) infinite}
+@keyframes charWalkBob{0%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-3px) rotate(1deg)}100%{transform:translateY(0) rotate(-1deg)}}
+
+/* Crouch：身体垂直缩小并下移，0.5s 后由 JS 移除，收集物随之飞出 */
+.gs-char.crouch .gs-char-pose{transform:translateY(12px) scaleY(.78);transition-duration:.16s}
+.gs-char.crouch .px-avatar .px-arm{display:block}
+
+/* Sitting：隐藏腿部像素块 + translateY 抬高，让裙摆刚好落在椅面上 */
+.gs-char.sitting{cursor:default}
+.gs-char.sitting .gs-char-float{animation:none}
+.gs-char.sitting .gs-char-pose{transform:translateY(calc(-1 * var(--sit-rise,52px))) scaleY(.94)}
+.gs-char.sitting .px-leg-a,.gs-char.sitting .px-leg-b{display:none}
+
+/* Zzz 像素气泡：坐下后头顶循环冒出 */
+.gs-zzz{position:absolute;right:0;top:-4px;width:48px;height:56px;display:none;pointer-events:none;z-index:33}
+.gs-char.sitting .gs-zzz{display:block}
+.gs-zzz i{position:absolute;left:4px;bottom:6px;font-family:var(--serif);font-style:normal;
+  font-size:13px;line-height:1;color:#8B7A67;image-rendering:pixelated;opacity:.85;
+  text-shadow:2px 0 0 rgba(255,253,247,.85),0 2px 0 rgba(255,253,247,.85);
+  animation:zzzUp 2.7s steps(1,end) infinite}
+.gs-zzz i:nth-child(2){left:12px;font-size:16px;animation-delay:.9s}
+.gs-zzz i:nth-child(3){left:20px;font-size:20px;animation-delay:1.8s}
+@keyframes zzzUp{0%{opacity:.8;transform:translate(0,0) scale(.7)}
+  18%{opacity:1;transform:translate(3px,-7px) scale(1)}
+  72%{opacity:.85;transform:translate(11px,-25px) scale(1.1)}
+  100%{opacity:0;transform:translate(18px,-40px) scale(1.2)}}
+.gs--library .gs-zzz i,.gs--cafe .gs-zzz i{color:#F6E9CE;text-shadow:2px 0 0 rgba(60,50,58,.7)}
+
+/* Touch：伸手 + 身体微微前倾；.reach 为兼容既有动作层 */
+.gs-char.touch .gs-char-pose{transform:translateX(7px) rotate(-3deg) scaleY(.98)}
+.gs-char.touch .gs-char-float{animation:charTouch .7s ease}
+.gs-char.touch .px-avatar .px-arm{display:block}
+@keyframes charTouch{0%,100%{transform:translateY(0)}42%{transform:translateY(4px)}}
+
+/* Spin：换装原地 rotateY(360deg) */
+.gs-char.spin .gs-char-pose{animation:charSpin .9s cubic-bezier(.2,.8,.3,1)}
+@keyframes charSpin{
+  0%{transform:perspective(500px) rotateY(0deg) scale(1)}
+  50%{transform:perspective(500px) rotateY(180deg) scale(1.07)}
+  100%{transform:perspective(500px) rotateY(360deg) scale(1)}}
+
+/* Swinging：小人与秋千绑定，同周期摇摆 */
+.gs-char.swinging .gs-char-float{animation:charSwing 1.5s ease-in-out infinite alternate}
+.gs-char.swinging .gs-char-pose{transform:translateY(calc(-1 * var(--swing-rise,46px)))}
+@keyframes charSwing{from{transform:translateX(-7px) rotate(-7deg)}to{transform:translateX(7px) rotate(7deg)}}
+
+/* Zzz / 坐下提示在夜间场景的可读性保持不变 */
+
+/* ---------- 小蕾：transition:all .6s ease-in-out 的惯性 + 高频振翅 + 拖尾 ---------- */
+.gs-mate{transition:all .6s ease-in-out}
+.gs-mate .mate-wl{animation:gsWingL .16s steps(1,end) infinite}
+.gs-mate .mate-wr{animation:gsWingR .16s steps(1,end) infinite}
+.gs-mate-trail{position:absolute;bottom:33%;left:39%;width:54px;height:54px;margin-left:-27px;z-index:29;
+  pointer-events:none;opacity:.24;filter:blur(2px) brightness(1.5);image-rendering:pixelated;
+  transform:scale(.82);transition:all 1.05s ease-in-out}
+.gs-mate-trail>svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
+
+/* ---------- 收集 / 换装 / 摸动物 的像素粒子 ---------- */
+.gs-heart{position:absolute;width:3px;height:3px;background:#F0A8B0;image-rendering:pixelated;opacity:1;
+  box-shadow:6px 0 0 #F0A8B0,12px 0 0 #F0A8B0,-3px 3px 0 #F0A8B0,3px 3px 0 #F0A8B0,
+             9px 3px 0 #F0A8B0,15px 3px 0 #F0A8B0,0 6px 0 #F0A8B0,6px 6px 0 #F0A8B0,
+             12px 6px 0 #F0A8B0,3px 9px 0 #F0A8B0,9px 9px 0 #F0A8B0,6px 12px 0 #F0A8B0;
+  animation:gsHeartUp 1.6s ease-out forwards}
+@keyframes gsHeartUp{0%{opacity:.85;transform:scale(.5) translateY(0)}
+  18%{opacity:1;transform:scale(1) translateY(-6px)}
+  100%{opacity:0;transform:scale(1.25) translateY(-64px)}}
+.gs-spin-star{position:absolute;color:#F1D79A;font-size:11px;line-height:1;image-rendering:pixelated;
+  text-shadow:0 0 7px rgba(255,232,170,.9);animation:gsSpinStar 1.55s ease-in forwards}
+@keyframes gsSpinStar{0%{opacity:.8;transform:translateY(-14px) scale(.4)}
+  22%{opacity:1;transform:translateY(0) scale(1)}
+  100%{opacity:0;transform:translateY(96px) scale(.5) rotate(180deg)}}
+.gs-ripple.ring2{animation-delay:.16s}.gs-ripple.ring3{animation-delay:.32s}
+
+/* ---------- 玻璃画星：描边绘制特效 ---------- */
+.gs-star-draw{position:absolute;width:36px;height:36px;transform:translate(-50%,-50%);z-index:25}
+.gs-star-draw svg{display:block;width:100%;height:100%;overflow:visible}
+.gs-star-draw path{fill:none;stroke:#FFF6D8;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:110;stroke-dashoffset:110;animation:gsDrawStar .62s steps(9,end) forwards}
+@keyframes gsDrawStar{to{stroke-dashoffset:0}}
+.gs-star-draw.lit svg{filter:drop-shadow(0 0 7px rgba(255,235,180,.95))}
+.gs-star-draw.lit path{fill:rgba(255,246,216,.5);transition:fill .5s .2s}
+.gs-mist-wipe{position:absolute;width:30px;height:44px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(255,255,255,.34),transparent 70%);
+  animation:gsMistWipe .9s ease-out forwards}
+@keyframes gsMistWipe{from{opacity:.9;transform:scale(.5)}to{opacity:0;transform:scale(2.4)}}
+
+/* ==========================================================================================
+   二、六大场景的「活物」反馈（全部挂在单场景 SVG 内部，切场景随 DOM 一起销毁）
+   ========================================================================================== */
+/* 1 晴天花庭：秋千摆动带动小人 */
+#gsSwing{transform-box:view-box;transform-origin:23.9% 45.2%}
+.gs-art.swinging #gsSwing{animation:gsSwingRock 1.5s ease-in-out infinite alternate}
+@keyframes gsSwingRock{from{transform:rotate(-15deg)}to{transform:rotate(15deg)}}
+/* 2 樱花小径：小猫伸懒腰 / 绵羊果冻弹动 */
+#gsCat{transform-box:view-box;transform-origin:74.5% 80%}
+#gsCat.stretch{animation:catStretch .95s cubic-bezier(.2,.8,.3,1)}
+@keyframes catStretch{0%{transform:scale(1,1)}
+  35%{transform:scaleX(1.2) scaleY(.82) translateX(-6px)}
+  68%{transform:scaleX(.94) scaleY(1.08) translateX(3px)}
+  100%{transform:scale(1,1)}}
+#gsSheep{transform-box:view-box;transform-origin:33% 76%}
+#gsSheep.jelly{animation:gsJelly .82s cubic-bezier(.2,.8,.3,1)}
+@keyframes gsJelly{0%{transform:scale(1,1)}22%{transform:scale(1.16,.84)}
+  46%{transform:scale(.9,1.14)}70%{transform:scale(1.06,.96)}100%{transform:scale(1,1)}}
+/* 3 海边灯塔：潮汐渐变 + 浪线漂移 + 漂流瓶起伏 */
+#gsSea{transform-box:view-box;animation:gsTide 8s ease-in-out infinite alternate}
+@keyframes gsTide{from{transform:translateY(0);opacity:.88}to{transform:translateY(7px);opacity:1}}
+#gsWaves{transform-box:view-box;animation:gsWaveDrift 12s ease-in-out infinite alternate}
+@keyframes gsWaveDrift{from{transform:translateX(-14px)}to{transform:translateX(18px)}}
+.gs-art.bottle-drag #gsBottle{transform-box:view-box;animation:gsBottleBob 1s ease-in-out infinite alternate}
+@keyframes gsBottleBob{from{transform:translateY(0) rotate(-6deg)}to{transform:translateY(-8px) rotate(6deg)}}
+/* 4 星空图书馆：翅膀书缓慢浮动 + 魔法书文字打字机浮现 */
+#gsWingBook{transform-box:view-box;transform-origin:76% 43%;animation:gsBookFloat 3.8s ease-in-out infinite alternate}
+@keyframes gsBookFloat{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-10px) rotate(2deg)}}
+#gsMagicText{opacity:0;transition:opacity .45s}
+#gsMagicText.on{opacity:1}
+/* 5 云端列车：小熊点头 / 窗帘微风吹动 */
+#gsBear{transform-box:view-box;transform-origin:83% 40%}
+#gsBear.nod{animation:gsBearNod .55s ease}
+@keyframes gsBearNod{0%{transform:scaleY(1)}45%{transform:scaleY(.88) translateY(7px)}100%{transform:scaleY(1)}}
+#gsCurtainL{transform-box:view-box;transform-origin:25% 12%;animation:gsCurtain 4.2s ease-in-out infinite alternate}
+#gsCurtainR{transform-box:view-box;transform-origin:77% 12%;animation:gsCurtain 4.2s ease-in-out -2.1s infinite alternate reverse}
+@keyframes gsCurtain{from{transform:skewX(-2deg) translateX(0)}to{transform:skewX(3.2deg) translateX(5px)}}
+/* 6 午夜咖啡馆：橘猫肚皮呼吸 */
+#gsCatBelly{transform-box:view-box;transform-origin:23.8% 66%;animation:gsBelly 2.6s ease-in-out infinite alternate}
+@keyframes gsBelly{from{transform:scaleY(1)}to{transform:scaleY(1.16)}}
+#gsCatBelly.patted{animation:gsCatPatted .85s ease}
+@keyframes gsCatPatted{0%{transform:scale(1,1)}32%{transform:scale(1.08,1.22)}
+  64%{transform:scale(.97,.96)}100%{transform:scale(1,1)}}
+
+/* ---------- 场景级入场动画（保持恒可见，避免 fill-mode:both 卡在 opacity:0） ---------- */
+.gs-art.swinging,.gs-art.bottle-drag{animation:gsSceneIn .85s ease}
+
+@media (max-width:860px){
+  .gs-mate-trail{width:44px;height:44px;margin-left:-22px}
+  .gs-zzz{right:-6px;transform:scale(.85)}
+  .item-book{left:calc(50% - 90px)}
+}
 </style>
 </head>
 <body>
@@ -982,6 +1228,19 @@ function normalizePw(v){
   return String(v||'').replace(/[\s\u3000]/g,'')
     .replace(/[\uFF10-\uFF19]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0));
 }
+/* 火漆碎裂：8 枚小碎片按各自的方向 / 角度飞散，配合信封展开的过渡动画 */
+function spawnWaxShards(){
+  const env=$('#envelope'); if(!env) return;
+  for(let i=0;i<8;i++){
+    const s=document.createElement('i'); s.className='wax-shard';
+    const a=(i/8)*Math.PI*2, d=42+Math.random()*58;
+    s.style.setProperty('--dx', (Math.cos(a)*d).toFixed(1)+'px');
+    s.style.setProperty('--dy', (Math.sin(a)*d+26).toFixed(1)+'px');
+    s.style.setProperty('--rot', Math.round(Math.random()*420-210)+'deg');
+    s.style.animationDelay=(i*22)+'ms';
+    env.appendChild(s); setTimeout(()=>s.remove(),1150);
+  }
+}
 function initGate(){
   const env = $('#envelope'), pw = $('#pw');
   const attempt = () => {
@@ -993,6 +1252,8 @@ function initGate(){
       $('#gateHint').textContent='拆开啦，正在带你进去 ✦';
       if($('#remember').checked) DB.write(KEYS.auth, {ok:true, at:Date.now()});
       env.classList.add('opened');
+      spawnWaxShards();                                // 火漆真的碎成小片飞散
+      playChime();
       setTimeout(()=>{
         env.classList.remove('opened'); pw.value=''; $('#gateHint').textContent='';
         S.gateOpening=false;
@@ -1015,8 +1276,9 @@ function lockScreen(){
   S.authed=false; S.gateOpening=false; DB.clearAuth();
   S.letterOpened=false; S.cakeDone=false;
   $('#letterPaper').classList.add('folded'); $('#letterPaper').classList.remove('opened');
-  $('#letterSeal').classList.remove('broken');
+  $('#letterSeal').classList.remove('broken','unlocking','holding');
   $('#letterPaper').querySelector('.letter-seal').style.display='';
+  const sr=$('#letterSeal .ring'); if(sr) sr.style.setProperty('--p','0%');
   $('#memorial').classList.add('hidden');
   $('#fortuneCard').classList.add('hidden');
   go('gate',{replace:true});
@@ -1030,15 +1292,26 @@ function initNav(){
     go(n,{from:S.gameFrom});
   }));
   $('#btnLock').addEventListener('click', lockScreen);
-  $$('.desk-item').forEach(b => b.addEventListener('click', ()=>{
-    const t=b.dataset.go;
-    if(t==='game') S.gameFrom='desk';
-    go(t,{from:S.gameFrom});
-  }));
+  $$('.desk-item').forEach(b => {
+    /* 先按下、再回弹，跳转等回弹动画起步后再发生 */
+    b.addEventListener('pointerdown', ()=>{
+      b.classList.remove('pressed'); void b.offsetWidth; b.classList.add('pressed');
+      setTimeout(()=>b.classList.remove('pressed'),480);
+    });
+    b.addEventListener('click', ()=>{
+      const t=b.dataset.go;
+      if(t==='game') S.gameFrom='desk';
+      go(t,{from:S.gameFrom});
+    });
+  });
   $$('[data-back]').forEach(b => b.addEventListener('click', ()=>{
     if(history.length>1) history.back(); else go('desk');
   }));
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && S.screen==='blog') refreshProfile(); });
+  document.addEventListener('visibilitychange', ()=>{
+    if(!document.hidden && S.screen==='blog'){
+      const soft=!!S.pendingProfileGlow; S.pendingProfileGlow=false; refreshProfile(soft);
+    }
+  });
   document.addEventListener('keydown', e=>{
     if(S.screen!=='game') return;
     if(['ArrowLeft','a','A'].includes(e.key)) { e.preventDefault(); moveChar(-1); }
@@ -1064,23 +1337,30 @@ function onEnterLetter(){
   }
   const paper=$('#letterPaper'), seal=$('#letterSeal');
   if(S.letterOpened){ paper.classList.remove('folded'); paper.classList.add('opened'); seal.style.display='none'; }
-  else { paper.classList.add('folded'); paper.classList.remove('opened'); seal.style.display=''; seal.classList.remove('broken'); }
+  else { paper.classList.add('folded'); paper.classList.remove('opened'); seal.style.display='';
+         seal.classList.remove('broken','unlocking','holding'); const r=seal.querySelector('.ring'); if(r) r.style.setProperty('--p','0%'); }
 }
 function initLetter(){
-  const seal=$('#letterSeal'), ring=seal.querySelector('.ring');
+  const seal=$('#letterSeal'), ring=seal.querySelector('.ring'), label=seal.querySelector('small');
   let timer=null, raf=null, t0=0;
   const cancel = ()=>{
     if(timer) clearTimeout(timer); if(raf) cancelAnimationFrame(raf);
     timer=null; raf=null; ring.style.setProperty('--p','0%');
+    seal.classList.remove('holding');
+    if(label && !S.letterOpened) label.textContent='长按 1 秒';
   };
+  /* 真正的进度累积：1 秒内圆圈由 0% 逐帧闭合，中途松手立刻归零 */
   const tick = ()=>{
     const p = Math.min(100, (performance.now()-t0)/1000*100);
     ring.style.setProperty('--p', p+'%');
+    if(label) label.textContent = p<100 ? `按住… ${Math.floor(p)}%` : '解开啦 ✦';
     if(p<100) raf=requestAnimationFrame(tick);
   };
   const press = e=>{
     if(S.letterOpened) return;
-    e.preventDefault(); cancel(); t0=performance.now(); raf=requestAnimationFrame(tick);
+    e.preventDefault(); cancel();
+    seal.classList.add('holding');
+    t0=performance.now(); raf=requestAnimationFrame(tick);
     timer=setTimeout(()=>{ cancel(); openLetter(); }, 1000);
   };
   seal.addEventListener('pointerdown', press);
@@ -1090,7 +1370,7 @@ function initLetter(){
 function openLetter(){
   S.letterOpened=true;
   const seal=$('#letterSeal'), paper=$('#letterPaper');
-  seal.classList.add('broken');
+  seal.classList.add('unlocking','broken');
   setTimeout(()=>{ seal.style.display='none'; paper.classList.remove('folded'); paper.classList.add('opened'); }, 480);
   setTimeout(()=>toast('信纸展开啦 ✦'), 1000);
 }
@@ -1194,6 +1474,7 @@ function onEnterFortune(){
   const h=fortuneHistory(), t=todayFortuneIndex();
   $('#fortuneHistory').textContent = h.length ? `已收下 ${h.length} 颗星星 · 最近：${h.slice(-3).reverse().map(x=>FORTUNES[x.index]?FORTUNES[x.index].tag:'✦').join(' / ')}` : '';
   $('#fortuneBottle').classList.toggle('used', t!==null);
+  $('#fortuneCard').classList.remove('fly','reveal');
   if(t!==null){ $('#fortuneCard').classList.remove('hidden'); showFortuneResult(t, true); }
   else { $('#fortuneCard').classList.add('hidden'); $('#fortuneNote').textContent='点一下瓶子，看看今天星星说什么'; }
 }
@@ -1214,8 +1495,11 @@ function drawFortune(){
   }
   const idx = rnd(candidates);
   DB.write(KEYS.fortune, history.concat({date:todayStr(), index:idx, ts:Date.now()}).slice(-20));
-  /* 飞星动画 */
-  const bottle=$('#fortuneBottle').getBoundingClientRect();
+  /* 玻璃瓶的像素物理摇晃，摇完才有星星从瓶口飞出 */
+  const fb=$('#fortuneBottle');
+  fb.classList.remove('shaking'); void fb.offsetWidth; fb.classList.add('shaking');
+  setTimeout(()=>fb.classList.remove('shaking'),640);
+  const bottle=fb.getBoundingClientRect();
   const star=document.createElement('div'); star.className='flying-star'; star.textContent='✦';
   star.style.left=(bottle.left+bottle.width/2-12)+'px'; star.style.top=(bottle.top+bottle.height/2-12)+'px';
   document.body.appendChild(star);
@@ -1226,6 +1510,10 @@ function drawFortune(){
 function showFortuneResult(idx, instant){
   const f=FORTUNES[idx]; if(!f) return;
   const card=$('#fortuneCard'); card.classList.remove('hidden');
+  /* 新抽：卡片从瓶口飞出并展开；今日已抽过：只是轻轻翻开 */
+  card.classList.remove('fly','reveal'); void card.offsetWidth;
+  if(instant) card.classList.add('reveal');
+  else { card.classList.add('fly'); setTimeout(()=>card.classList.remove('fly'),1120); }
   $('#fcTag').textContent=`【${f.tag}】`; $('#fcYiji').textContent=`宜：${f.yi}　/　忌：${f.ji}`;
   $('#fortuneBottle').classList.add('used');
   $('#fortuneNote').textContent='今天已经抽过啦，星星说过了就不重复，明天再来 ✦';
@@ -1351,9 +1639,18 @@ function getPosts(){ let p=DB.read(KEYS.posts,null); if(!Array.isArray(p)){ p=se
 function getTree(){ let t=DB.read(KEYS.tree,null); if(!Array.isArray(t)){ t=seedTree(); DB.write(KEYS.tree,t); } return t; }
 
 /* ---------------- Profile 与游戏实时联动 ---------------- */
-function refreshProfile(){
+function glowProfile(){
+  const av=$('#profileAvatar'), fr=$('#profileFrame');
+  if(av){ av.classList.remove('soft-swap'); void av.offsetWidth; av.classList.add('soft-swap');
+    setTimeout(()=>av.classList.remove('soft-swap'),1300); }
+  if(fr){ fr.classList.remove('soft-glow'); void fr.offsetWidth; fr.classList.add('soft-glow');
+    setTimeout(()=>fr.classList.remove('soft-glow'),1550); }
+}
+function refreshProfile(soft){
   const g=gameGet();
   $('#profileAvatar').innerHTML = avatarHTML(g.outfit||'cotton');
+  if(soft) glowProfile();
+  S.lastProfileOutfit = g.outfit;
   $('#profileName').textContent = (g.profile && g.profile.name) || '77';
   $('#profileSign').textContent = (g.profile && g.profile.sign) || '慢慢来，好汤都是慢火熬的。';
   $('#pPostCount').textContent = getPosts().length;
@@ -1501,6 +1798,8 @@ function renderTree(scrollBottom=false){
   const box=$('#treeList'); box.innerHTML='';
   list.forEach(m=>{
     const d=document.createElement('div'); d.className='tree-msg'+(m.type==='self'?' self':'');
+    /* 每张纸条有固定的轻微错落（按时间戳决定，重绘时不跳动） */
+    d.style.setProperty('--jitter', (((Math.floor(m.ts/1000)%9)-4)*0.7).toFixed(1)+'px');
     const head=document.createElement('div'); head.className='tm-head';
     const nm=document.createElement('span'); nm.className='tm-name'; nm.textContent=m.name;
     const tm=document.createElement('span'); tm.className='tm-time'; tm.textContent=fmtTime(m.ts);
@@ -1509,7 +1808,11 @@ function renderTree(scrollBottom=false){
     d.append(head,c); box.appendChild(d);          // 静态插入：无淡入、无模糊、无替换
   });
   $('#treeCount').textContent=`共 ${list.length} 条 · 永久留存`;
-  if(scrollBottom) requestAnimationFrame(()=>{ box.scrollTop=box.scrollHeight; });
+  if(scrollBottom) requestAnimationFrame(()=>{
+    /* 平滑滚到最底部；jsdom 等无 scrollTo 的环境退回直接赋值 */
+    if(typeof box.scrollTo==='function') box.scrollTo({top:box.scrollHeight,behavior:'smooth'});
+    else box.scrollTop=box.scrollHeight;
+  });
 }
 function sendTreeMsg(){
   const inp=$('#treeInput'), v=inp.value.trim(); if(!v) return;
@@ -1517,7 +1820,12 @@ function sendTreeMsg(){
   list.push({id:'t'+Date.now()+Math.random().toString(36).slice(2,6), name:'[77 自己] ✦', content:v, ts:Date.now(), type:'self'});
   DB.write(KEYS.tree,list); inp.value=''; renderTree(true); toast('留下来了，永远都在 ✦');
 }
-function onEnterBlog(){ refreshProfile(); renderPosts(); renderTree(); maybeSpawnGuest(); }
+function onEnterBlog(){
+  /* 从游戏回来时若换了衣服，Profile 立绘淡入 + 柔光过渡，而不是生硬闪烁 */
+  const soft = !!S.pendingProfileGlow || (!!S.lastProfileOutfit && S.lastProfileOutfit!==gameGet().outfit);
+  S.pendingProfileGlow=false;
+  refreshProfile(soft); renderPosts(); renderTree(); maybeSpawnGuest();
+}
 function initBlog(){
   $('#newPost').onclick=openEditor;
   $('#treeSend').onclick=sendTreeMsg;
@@ -1655,8 +1963,8 @@ function artGarden(){
   for(let r=0;r<4;r++) wall+=px(22,296+r*32,332,2,'#E7D9D2','opacity=".65"');
   wall+='<path d="M28 270 C88 300 118 248 180 282 C242 318 282 258 354 286 L354 338 C292 366 250 318 190 350 C130 380 88 332 28 360 Z" fill="url(#g1petal)" opacity=".92"/>';
   /* 秋千 */
-  const swing='<path d="M262 226 L262 344 M312 226 L312 344" stroke="#C9AE8C" stroke-width="3" opacity=".9"/>'
-    +px(250,342,74,7,'#D6B995')+px(250,349,74,3,'#B08E6E');
+  const swing='<g id="gsSwing"><path d="M262 226 L262 344 M312 226 L312 344" stroke="#C9AE8C" stroke-width="3" opacity=".9"/>'
+    +px(250,342,74,7,'#D6B995')+px(250,349,74,3,'#B08E6E')+'</g>';
   /* 隐藏物：旧邮筒 */
   const mailbox=px(94,322,26,34,'#C58C83')+px(94,317,26,6,'#AC736C')+px(100,330,14,3,'#8C5C58')
     +px(119,324,3,13,'#D9C6A5')+px(94,356,26,3,'#9E6B65');
@@ -1714,17 +2022,17 @@ function artPath(){
   const door=px(996,352,58,66,'#A98461')+'<path d="M996 352 a29 29 0 0 1 58 0 Z" fill="#B48E6B"/>'
     +px(1001,358,48,60,'#C9A47F')+px(1003,360,44,2,'#E0C09B')+px(1040,388,4,4,'#EBD3A6');
   /* 云朵绵羊 */
-  let sheep='';
+  let sheep='<g id="gsSheep">';
   [[368,368,34],[396,356,31],[424,370,29],[388,380,30]].forEach(([cx,cy,r])=>{
     sheep+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#FFFDF8" opacity=".93"/>`; });
   sheep+='<ellipse cx="446" cy="372" rx="20" ry="17" fill="#E8DCD0"/>'+px(452,368,3,3,'#4A3A34')+px(462,368,3,3,'#4A3A34')
-    +px(380,398,7,16,'#B9A998')+px(414,398,7,16,'#B9A998');
+    +px(380,398,7,16,'#B9A998')+px(414,398,7,16,'#B9A998')+'</g>';
   /* 隐藏物：树根旁打呼噜的小猫 */
-  const cat='<ellipse cx="898" cy="404" rx="34" ry="16" fill="#F6E7D8"/>'
+  const cat='<g id="gsCat"><ellipse cx="898" cy="404" rx="34" ry="16" fill="#F6E7D8"/>'
     +'<circle cx="876" cy="392" r="17" fill="#F8EBDE"/>'
     +'<path d="M864 382 l4 -13 l10 9 M888 380 l10 -9 l2 13" fill="#F8EBDE"/>'
     +'<path d="M906 400 q26 -4 18 -24" stroke="#EBD6C5" stroke-width="7" fill="none" stroke-linecap="round"/>'
-    +px(870,390,3,2,'#6B5A50')+px(882,390,3,2,'#6B5A50');
+    +px(870,390,3,2,'#6B5A50')+px(882,390,3,2,'#6B5A50')+'</g>';
   const defs=`
   <linearGradient id="g2sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7E3EA"/><stop offset="60%" stop-color="#FDF1EC"/><stop offset="100%" stop-color="#F3E9E4"/></linearGradient>
   <linearGradient id="g2grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9EBD9"/><stop offset="100%" stop-color="#D3DEC6"/></linearGradient>
@@ -1739,11 +2047,12 @@ function artPath(){
 /* ---------------------------------------------------------- 场景 3：海边灯塔（治愈、辽阔） ---------------------------------------------------------- */
 function artSea(){
   const R=prand(3307);
-  let waves='';
+  let waves='<g id="gsWaves">';
   for(let i=0;i<26;i++){
     const y=258+i*6, x=R()*1000;
     waves+=`<path d="M${x|0} ${y} q40 -4 80 0 t80 0" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="${(.10+R()*.22).toFixed(2)}"/>`;
   }
+  waves+='</g>';
   let gulls='';
   for(let i=0;i<5;i++){ const x=120+R()*760, y=70+R()*120;
     gulls+=`<path d="M${x|0} ${y|0} q9 -8 18 0 q9 -8 18 0" stroke="#FFFFFF" stroke-width="2" fill="none" opacity=".55"/>`; }
@@ -1772,7 +2081,8 @@ function artSea(){
     +'<path d="M980 268 Q1020 254 1060 268 L1060 274 L980 274 Z" fill="#F4DCDC" opacity=".8"/>'
     +px(1058,268,4,116,'#C4A483')+'<ellipse cx="1060" cy="392" rx="70" ry="8" fill="#C9B291" opacity=".3"/>';
   /* 隐藏物：漂流瓶与海玻璃 */
-  const bottle=px(792,306,26,10,'#BFD8CE','opacity=".9"')+px(796,302,8,14,'#D8E7DE')+px(802,304,10,8,'#F5E8C8')+px(800,299,8,4,'#A98D6C');
+  const bottle='<g id="gsBottle">'+px(792,306,26,10,'#BFD8CE','opacity=".9"')+px(796,302,8,14,'#D8E7DE')
+    +px(802,304,10,8,'#F5E8C8')+px(800,299,8,4,'#A98D6C')+'</g>';
   const glass=px(940,410,8,5,'#BFD9CE')+px(1006,424,7,5,'#D5E8DC')+px(1100,402,6,5,'#A9CEC8');
   const defs=`
   <linearGradient id="g3sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D3E1E8"/><stop offset="52%" stop-color="#EDF1EA"/><stop offset="100%" stop-color="#F3EADB"/></linearGradient>
@@ -1781,8 +2091,8 @@ function artSea(){
   <radialGradient id="g3beam"><stop offset="0" stop-color="#FFF3C6" stop-opacity=".9"/><stop offset="100%" stop-color="#FFF3C6" stop-opacity="0"/></radialGradient>
   <linearGradient id="g3light" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFF6D6" stop-opacity=".75"/><stop offset="100%" stop-color="#FFF6D6" stop-opacity="0"/></linearGradient>`;
   const body=`<rect width="1200" height="500" fill="url(#g3sky)"/><g class="gs-clouds">${gulls}</g>
-  <rect x="0" y="252" width="1200" height="160" fill="url(#g3sea)"/>
-  <path d="M0 252 L1200 252" stroke="#FFFFFF" stroke-width="2" opacity=".55"/>${waves}
+  <g id="gsSea"><rect x="0" y="252" width="1200" height="160" fill="url(#g3sea)"/>
+  <path d="M0 252 L1200 252" stroke="#FFFFFF" stroke-width="2" opacity=".55"/></g>${waves}
   <path d="M820 414 Q980 386 1200 398 L1200 500 L820 500 Z" fill="url(#g3sand)"/>
   ${sand}${rock}${dock}${tower}${parasol}${bottle}${glass}`;
   return artWrap(defs,body);
@@ -1816,13 +2126,14 @@ function artLibrary(){
     +'<ellipse cx="620" cy="454" rx="282" ry="26" fill="none" stroke="#D9C6A5" stroke-width="2" stroke-dasharray="3 6" opacity=".65"/>';
   for(let i=0;i<26;i++) rug+=px(330+i*22,446+(R()*18),3,3,'#E7D6C4',`opacity="${(.25+R()*.4).toFixed(2)}"`);
   /* 长翅膀的发光旧书 */
-  const wingBook='<g filter="url(#gs-glow)">'
+  const wingBook='<g id="gsWingBook" filter="url(#gs-glow)">'
     +'<path d="M880 210 Q840 176 812 196 Q842 216 880 220 Z" fill="#EAF2F6" opacity=".7"/>'
     +'<path d="M944 210 Q984 176 1012 196 Q982 216 944 220 Z" fill="#EAF2F6" opacity=".7"/>'
     +px(880,196,64,40,'#FBF1DC')+px(880,196,64,4,'#D9C6A5')+px(908,196,4,40,'#D9C6A5')+'</g>';
-  /* 隐藏物：书架底端散发暖光的魔法书 */
+  /* 隐藏物：书架底端散发暖光的魔法书；文字空着，由打字机逐字写入 */
   const magicBook='<circle cx="690" cy="386" r="46" fill="url(#g4warm)" opacity=".9"/>'
-    +px(672,372,36,22,'#F5E2B4')+px(672,372,36,3,'#D9C6A5')+px(688,372,3,22,'#C9A97B');
+    +px(672,372,36,22,'#F5E2B4')+px(672,372,36,3,'#D9C6A5')+px(688,372,3,22,'#C9A97B')
+    +'<text id="gsMagicText" x="690" y="360" text-anchor="middle" font-family="serif" font-size="13" fill="#8B7458"></text>';
   let motes='';
   for(let i=0;i<24;i++) motes+=px(760+R()*420,100+R()*300,2,2,'#FFF0C4',`opacity="${(.3+R()*.6).toFixed(2)}"`);
   const defs=`
@@ -1856,8 +2167,8 @@ function artTrain(){
     +'<path d="'+winPath+'" fill="none" stroke="#EBD6BC" stroke-width="3"/>'
     +px(606,76,10,230,'#B18E6D')+px(372,190,476,8,'#B18E6D');
   /* 窗帘 + 缝隙里的信 */
-  let curtains='<path d="M300 60 Q350 100 336 170 Q322 250 344 330 L280 330 Q300 220 286 60 Z" fill="url(#g5curtain)" opacity=".92"/>'
-    +'<path d="M920 60 Q870 100 884 170 Q898 250 876 330 L940 330 Q920 220 934 60 Z" fill="url(#g5curtain)" opacity=".92"/>'
+  let curtains='<g id="gsCurtainL"><path d="M300 60 Q350 100 336 170 Q322 250 344 330 L280 330 Q300 220 286 60 Z" fill="url(#g5curtain)" opacity=".92"/></g>'
+    +'<g id="gsCurtainR"><path d="M920 60 Q870 100 884 170 Q898 250 876 330 L940 330 Q920 220 934 60 Z" fill="url(#g5curtain)" opacity=".92"/></g>'
     +px(862,196,26,18,'#FFFDF4')+px(862,196,26,2,'#D9C6A5')+'<path d="M862 196 l13 9 l13 -9" stroke="#D9C6A5" stroke-width="2" fill="none"/>';
   /* 车顶星星灯串 */
   let lights='<path d="M0 52 Q300 96 600 52 T1200 52" stroke="#C9AE8C" stroke-width="2" fill="none" opacity=".8"/>';
@@ -1867,7 +2178,7 @@ function artTrain(){
   }
   /* 行李架 + 会眨眼的小熊 */
   let rack=px(850,72,320,7,'#B18E6D')+px(850,79,320,3,'#8B6B4F');
-  const bear='<g id="gs-bear"><circle cx="1000" cy="126" r="28" fill="#C9A47F"/>'
+  const bear='<g id="gsBear"><circle cx="1000" cy="126" r="28" fill="#C9A47F"/>'
     +'<circle cx="978" cy="104" r="11" fill="#B9916C"/><circle cx="1022" cy="104" r="11" fill="#B9916C"/>'
     +'<ellipse cx="1000" cy="176" rx="30" ry="26" fill="#D6B592"/>'
     +'<circle cx="1000" cy="132" r="18" fill="#EBD3B4"/>'
@@ -1910,7 +2221,7 @@ function artCafe(){
   let barLines='';
   for(let i=0;i<7;i++) barLines+=px(i*110+8,378,96,50,'#A9805D','opacity=".28"');
   /* 橘猫（趴着打呼噜） */
-  const cat='<ellipse cx="286" cy="332" rx="66" ry="22" fill="#E8A96A"/>'
+  const cat='<g id="gsCatBelly"><ellipse cx="286" cy="332" rx="66" ry="22" fill="#E8A96A"/></g>'
     +'<circle cx="236" cy="320" r="26" fill="#F0B87A"/>'
     +'<path d="M216 302 l3 -20 l17 14 M250 298 l17 -12 l1 18" fill="#E8A96A"/>'
     +px(226,318,4,3,'#6B4A34')+px(244,318,4,3,'#6B4A34')
@@ -2120,8 +2431,9 @@ const STAGE_LAYERS = `
 <div class="gs-fx" id="fxLayer"></div>
 <div class="gs-spots" id="hotspots"></div>
 <div id="orbsLayer"></div>
+<div class="gs-mate-trail" id="companionTrail">${PX_MATE_SVG}</div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
-<div class="gs-char" id="character"><div class="gs-char-float"><div id="gameAvatar"></div></div></div>
+<div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
 <div class="gs-char-hint">轻点小人 · 收起身边的星星光点</div>
 <div class="gs-pad left" id="padLeft"><span class="pad-tip">‹</span></div>
 <div class="gs-pad right" id="padRight"><span class="pad-tip">›</span></div>
@@ -2129,8 +2441,56 @@ const STAGE_LAYERS = `
 <div class="gs-panel gs-side hidden" id="wardrobePanel"><div id="wardrobeBody"></div></div>
 <div class="gs-panel gs-side hidden" id="reportPanel"><div id="reportBody"></div></div>
 <div class="gs-panel gs-event hidden" id="eventPanel"><div id="eventBody"></div></div>`;
+/* ---------------------------------------------------------- 场景级定时器 + 动作物理校准 ----------------------------------------------------------
+   所有动画回调都登记在 sceneTimers；切场景时连同 DOM 一并撤销，旧场景的动画绝不会打到新场景上。 */
+let sceneTimers = [];
+let sitting = false, swingActive = false, benchTimer = null;
+function sceneLater(fn, ms){
+  const id = setTimeout(()=>{
+    sceneTimers = sceneTimers.filter(t=>t!==id);
+    try{ fn(); }catch(e){}
+  }, ms);
+  sceneTimers.push(id); return id;
+}
+function clearSceneTimers(){ sceneTimers.forEach(clearTimeout); sceneTimers=[]; }
+
+/* 基准点严格贴地：.gs-char bottom:0，ground 层按舞台真实高度把脚放到地面线 y=445 */
+const CHAR_GROUND_RATIO = 0.11;
+const GROUND_SVG_Y = 445;
+/* 每个场景「可坐面」在 1200×500 viewBox 里的 y 坐标，用于算脚踩实椅面所需的抬升 */
+const SEAT_Y = {garden:360, path:400, sea:372, library:432, train:330, cafe:344};
+const SWING_SEAT_Y = 342;
+const stageH = () => { const st=$('#game-stage'); return (st && st.clientHeight) || 400; };
+function applyGround(){
+  const c=$('#character'); if(!c) return;
+  c.style.setProperty('--ground-px', Math.round(stageH()*CHAR_GROUND_RATIO)+'px');
+}
+function riseFor(seatY){
+  /* 减去 8px：坐下时腿部像素块被隐藏，可见裙摆底边上移约 8px */
+  return Math.max(0, Math.round(stageH()*(GROUND_SVG_Y-seatY)/500) - 8);
+}
+const charEl = () => $('#character');
+
+function pulsePose(cls, ms){
+  const c=charEl(); if(!c) return;
+  c.classList.remove(cls); void c.offsetWidth; c.classList.add(cls);
+  sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove(cls); }, ms);
+}
+/* 平滑走到某个水平坐标，到达后再执行动作回调（对齐长椅 / 动物 / 秋千） */
+function travelTo(x, cb){
+  const c=charEl(), m=$('#companion'), t=$('#companionTrail');
+  S.charX = Math.max(6, Math.min(94, x));
+  if(c){ c.classList.add('travel'); c.style.left=S.charX+'%'; }
+  if(m) m.style.left=(S.charX-8)+'%';
+  if(t) t.style.left=(S.charX-11)+'%';
+  updateOrbs(); updateCompanion();
+  withGame(g=>{ g.charX=S.charX; });
+  sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove('travel'); if(cb) cb(); }, 900);
+}
 /* 绝对隔离：一个子节点都不留，随后才插入新场景 */
 function clearStage(){
+  clearSceneTimers();                            /* 撤销旧场景所有动画回调 */
+  sitting=false; swingActive=false;
   const stage=$('#game-stage');
   while(stage.firstChild) stage.removeChild(stage.firstChild);
   return stage;
@@ -2152,6 +2512,8 @@ function renderScene(){
   $('#character').addEventListener('click', harvest);
   $('#character').style.left=S.charX+'%';
   $('#companion').style.left=(S.charX-8)+'%';
+  $('#companionTrail').style.left=(S.charX-11)+'%';
+  applyGround();
   updateOrbs(); updateCompanion();
   /* 首次进花庭：屏幕中央弹出蕾丝卡片【抬头看看】 */
   const g=gameGet();
@@ -2177,7 +2539,7 @@ function renderSpots(){
       let x0=null, fired=false;
       el.addEventListener('pointerdown',e=>{ x0=e.clientX; fired=false; });
       el.addEventListener('pointermove',e=>{
-        if(x0!==null && Math.abs(e.clientX-x0)>55 && !fired){ fired=true; fxFlowers(); }
+        if(x0!==null && Math.abs(e.clientX-x0)>55 && !fired){ fired=true; activateSpot(i); }
       });
       el.addEventListener('pointerup',()=>{ x0=null; });
     }
@@ -2232,20 +2594,24 @@ function renderCommissions(g){
 
 /* ---------------------------------------------------------- 交互：移动 / 收集 / 探索 ---------------------------------------------------------- */
 function harvest(){
-  const char=$('#character'); if(!char) return;
+  const char=charEl(); if(!char) return;
+  if(sitting){ standUp(); say('小蕾 ✦','站起来啦，我们继续走吧 ✦'); return; }
   char.classList.remove('reach'); void char.offsetWidth; char.classList.add('reach');
-  setTimeout(()=>char.classList.remove('reach'),760);
+  sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove('reach'); },760);
   const near=$$('#orbsLayer .gs-orb').filter(o=>!o.classList.contains('gone') && Math.abs(parseFloat(o.dataset.x)-S.charX)<13);
-  if(!near.length){ say('小蕾 ✦','再往星星光点那边走两步，我就够得着啦。'); return; }
-  const g=gameGet();
-  near.forEach((o,k)=>{
-    const r=o.getBoundingClientRect();
-    setTimeout(()=>flyStar(r.left||0,r.top||0), k*130);
-    o.classList.add('gone');
-  });
-  addMat(g,'star',near.length); gameSet(g); updateHUD(true);
-  playChime();
-  say('小蕾 ✦',`蹲下来伸手一捞，${near.length} 颗小星星飞进状态栏啦 ✦`);
+  if(!near.length){ pulsePose('touch',420); say('小蕾 ✦','再往星星光点那边走两步，我就够得着啦。'); return; }
+  /* Crouch：身体缩小下移 0.5s；移除的那一刻，光点才化作星星飞入状态栏 */
+  pulsePose('crouch',500);
+  near.forEach(o=>o.classList.add('gone'));
+  const g=gameGet(); addMat(g,'star',near.length); gameSet(g); updateHUD(true);
+  sceneLater(()=>{
+    near.forEach((o,k)=>{
+      const r=o.getBoundingClientRect();
+      sceneLater(()=>flyStar(r.left||0,r.top||0), k*130);
+    });
+    playChime();
+    say('小蕾 ✦',`蹲下来伸手一捞，${near.length} 颗小星星飞进状态栏啦 ✦`);
+  },500);
 }
 function flyStar(x,y){
   const t=$('#hudStar'), r=t?t.getBoundingClientRect():{left:0,top:0,width:0,height:0};
@@ -2274,37 +2640,160 @@ function activateSpot(i){
     say('小蕾 ✦', sp.line);
   }
   switch(sp.act){
-    case 'bench':    startBench(); break;
-    case 'swing':    fxFlowers(); break;
-    case 'sheep':    fxNote('软乎乎 ✦'); addMat(g,'sakura',1); break;
-    case 'purr':     fxPurr(sp.x,sp.y); break;
+    case 'bench':    sitAt(sp); break;
+    case 'swing':    startSwing(sp); break;
+    case 'sheep':    touchAnimal(sp,'sheep'); fxNote('软乎乎 ✦'); addMat(g,'sakura',1); break;
+    case 'purr':     touchAnimal(sp,'cat'); break;
     case 'catCafe':
+      touchAnimal(sp,'cat');
       g.stats.catPats=(g.stats.catPats||0)+1; bump('action:catCafe',1,g);
-      fxPurr(sp.x,sp.y);
       if(g.stats.catPats>=5) unlockAchievement('cat5',g);
       break;
     case 'bear':     blinkBear(); break;
     case 'drawStar': drawStarOnGlass(); break;
-    case 'bottleDrag': startEvent('bottleDrag'); break;
+    case 'bottleDrag':
+      rippleBurst(sp.x);
+      $('#gsArt')?.classList.add('bottle-drag');
+      startEvent('bottleDrag'); break;
     case 'event':    startEvent(sc.event); break;
     case 'collect':  break;
   }
+  /* 图书馆：发光书的文字以打字机效果浮现 */
+  if(sp.id==='magic'){ typeSvgText('今天你最大'); sayTyped('小蕾 ✦', sp.firstLine || sp.line); }
+  else if(sc.id==='library' && (sp.id==='book'||sp.id==='page')) sayTyped('小蕾 ✦', sp.line);
   if(sp.mat && sp.act!=='bottleDrag') addMat(g,sp.mat,1);
   gameSet(g); updateHUD(); updateCompanion();
   playChime();
 }
+
+/* ---------- 打字机对白 / 魔法书上的文字 ---------- */
+function sayTyped(who,text){
+  const d=$('#gameDialog'); if(!d) return;
+  d.innerHTML=`<div class="gd-who">${esc(who)}</div><span id="gdTyped"></span>`;
+  d.classList.remove('hidden');
+  const el=$('#gdTyped'); const chars=Array.from(text||''); let i=0;
+  const step=()=>{
+    if(!el.isConnected) return;
+    if(i>=chars.length){ clearTimeout(say._t); say._t=setTimeout(()=>d.classList.add('hidden'),5200); return; }
+    el.textContent += chars[i++]; sceneLater(step,58);
+  };
+  step();
+}
+function typeSvgText(text){
+  const el=$('#gsMagicText'); if(!el) return;
+  el.textContent=''; el.classList.add('on');
+  const chars=Array.from(text); let i=0;
+  const step=()=>{ if(!el.isConnected || i>=chars.length) return; el.textContent+=chars[i++]; sceneLater(step,110); };
+  step();
+}
+
+/* ---------- 特殊交互：坐下 / 起身 / 摸动物 / 荡秋千 ---------- */
+function sitAt(sp){
+  const c=charEl(); if(!c) return;
+  c.style.setProperty('--sit-rise', riseFor(SEAT_Y[SCENES[S.gameScene].id]||400)+'px');
+  travelTo(sp.x, ()=>{
+    const n=charEl(), art=$('#gsArt');
+    if(art) art.classList.remove('swinging');
+    if(!n) return;
+    n.classList.remove('walking','crouch','touch','spin','swinging');
+    n.classList.add('sitting');
+    sitting=true; swingActive=false;
+    startBench();
+    sceneLater(()=>say('小蕾 ✦','坐稳了。风很轻，头顶开始冒 Zzz 了…'), 260);
+  });
+}
+function standUp(){
+  const c=charEl();
+  if(c){ c.classList.remove('sitting','swinging'); c.style.removeProperty('--sit-rise'); }
+  const a=$('#gsArt'); if(a) a.classList.remove('swinging','bottle-drag');
+  sitting=false; swingActive=false;
+  clearBenchTimer();
+}
+function jiggle(sel, cls, ms){
+  const el=$(sel); if(!el) return;
+  el.classList.remove(cls); void el.getBoundingClientRect(); el.classList.add(cls);
+  sceneLater(()=>{ const n=$(sel); if(n) n.classList.remove(cls); }, ms);
+}
+function touchAnimal(sp,kind){
+  const sceneId=SCENES[S.gameScene].id;
+  const sel = sceneId==='cafe' ? '#gsCatBelly' : (kind==='sheep' ? '#gsSheep' : '#gsCat');
+  const cls = kind==='sheep' ? 'jelly' : (sceneId==='cafe' ? 'patted' : 'stretch');
+  /* 停在动物侧边一点点，让伸手动作与小动物都看得清，而不是整个人压上去 */
+  travelTo(Math.max(6, sp.x-7), ()=>{
+    pulsePose('touch',720);
+    fxHearts(sp.x,sp.y);
+    jiggle(sel, cls, 1000);
+    if(kind==='cat') fxPurr(sp.x,sp.y);
+  });
+}
+function startSwing(sp){
+  if(swingActive) return;
+  swingActive=true;
+  const c=charEl(); if(c) c.style.setProperty('--swing-rise', riseFor(SWING_SEAT_Y)+'px');
+  travelTo(sp.x, ()=>{
+    const n=charEl(), art=$('#gsArt');
+    if(!n){ swingActive=false; return; }
+    n.classList.remove('sitting','crouch','touch','spin','walking');
+    n.classList.add('swinging');
+    if(art) art.classList.add('swinging');
+    fxFlowers();
+    say('小蕾 ✦','抓紧啦，秋千和你一起晃 ✦');
+    sceneLater(stopSwing, 4200);
+  });
+}
+function stopSwing(){
+  swingActive=false;
+  const c=charEl(); if(c) c.classList.remove('swinging');
+  const a=$('#gsArt'); if(a) a.classList.remove('swinging');
+}
+function rippleBurst(x){
+  const fx=$('#fxLayer'); if(!fx) return;
+  for(let i=0;i<3;i++){
+    const r=document.createElement('i'); r.className='gs-ripple ring'+(i+1);
+    r.style.left=(x-3+i*3)+'%'; r.style.top=(72+i*2)+'%';
+    fx.appendChild(r); sceneLater(()=>r.remove(),1500);
+  }
+}
+function fxHearts(x,y){
+  const fx=$('#fxLayer'); if(!fx) return;
+  for(let i=0;i<3;i++){
+    const h=document.createElement('i'); h.className='gs-heart';
+    h.style.left=(x-2+i*3)+'%'; h.style.top=(y-6-i*2)+'%';
+    h.style.animationDelay=(i*.18)+'s';
+    fx.appendChild(h); sceneLater(()=>h.remove(),1900);
+  }
+}
+function fxStarBurst(){
+  const fx=$('#fxLayer'); if(!fx) return;
+  for(let i=0;i<16;i++){
+    const s=document.createElement('i'); s.className='gs-spin-star'; s.textContent='✦';
+    s.style.left=(S.charX-9+Math.random()*18)+'%';
+    s.style.top=(42+Math.random()*24)+'%';
+    s.style.animationDelay=(Math.random()*.45)+'s';
+    fx.appendChild(s); sceneLater(()=>s.remove(),1900);
+  }
+}
 function blinkBear(){
-  const eyes=$('#gs-bear-eyes');
-  if(!eyes) return;
-  eyes.style.opacity='0';
-  setTimeout(()=>{ eyes.style.opacity='1'; },200);
+  const b=$('#gsBear'), eyes=$('#gs-bear-eyes');
+  if(b){ b.classList.remove('nod'); void b.getBoundingClientRect(); b.classList.add('nod');
+    sceneLater(()=>{ const n=$('#gsBear'); if(n) n.classList.remove('nod'); },600); }
+  if(eyes){ eyes.style.opacity='0';
+    sceneLater(()=>{ const e=$('#gs-bear-eyes'); if(e) e.style.opacity='1'; },230); }
   fxNote('眨眼 ✦');
 }
+/* 起雾玻璃：像素星星沿着路径一笔一笔描出来 */
 function drawStarOnGlass(){
   const fx=$('#fxLayer'); if(!fx) return;
-  const s=document.createElement('span'); s.className='gs-drawn-star'; s.textContent='✦';
-  s.style.left=(74+Math.random()*18)+'%'; s.style.top=(20+Math.random()*36)+'%';
-  fx.appendChild(s);
+  const x=68+Math.random()*26, y=16+Math.random()*56;
+  const wrap=document.createElement('div'); wrap.className='gs-star-draw';
+  wrap.style.left=x+'%'; wrap.style.top=y+'%';
+  wrap.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 L19.6 12.4 L30 16 L19.6 19.6 L16 30 L12.4 19.6 L2 16 L12.4 12.4 Z"/></svg>';
+  fx.appendChild(wrap);
+  sceneLater(()=>wrap.classList.add('lit'),640);
+  const mist=document.createElement('i'); mist.className='gs-mist-wipe';
+  mist.style.left=(x-2)+'%'; mist.style.top=(y-3)+'%';
+  fx.appendChild(mist); sceneLater(()=>mist.remove(),1000);
+  const old=$$('#fxLayer .gs-star-draw'); if(old.length>12) old[0].remove();
 }
 function explore(){
   const g=gameGet(); rollDaily(g);
@@ -2324,14 +2813,22 @@ function explore(){
 }
 let walkTimer=null;
 function moveChar(dir){
+  /* 按方向键取消坐下 / 秋千，先恢复站立（物理状态机优先级） */
+  if(sitting){ standUp(); say('小蕾 ✦','站起来啦，我们继续走吧 ✦'); return; }
+  if(swingActive){ stopSwing(); return; }
   const g=gameGet();
   S.charX = Math.max(6, Math.min(94, (typeof S.charX==='number'?S.charX:46)+dir*4));
-  const char=$('#character'); if(char) char.style.left=S.charX+'%';
+  const char=charEl(); if(char) char.style.left=S.charX+'%';
   const mate=$('#companion'); if(mate) mate.style.left=(S.charX-8)+'%';
+  const trail=$('#companionTrail'); if(trail) trail.style.left=(S.charX-11)+'%';
   const av=$('#gameAvatar .px-avatar');
   if(av) av.classList.add('walking');
+  if(char) char.classList.add('walking');
   clearTimeout(walkTimer);
-  walkTimer=setTimeout(()=>{ const a=$('#gameAvatar .px-avatar'); if(a) a.classList.remove('walking'); },320);
+  walkTimer=setTimeout(()=>{
+    const a=$('#gameAvatar .px-avatar'); if(a) a.classList.remove('walking');
+    const c=charEl(); if(c) c.classList.remove('walking');
+  },320);
   const sc=SCENES[S.gameScene];
   if(sc && sc.id==='sea') fxRipple(S.charX);
   else if(Math.random()<.3) fxPetal(S.charX);
@@ -2406,16 +2903,16 @@ function fxPurr(x,y){
   }
 }
 /* 长椅发呆 1 分钟 → 【听见风】 */
-let benchTimer=null;
+function clearBenchTimer(){ if(benchTimer){ clearInterval(benchTimer); benchTimer=null; } }
 function startBench(){
-  stopBench();
+  clearBenchTimer();
   const g=gameGet(); let sec=g.stats.benchSeconds||0;
   benchTimer=setInterval(()=>{
     const s=gameGet(); sec=(s.stats.benchSeconds||0)+1; s.stats.benchSeconds=sec; gameSet(s);
-    if(sec>=60){ stopBench(); unlockAchievement('wind1min'); }
+    if(sec>=60){ clearBenchTimer(); unlockAchievement('wind1min'); }
   },1000);
 }
-function stopBench(){ if(benchTimer){ clearInterval(benchTimer); benchTimer=null; } }
+function stopBench(){ clearBenchTimer(); standUp(); }
 
 /* ---------------------------------------------------------- 随机事件面板 ---------------------------------------------------------- */
 let eventState=null;
@@ -2458,6 +2955,8 @@ function renderDragEvent(ev,key){
     if(!dragging) return;
     const dx=e.clientX-startX;
     line.style.transform=`rotate(${Math.max(-38,Math.min(38,dx/4))}deg)`;
+    /* 捞漂流瓶：拖动时水面持续扩散波纹 */
+    if(key==='bottleDrag' && Math.abs(dx)>18 && Math.random()<.35) fxRipple(55+dx/22);
     const side=dx>0?1:-1;
     if(Math.abs(dx)>55 && side!==lastSide && lastSide!==0){
       swings++; lastSide=side; startX=e.clientX; upd();
@@ -2483,6 +2982,7 @@ function closeEvent(){
   eventState=null;
   const p=$('#eventPanel'); if(p) p.classList.add('hidden');
   const b=$('#eventBody'); if(b) b.innerHTML='';
+  const a=$('#gsArt'); if(a) a.classList.remove('bottle-drag');
 }
 
 /* ---------------------------------------------------------- 衣橱 / 旅行报告 ---------------------------------------------------------- */
@@ -2503,6 +3003,8 @@ function openWardrobe(){
 function setOutfit(id){
   const g=gameGet(); g.outfit=id; gameSet(g);           /* 立即写入 game_save */
   refreshGameAvatar(); refreshProfile();                 /* 舞台 + 博客实时联动 */
+  S.pendingProfileGlow = true;                          /* 回到博客时补一段淡入柔光 */
+  if(charEl()){ pulsePose('spin',900); fxStarBurst(); }  /* 原地转圈 + 碎星掉落 */
   if(id==='moon') unlockAchievement('dressed',g);
   bump('outfit',1,g); gameSet(g);
   toast(`换上了「${OUTFITS.find(o=>o.id===id).name}」✦`);
@@ -2538,6 +3040,7 @@ function onEnterGame(){
   say('小蕾 ✦','我在这儿呢，跟着你慢慢走。');
 }
 function initGame(){
+  window.addEventListener('resize', ()=>{ if(S.screen==='game') applyGround(); });
   $('#sceneTabs').innerHTML = SCENES.map((s,i)=>`<button class="gm-tab" data-scene="${i}">${esc(s.name)}</button>`).join('');
   $$('#sceneTabs [data-scene]').forEach(b=>b.onclick=()=>switchScene(+b.dataset.scene));
   $('#btnExplore').onclick=explore;
