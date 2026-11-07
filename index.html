@@ -464,9 +464,16 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   transition:filter .55s ease;
   animation:pxBreathe 2s ease-in-out infinite alternate}
 @keyframes pxBreathe{from{translate:0 0}to{translate:0 -2px}}
-/* 行走：rotate 3deg <-> -3deg 交替；与呼吸分别占用 rotate / translate 独立属性，互不覆盖 */
-.px-avatar.walking{animation:pxBreathe 2s ease-in-out infinite alternate,pxWalkSway .3s ease-in-out infinite alternate}
-@keyframes pxWalkSway{from{rotate:-3deg}to{rotate:3deg}}
+/* 立绘拆成上下两半叠放（同一张像素图）：上半身固定，下半身（腿部）用 steps() 微跳模拟迈步。
+   走路绝不再用 rotate 左右倾斜，整体也不压缩，只做像素级上下弹跳。 */
+.px-av-wrap{position:relative;width:100%;line-height:0;animation:pxBreathe 2s ease-in-out infinite alternate}
+.px-av-wrap .px-avatar{width:100%;height:auto;display:block;animation:none}
+.px-av-wrap .px-upper{position:relative}
+.px-av-wrap .px-lower{position:absolute;left:0;bottom:0}
+.px-av-wrap .px-upper{clip-path:inset(0 0 var(--leg-split,50%) 0)}
+.px-av-wrap .px-lower{clip-path:inset(var(--leg-split,50%) 0 0 0)}
+.gs-char.walking .px-lower{animation:pxStep .26s steps(2,end) infinite}
+@keyframes pxStep{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 /* 向左走镜像，向右走恢复 */
 .px-avatar.face-left{transform:scaleX(-1)}
 /* 生日限定【星蕾月白】：只叠一层柔和月光，不做任何色相旋转。
@@ -784,15 +791,14 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 #gameAvatar{position:absolute;left:0;bottom:0;width:100%;line-height:0}
 .gs-char.travel{transition:left .9s cubic-bezier(.22,.75,.3,1)}
 
-/* Walk：图片自身 pxWalkSway 左右摇摆（rotate -3deg <-> 3deg / 0.3s alternate）；
-   容器不再额外摆动，避免与呼吸/朝向翻转叠加成抖动 */
-@keyframes charWalkBob{0%{transform:translateY(0)}50%{transform:translateY(-1px)}100%{transform:translateY(0)}}
+/* Walk：容器走 charWalkBob 2px 上下弹跳；下半身 .px-lower 走 pxStep steps() 微跳，模拟迈步；
+   不再用 rotate 倾斜，避免与呼吸/朝向翻转叠加成纸片抽搐 */
+@keyframes charWalkBob{0%{transform:translateY(0)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
 
-/* Crouch：身体垂直缩小并下移，0.5s 后由 JS 移除，收集物随之飞出 */
-/* Crouch：图片垂直压缩 scaleY(.8) 模拟蹲下，0.5s 后由 JS 移除 */
-.gs-char.crouch .gs-char-pose{transform:translateY(8px);transition-duration:.16s}
-.gs-char.crouch .px-avatar{animation:pxCrouch .5s cubic-bezier(.2,.8,.3,1)}
-@keyframes pxCrouch{0%{scale:1 1}22%,72%{scale:1 .8}100%{scale:1 1}}
+/* Crouch：优雅下蹲——整张图向下贴合地面（translateY 下移），不再用 scaleY 压缩；
+   头顶浮出极小的 ✦ 粒子特效，0.4s 后由 JS 移除 class 复原 */
+.gs-char.crouch .gs-char-pose{transform:translateY(10px);transition-duration:.16s}
+.gs-char.crouch .px-avatar{animation:none}
 
 /* Sitting：隐藏腿部像素块 + translateY 抬高，让裙摆刚好落在椅面上 */
 .gs-char.sitting{cursor:default}
@@ -1098,10 +1104,13 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .room-pillow{position:absolute;left:81%;top:76.4%;width:6.6%;height:6.6%;z-index:3;pointer-events:none;
   border-radius:9px;background:linear-gradient(150deg,#F7E3CF,#E8C8B6);
   box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),0 5px 10px rgba(120,90,70,.18);transform:rotate(-7deg)}
-/* 盘腿坐：原地 scaleY(.7) 蹲坐，不走动、不裁腿 */
+/* 盘腿坐：坐标上移 + 直接隐藏下半身（裁掉双腿），裙摆正好落在地毯上；绝不压缩变矮 */
 .gs-char.rug-sit .gs-char-float{animation:none}
-.gs-char.rug-sit .gs-char-pose{transform:translateY(-26px) scaleY(.7) scaleX(1.06)}
+.gs-char.rug-sit .gs-char-pose{transform:translateY(34px)}
 .gs-char.rug-sit .px-avatar{animation:none}
+/* 用 clip-path 在髋部裁掉双腿（仅留头+躯干+大腿），坐标下移坐实到地毯；不压缩、不变矮 */
+.gs-char.rug-sit .px-upper{clip-path:inset(0 0 28% 0)}
+.gs-char.rug-sit .px-lower{display:none}
 /* 小喵绕圈飞 */
 .gs-mate.circling{animation:mateCircle 3.2s linear infinite}
 @keyframes mateCircle{0%{transform:translate(0,0)}
@@ -2244,14 +2253,20 @@ function avatarHTML(outfit, extra){
 }
 /* 重建立绘后恢复朝向 / 行走状态，避免换装时角色突然「转身」或停步 */
 function syncFacing(){
-  const av=$('#gameAvatar .px-avatar'); if(!av) return;
-  av.classList.toggle('face-left', S.facing==='left');
-  const c=charEl(); if(c && c.classList.contains('walking')) av.classList.add('walking');
+  const avs=$$('#gameAvatar .px-avatar'); if(!avs.length) return;
+  avs.forEach(av=>{
+    av.classList.toggle('face-left', S.facing==='left');
+    const c=charEl(); if(c && c.classList.contains('walking')) av.classList.add('walking');
+  });
 }
 function refreshGameAvatar(){
   const outfit = gameGet().outfit||'cotton';
   const box = $('#gameAvatar');
-  if(box){ box.innerHTML = avatarHTML(outfit); syncFacing(); }
+  if(box){
+    /* 立绘拆成上下两半（同一张像素图）：上半身固定，下半身（腿部）走路时独立微跳，模拟迈步 */
+    box.innerHTML = `<div class="px-av-wrap">${avatarHTML(outfit,'px-upper')}${avatarHTML(outfit,'px-lower')}</div>`;
+    syncFacing();
+  }
   /* 睡姿头部同样跟随换装，但只用柔光，不做任何色相旋转 */
   const head = $('#bedPose .bp-head img');
   if(head){ head.src = AVATAR_DATA; head.className = 'px-avatar '+(outfit==='moon'?'moon':''); }
@@ -3106,6 +3121,7 @@ function roomBed(){
       q.classList.remove('jump-bed'); q.classList.add('in-bed');
       const mate=$('#companion'); if(mate) mate.classList.add('on-bed');
       S.roomRest=true;
+      const bg=gameGet(); bump('action:bed',1,bg); gameSet(bg);   /* 小屋点床休息 · 每日任务 */
       const v=$('#gsVignette'); if(v) v.classList.add('room-dim');
       const st=$('#game-stage'); if(st) st.classList.add('room-night');
       const veil=$('#roomDimVeil'); if(veil){ veil.classList.add('on'); veil.onclick=()=>wakeFromBed(false); }
@@ -3274,18 +3290,22 @@ const EVENTS = {
     hint:'左右拖动瓶子，捞满 3 下', special:'drag', reward:{postcard:1,seaGlass:1},
     done:'有人把话留在门缝里，等你来读。' }
 };
+/* 每日手账任务池：
+   基础三项（花庭收集 / 樱花小径摸绵羊 / 小屋点床休息）始终可抽；
+   「海边看浪」需已解锁【海边灯塔】、「坐云端列车」需已解锁【云端列车】才进入任务池。
+   生成时按当前 localStorage 解锁进度动态过滤，再随机抽 3 个。 */
 const COMMISSION_POOL = [
-  {id:'visitGarden', text:'去花庭听风', check:'visit:garden', need:1},
-  {id:'catOnce',     text:'摸一次小猫', check:'action:catCafe', need:1},
-  {id:'star3',       text:'捡三颗星碎', check:'collect:star', need:3},
-  {id:'explore2',    text:'探索 2 次', check:'explore', need:2},
-  {id:'visitSea',    text:'去海边看看浪', check:'visit:sea', need:1},
-  {id:'duck',        text:'帮小鸭子排队', check:'event:duck', need:1},
-  {id:'report',      text:'翻一次旅行报告', check:'report', need:1},
-  {id:'outfit',      text:'换一次衣服', check:'outfit', need:1},
-  {id:'visitTrain',  text:'坐一趟云端列车', check:'visit:train', need:1},
-  {id:'discover',    text:'发现一件小东西', check:'discover', need:1}
+  {id:'garden3',  text:'在花庭收集 3 次',      check:'collect:star', need:3, unlock:null},
+  {id:'sheep1',   text:'在樱花小径摸一次绵羊',  check:'action:sheep',  need:1, unlock:null},
+  {id:'bed1',     text:'在小屋点床休息一次',    check:'action:bed',    need:1, unlock:null},
+  {id:'seaWave',  text:'去海边看看浪',          check:'visit:sea',     need:1, unlock:'sea'},
+  {id:'train1',   text:'坐一趟云端列车',        check:'visit:train',   need:1, unlock:'train'}
 ];
+/* 任务是否可入池：无 unlock 限制，或对应场景已在存档解锁列表中 */
+function commissionUnlocked(c){
+  if(!c.unlock) return true;
+  return unlockedScenes(gameGet()).includes(c.unlock);
+}
 
 /* ---------------------------------------------------------- 存档（严格只写 game_save） ---------------------------------------------------------- */
 function defaultGame(){
@@ -3320,7 +3340,8 @@ function restoreOriginalPalette(){
   gameSet(g);
 }
 function makeCommissions(){
-  return {date:todayStr(), list:pickN(COMMISSION_POOL,3).map(c=>({...c, progress:0, done:false}))};
+  const pool = COMMISSION_POOL.filter(commissionUnlocked);
+  return {date:todayStr(), list:pickN(pool, Math.min(3, pool.length)).map(c=>({...c, progress:0, done:false}))};
 }
 function rollDaily(g){
   if(g.steps.date !== todayStr()){
@@ -3590,8 +3611,9 @@ function harvest(){
   sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove('reach'); },760);
   const near=$$('#orbsLayer .gs-orb').filter(o=>!o.classList.contains('gone') && Math.abs(parseFloat(o.dataset.x)-S.charX)<13);
   if(!near.length){ pulsePose('touch',420); say('小喵','再往星星光点那边走两步，我就够得着啦。'); return; }
-  /* Crouch：身体缩小下移 0.5s；移除的那一刻，光点才化作星星飞入状态栏 */
+  /* 优雅下蹲：整图下移贴合地面（无 scaleY 压缩），头顶浮出极小 ✦ 粒子；0.5s 后复原 */
   pulsePose('crouch',500);
+  fxNote('✦');
   near.forEach(o=>o.classList.add('gone'));
   const g=gameGet(); addMat(g,'star',near.length); gameSet(g); updateHUD(true);
   sceneLater(()=>{
@@ -3634,7 +3656,7 @@ function activateSpot(i){
   switch(sp.act){
     case 'bench':    sitAt(sp); break;
     case 'swing':    startSwing(sp); break;
-    case 'sheep':    touchAnimal(sp,'sheep'); fxNote('软乎乎 ✦'); addMat(g,'sakura',1); break;
+    case 'sheep':    touchAnimal(sp,'sheep'); fxNote('软乎乎 ✦'); addMat(g,'sakura',1); bump('action:sheep',1,g); gameSet(g); break;
     case 'purr':     touchAnimal(sp,'cat'); break;
     case 'catCafe':
       touchAnimal(sp,'cat');
@@ -3820,8 +3842,8 @@ function stepMove(dir,dt){
   S.charX=Math.max(6,Math.min(94,S.charX+dir*MOVE_SPEED*dt));
   const char=charEl(); if(char){ char.style.left=S.charX+'%'; char.classList.add('walking'); }
   S.facing = dir<0 ? 'left' : 'right';
-  const av=$('#gameAvatar .px-avatar');
-  if(av){ av.classList.add('walking'); av.classList.toggle('face-left', dir<0); }
+  const avs=$$('#gameAvatar .px-avatar');
+  avs.forEach(av=>{ av.classList.add('walking'); av.classList.toggle('face-left', dir<0); });
   const mate=$('#companion'); if(mate) mate.style.left=(S.charX-8)+'%';
   const trail=$('#companionTrail'); if(trail) trail.style.left=(S.charX-11)+'%';
   const now=performance.now();
@@ -3837,7 +3859,7 @@ function stepMove(dir,dt){
 }
 function endMove(){
   moveLastT=0;
-  const a=$('#gameAvatar .px-avatar'); if(a) a.classList.remove('walking');
+  $$('#gameAvatar .px-avatar').forEach(a=>a.classList.remove('walking'));
   const c=charEl(); if(c) c.classList.remove('walking');
   const g=gameGet(); g.charX=S.charX; gameSet(g);
 }
@@ -4037,9 +4059,9 @@ function openWardrobe(){
 function setOutfit(id){
   const g=gameGet(); g.outfit=id; gameSet(g);           /* 立即写入 game_save */
   refreshGameAvatar(); refreshProfile();                 /* 舞台 + 博客实时联动 */
-  const av=$('#gameAvatar .px-avatar');                   /* 换装瞬时变色闪光 */
-  if(av){ av.classList.remove('outfit-flash'); void av.offsetWidth; av.classList.add('outfit-flash');
-    setTimeout(()=>{ const n=$('#gameAvatar .px-avatar'); if(n) n.classList.remove('outfit-flash'); },900); }
+  const avs=$$('#gameAvatar .px-avatar');                 /* 换装瞬时变色闪光（上下两半同步） */
+  avs.forEach(av=>{ av.classList.remove('outfit-flash'); void av.offsetWidth; av.classList.add('outfit-flash'); });
+  if(avs.length) setTimeout(()=>{ $$('#gameAvatar .px-avatar').forEach(n=>n.classList.remove('outfit-flash')); },900);
   glintAvatar();                                     /* 换装高光扫过立绘 */
   S.pendingProfileGlow = true;                          /* 回到博客时补一段淡入柔光 */
   if(charEl()){ pulsePose('spin',900); fxStarBurst(); }  /* 原地转圈 + 碎星掉落 */
