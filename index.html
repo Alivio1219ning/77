@@ -631,10 +631,16 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   box-shadow:3px 0 0 #B79C6E,6px 0 0 #D9C6A5,
              3px -3px 0 #B79C6E,3px 3px 0 #B79C6E,
              6px -3px 0 rgba(217,198,165,.7),6px 3px 0 rgba(217,198,165,.7)}
-.gm-comm{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 20px;font-size:11px;color:#8A8075}
-.gm-comm b{font-weight:400;color:#A08C6C;letter-spacing:.1em}
-.gm-comm .cm{padding:3px 9px;border:1px solid var(--line-soft);border-radius:2px;background:rgba(255,255,255,.24)}
-.gm-comm .cm.done{text-decoration:line-through;color:#B4ACA4}
+/* 底部「手账贴纸」：半透明、轻量、未完成文字淡灰、不施压 */
+.gm-comm{display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:center;
+  padding:7px 16px;margin:0 auto 6px;font-size:10.5px;color:#9A9085;
+  background:rgba(255,251,243,.46);border:1px dashed rgba(217,198,165,.6);border-radius:14px;
+  box-shadow:0 6px 16px rgba(120,98,78,.10);transform:rotate(-.5deg)}
+.gm-comm b{font-weight:400;color:#A89170;letter-spacing:.12em;font-size:10px}
+.gm-comm .cm{padding:2px 10px;border:1px solid rgba(217,198,165,.4);border-radius:11px;
+  background:rgba(255,255,255,.30);color:#B6A792;font-size:10px;letter-spacing:.02em}
+.gm-comm .cm.done{color:#9FB58C;text-decoration:none;
+  background:rgba(217,232,205,.55);border-color:rgba(165,191,140,.5)}
 
 /* ---------------- 顶部下滑 Toast：极小 / 半透明 / 香槟金细边 / 2 秒淡出 ----------------
    废弃原来的「居中蕾丝大白框」与「底部深色大 pill」；
@@ -1021,6 +1027,13 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gm-shell.wardrobe-open .gm-top,.gm-shell.wardrobe-open .gm-bottom,
 .gm-shell.wardrobe-open .gm-comm{opacity:.42;transition:opacity .4s ease}
 .gs-side{background:linear-gradient(160deg,rgba(255,253,247,.70),rgba(247,238,228,.56))}
+/* 衣橱面板：极简半透明，不遮挡太多视野 */
+#wardrobePanel{top:50%;right:18px;transform:translateY(-50%);width:min(266px,80vw);max-height:78%;
+  padding:18px 18px 16px;background:linear-gradient(160deg,rgba(255,253,247,.62),rgba(247,238,228,.5));
+  backdrop-filter:blur(9px);box-shadow:0 16px 44px rgba(92,72,56,.18),inset 0 0 0 1px rgba(255,255,255,.4)}
+#wardrobePanel .gm-outfit{padding:8px;margin-bottom:8px}
+#wardrobePanel .gm-outfit .wi-preview{width:46px;height:46px}
+#wardrobePanel .gm-outfit .wi-preview .px-avatar{width:46px}
 /* 交互小游戏面板保留（需要按钮），但同样轻量化，不再是一整块不透明白板 */
 .gs-event{background:linear-gradient(160deg,rgba(255,253,247,.76),rgba(247,238,228,.64));
   backdrop-filter:blur(10px);width:min(340px,84vw);padding:18px}
@@ -1062,10 +1075,38 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs--room .room-curtain{transform-box:fill-box;transform-origin:top center;
   animation:roomCurtain 6.5s ease-in-out infinite alternate}
 @keyframes roomCurtain{from{transform:skewX(-1.5deg)}to{transform:skewX(1.8deg)}}
-.gs-room-hint{position:absolute;left:16px;top:13px;z-index:29;pointer-events:none;
-  padding:4px 11px;border:1px solid rgba(217,198,165,.55);border-radius:2px;
-  background:rgba(255,252,245,.62);backdrop-filter:blur(4px);
-  font-family:var(--serif);font-size:9.5px;letter-spacing:.09em;color:#8B7C6B}
+/* 悬停手写提示：仅鼠标移到门/床/衣橱/窗/地毯上时出现，移开即消失（出戏文字全部移除） */
+.room-tip{position:fixed;z-index:920;pointer-events:none;transform:translate(-50%,-122%);
+  padding:2px 11px;border:1px solid rgba(222,206,176,.85);border-radius:11px;
+  background:rgba(255,252,245,.84);backdrop-filter:blur(4px);
+  font-family:var(--hand);font-size:15px;letter-spacing:.05em;color:#9A8767;white-space:nowrap;
+  box-shadow:0 4px 14px rgba(120,100,80,.14),inset 0 0 0 1px rgba(255,255,255,.5);
+  opacity:0;transition:opacity .16s ease}
+.room-tip.show{opacity:1}
+/* 睡眠：整屋蒙一层黑半透明遮罩（比 room-night 更深），点遮罩即起身 */
+.room-dim-veil{position:absolute;inset:0;z-index:25;background:rgba(38,28,24,.34);
+  opacity:0;visibility:hidden;transition:opacity .8s ease,visibility 0s linear .8s;cursor:pointer}
+.room-dim-veil.on{opacity:1;visibility:visible;transition-delay:0s}
+/* 地毯：CSS 大椭圆 + 毛绒柔光渐变，去掉粗糙虚线 */
+.room-rug{position:absolute;left:28%;top:81.4%;width:44%;height:18%;z-index:2;
+  border-radius:50%;transform:translate(-4%,-4%);pointer-events:none;
+  background:radial-gradient(ellipse 62% 64% at 50% 40%,#FBEFE7 0%,#F1DACE 56%,#E3C4B8 100%);
+  box-shadow:0 10px 26px rgba(120,86,70,.18),inset 0 0 42px rgba(255,255,255,.36),inset 0 -9px 24px rgba(196,150,132,.24)}
+.room-rug::after{content:'';position:absolute;left:17%;top:22%;width:66%;height:54%;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 48%,rgba(255,255,255,.32),transparent 72%)}
+/* 地毯上的软方抱枕 */
+.room-pillow{position:absolute;left:81%;top:76.4%;width:6.6%;height:6.6%;z-index:3;pointer-events:none;
+  border-radius:9px;background:linear-gradient(150deg,#F7E3CF,#E8C8B6);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),0 5px 10px rgba(120,90,70,.18);transform:rotate(-7deg)}
+/* 盘腿坐：原地 scaleY(.7) 蹲坐，不走动、不裁腿 */
+.gs-char.rug-sit .gs-char-float{animation:none}
+.gs-char.rug-sit .gs-char-pose{transform:translateY(-26px) scaleY(.7) scaleX(1.06)}
+.gs-char.rug-sit .px-avatar{animation:none}
+/* 小喵绕圈飞 */
+.gs-mate.circling{animation:mateCircle 3.2s linear infinite}
+@keyframes mateCircle{0%{transform:translate(0,0)}
+  25%{transform:translate(28px,-13px)}50%{transform:translate(0,-23px)}
+  75%{transform:translate(-28px,-13px)}100%{transform:translate(0,0)}}
 
 /* ---------- 4.2 小屋睡眠：跳上床 → 侧卧屈膝露腿 → 呼吸 / Zzz / 屏幕微暗 ---------- */
 /* 起跳：站立立绘走一段带后仰的抛物线，落地后把画面交给独立的「睡姿层」 */
@@ -2623,9 +2664,14 @@ function artRoom(){
     <stop offset="48%" stop-color="#DAB38A"/><stop offset="100%" stop-color="#A87850"/></linearGradient>
   <linearGradient id="g0night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#575C88"/>
     <stop offset="60%" stop-color="#8A82A6"/><stop offset="100%" stop-color="#BFA9BC"/></linearGradient>
-  <radialGradient id="g0rug"><stop offset="0" stop-color="#F8E8DF"/><stop offset="76%" stop-color="#ECD5CB"/>
-    <stop offset="100%" stop-color="#DEC0B4"/></radialGradient>
   <radialGradient id="g0quilt"><stop offset="0" stop-color="#FCF0E7"/><stop offset="100%" stop-color="#EFD9CE"/></radialGradient>
+  <pattern id="g0wallpaper" width="27" height="12" patternUnits="userSpaceOnUse">
+    <rect width="27" height="12" fill="transparent"/>
+    <rect x="0" y="0" width="2.4" height="12" fill="#E9D7BD" opacity=".46"/>
+    <rect x="13.5" y="0" width="1.5" height="12" fill="#F4E7D0" opacity=".42"/></pattern>
+  <linearGradient id="g0moon" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#C2D2F2" stop-opacity=".5"/>
+    <stop offset="100%" stop-color="#C2D2F2" stop-opacity="0"/></linearGradient>
   <pattern id="g0check" width="34" height="34" patternUnits="userSpaceOnUse">
     <rect width="34" height="34" fill="url(#g0quilt)"/>
     <rect width="17" height="34" fill="#E6B7BC" opacity=".40"/>
@@ -2645,14 +2691,16 @@ function artRoom(){
     stars+=`<circle class="room-star" cx="${sx}" cy="${sy}" r="${sr}" fill="#FFF6D8"
       opacity="${(.5+R()*.5).toFixed(2)}" style="animation-delay:${(R()*3).toFixed(2)}s"/>`;
   }
-  /* 木地板细纹 */
+  /* 木地板：浅色拼接缝 + 几道更深的横线，模拟木板 */
   let planks='';
   for(let i=0;i<9;i++) planks+=`<path d="M0 ${402+i*12} H1200" stroke="#C4A582" stroke-width="1.2" opacity=".26"/>`;
+  for(let i=0;i<4;i++) planks+=`<path d="M0 ${410+i*22} H1200" stroke="#A8855F" stroke-width="1.4" opacity=".22"/>`;
   for(let i=0;i<7;i++) planks+=`<path d="M${i*190} 392 V500" stroke="#C4A582" stroke-width="1.1" opacity=".18"/>`;
 
   const body=`
   <g id="g0Wall">
     <rect width="1200" height="500" fill="url(#g0wall)"/>
+    <rect x="0" y="0" width="1200" height="392" fill="url(#g0wallpaper)" opacity=".55"/>
     <ellipse cx="252" cy="88" rx="340" ry="240" fill="url(#g0lamp)" filter="url(#g0blur)"/>
     <ellipse cx="1052" cy="76" rx="250" ry="200" fill="url(#g0lamp)" opacity=".58" filter="url(#g0blur)"/>
     <ellipse cx="630" cy="120" rx="220" ry="150" fill="url(#g0lamp)" opacity=".30" filter="url(#g0blur)"/>
@@ -2662,12 +2710,10 @@ function artRoom(){
     ${planks}
   </g>
 
-  <!-- 极简圆形地毯：一块压扁的柔光椭圆，只有两道极细描边 -->
-  <g id="g0Rug">
-    <ellipse cx="600" cy="452" rx="288" ry="46" fill="url(#g0rug)" opacity=".96"/>
-    <ellipse cx="600" cy="452" rx="264" ry="38" fill="none" stroke="#FFF8F0" stroke-width="2" stroke-dasharray="7 9" opacity=".9"/>
-    <ellipse cx="600" cy="452" rx="172" ry="24" fill="none" stroke="#D7B3A9" stroke-width="1.4" opacity=".45"/>
-    <ellipse cx="600" cy="446" rx="120" ry="14" fill="#FFFFFF" opacity=".16"/>
+  <!-- 窗外月光洒在地板上的一汪淡蓝 -->
+  <g id="g0Moonlight">
+    <ellipse cx="632" cy="404" rx="176" ry="40" fill="url(#g0moon)" filter="url(#g0blur)" opacity=".9"/>
+    <ellipse cx="632" cy="398" rx="120" ry="22" fill="#D7E2F6" opacity=".26" filter="url(#g0blur)"/>
   </g>
 
   <!-- 墙上的小搁板：书、烛台、一盆小绿植，让小屋有人住过的痕迹 -->
@@ -2699,7 +2745,8 @@ function artRoom(){
     <path d="M400 318 Q430 308 460 318" fill="none" stroke="#EADBCB" stroke-width="2"/>
     <rect x="166" y="416" width="19" height="23" rx="3" fill="#8B5F3E"/>
     <rect x="444" y="416" width="19" height="23" rx="3" fill="#8B5F3E"/>
-    <ellipse cx="310" cy="440" rx="180" ry="9" fill="#9A7352" opacity=".16"/>
+    <ellipse cx="312" cy="444" rx="206" ry="13" fill="#5E4632" opacity=".26"/>
+    <ellipse cx="312" cy="440" rx="180" ry="9" fill="#3E2C20" opacity=".18"/>
   </g>
 
   <!-- 中间：蕾丝窗帘的窗户，窗外飘着星星 -->
@@ -2722,6 +2769,14 @@ function artRoom(){
       <path d="M770 60 H692 Q702 176 720 292 H770 Z" fill="url(#g0lace)" opacity=".72"/>
       <path d="M568 60 Q558 176 540 292" fill="none" stroke="#E9D8C4" stroke-width="3" opacity=".8"/>
       <path d="M692 60 Q702 176 720 292" fill="none" stroke="#E9D8C4" stroke-width="3" opacity=".8"/>
+    </g>
+    <!-- 窗台上的小绿植 -->
+    <g id="g0Plant">
+      <path d="M556 292 Q552 278 564 274 L582 274 Q594 278 590 292 Z" fill="#C98A5E"/>
+      <rect x="552" y="269" width="40" height="7" rx="3" fill="#B97B50"/>
+      <path d="M572 274 C572 256 560 250 554 240 C567 248 575 260 574 274 Z" fill="#8FB486"/>
+      <path d="M572 274 C572 254 588 246 598 238 C586 250 577 264 574 274 Z" fill="#A6C79A"/>
+      <path d="M573 274 C573 260 569 248 565 240 C572 252 578 264 575 274 Z" fill="#7CA873"/>
     </g>
   </g>
 
@@ -2768,7 +2823,8 @@ function roomDecoHTML(){
     const d=(8+Math.random()*8).toFixed(1), dl=(-Math.random()*10).toFixed(1);
     dust+=`<i class="room-dust-bit" style="left:${x}%;top:${top}%;--dd:${d}s;--dl:${dl}s"></i>`;
   }
-  return `<div class="room-glow"></div><div class="room-dust">${dust}</div>`;
+  return `<div class="room-glow"></div><div class="room-dust">${dust}</div>`
+    + `<div class="room-rug"></div><div class="room-pillow"></div>`;
 }
 
 /* 小屋是「家」，与六个户外场景分开定义；切换户外时完全不渲染小屋元素 */
@@ -2923,10 +2979,11 @@ function renderSceneTabs(given){
 /* ========================================================== 近物互动：小木门 / 旧邮筒 ========================================================== */
 const NEARBY = {
   room:[
-    {id:'bed',      x:27, r:16, act:'bed',      hint:'点一点小床 ✦',       zone:[12,50,28,36], trigger:'click'},
-    {id:'window',   x:52, r:14, act:'window',   hint:'点一点窗户 ✦',       zone:[41,13,23,49], trigger:'click'},
-    {id:'wardrobe', x:79, r:12, act:'wardrobe', hint:'点一点衣橱换衣服 ✦',  zone:[71,31,15,55], trigger:'click'},
-    {id:'door',     x:91, r:10, act:'map',      hint:'空格 · 推开门看地图', zone:[90,19,10,69], trigger:'space'}
+    {id:'bed',      x:27, r:18, act:'bed',      tip:'睡觉',   hint:'点一点小床 ✦',        zone:[12,50,28,40], trigger:'click'},
+    {id:'window',   x:52, r:16, act:'window',   tip:'看星星', hint:'点一点窗户 ✦',        zone:[41,13,23,52], trigger:'click'},
+    {id:'wardrobe', x:79, r:14, act:'wardrobe', tip:'换衣服', hint:'点一点衣橱换衣服 ✦',   zone:[71,31,15,55], trigger:'click'},
+    {id:'rug',      x:50, r:18, act:'sit',      tip:'坐下',   hint:'点一点地毯 ✦',        zone:[33,66,34,24], trigger:'click'},
+    {id:'door',     x:91, r:11, act:'map',      tip:'出门',   hint:'走到门前按空格开门',   zone:[89,19,11,70], trigger:'space'}
   ],
   garden:[{id:'postbox', x:9,  r:15, hint:'点一点旧邮筒 ✦', line:'今天没有来信哦。', trigger:'click'}],
   path:[  {id:'door',    x:85, r:15, hint:'空格 · 敲敲小木门', line:'里面会不会住着精灵？', trigger:'space'}]
@@ -2938,6 +2995,8 @@ function nearbyHere(){
 }
 function updateNearHint(){
   const h=$('#nearHint'); if(!h) return;
+  /* 小屋改用「悬停才出现」的手写提示，站立靠近不再弹固定文字，避免出戏 */
+  if(S.inRoom){ h.classList.add('hidden'); return; }
   const p=nearbyHere();
   if(p){ h.textContent=p.hint; h.classList.remove('hidden'); }
   else h.classList.add('hidden');
@@ -2949,6 +3008,7 @@ function tryNearby(trigger, direct){
   if(p.act==='bed'){ roomBed(); return true; }
   if(p.act==='window'){ roomWindow(); return true; }
   if(p.act==='wardrobe'){ openWardrobe(); return true; }
+  if(p.act==='sit'){ roomRug(); return true; }
   say('小喵',p.line);
   fxNote('✦');
   return true;
@@ -2959,16 +3019,27 @@ function renderPropZones(){
   if(sc.id==='room'){
     layer.innerHTML=list.map(p=>{
       const z=p.zone||[0,0,10,10];
-      return `<div class="gs-prop-zone room-zone" data-prop="${p.id}" title="${esc(p.hint)}"
+      return `<div class="gs-prop-zone room-zone" data-prop="${p.id}" data-tip="${esc(p.tip||'')}" title=""
         style="left:${z[0]}%;top:${z[1]}%;width:${z[2]}%;height:${z[3]}%"></div>`;
     }).join('');
   } else {
     layer.innerHTML=list.map(p=>
       `<div class="gs-prop-zone" data-prop="${p.id}" style="left:${Math.max(0,p.x-7)}%;top:56%;width:14%;height:22%"></div>`).join('');
   }
+  const stage=$('#game-stage');
+  let tip=$('#roomTip');
+  if(!tip){ tip=document.createElement('div'); tip.className='room-tip'; tip.id='roomTip'; stage.appendChild(tip); }
+  tip.classList.remove('show');
   $$('#propLayer .gs-prop-zone').forEach(z=>{
     const p=list.find(q=>q.id===z.dataset.prop);
-    if(p) z.addEventListener('click',()=>tryNearby('click',p));
+    if(!p) return;
+    z.addEventListener('click',()=>tryNearby('click',p));
+    /* 悬停才出现手写小提示，移开即消失，绝不长期霸屏 */
+    if(p.tip){
+      z.addEventListener('mouseenter',e=>{ tip.textContent=p.tip; tip.style.left=(e.clientX)+'px'; tip.style.top=(e.clientY)+'px'; tip.classList.add('show'); });
+      z.addEventListener('mousemove',e=>{ tip.style.left=(e.clientX)+'px'; tip.style.top=(e.clientY)+'px'; });
+      z.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+    }
   });
 }
 
@@ -3037,6 +3108,7 @@ function roomBed(){
       S.roomRest=true;
       const v=$('#gsVignette'); if(v) v.classList.add('room-dim');
       const st=$('#game-stage'); if(st) st.classList.add('room-night');
+      const veil=$('#roomDimVeil'); if(veil){ veil.classList.add('on'); veil.onclick=()=>wakeFromBed(false); }
       const zz=$('#roomZzz'); if(zz) zz.classList.remove('hidden');
       say('小喵','呼……被子软得像云，先睡一小会儿 ✦');
       fxNote('Zzz');
@@ -3059,6 +3131,7 @@ function wakeFromBed(auto){
   const mate=$('#companion'); if(mate) mate.classList.remove('on-bed');
   const v=$('#gsVignette'); if(v) v.classList.remove('room-dim');
   const st=$('#game-stage'); if(st) st.classList.remove('room-night');
+  const veil=$('#roomDimVeil'); if(veil){ veil.classList.remove('on'); veil.onclick=null; }
   const zz=$('#roomZzz'); if(zz) zz.classList.add('hidden');
   if(!auto) say('小喵','醒啦？门还等着我们呢 ✦');
 }
@@ -3071,7 +3144,7 @@ function roomWindow(){
     const c=charEl(); if(c) c.classList.add('at-window');
     const m=$('#companion'); if(m) m.classList.add('on-window');
     const t=$('#companionTrail'); if(t) t.classList.add('on-window');
-    say('小喵','窗外的星星在慢慢走呢 ✦');
+    say('小喵','今晚的月亮好圆呀。');
     for(let i=0;i<3;i++) sceneLater(()=>fxNote('✦'), i*260);
     sceneLater(()=>clearWindowPose(), 7000);
   });
@@ -3082,6 +3155,18 @@ function clearWindowPose(){
   const c=charEl(); if(c) c.classList.remove('at-window');
   const m=$('#companion'); if(m) m.classList.remove('on-window');
   const t=$('#companionTrail'); if(t) t.classList.remove('on-window');
+}
+/* 点地毯：原地盘腿坐下，小喵绕着圈飞 */
+function roomRug(){
+  if(!S.inRoom) return;
+  wakeFromBed(true); clearWindowPose();
+  const c=charEl(); if(!c) return;
+  c.classList.remove('in-bed','at-window','jump-bed');
+  c.classList.add('rug-sit');
+  sitting=true; swingActive=false;
+  const m=$('#companion'); if(m) m.classList.add('circling');
+  say('小喵','地毯软乎乎的，坐下来歇会儿吧 ✦');
+  topToast('盘腿坐下来 ✦');
 }
 
 /* ========================================================== 樱花小径：水彩景深 + 风吹花瓣 + 接花瓣 ========================================================== */
@@ -3283,9 +3368,9 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-mate-trail" id="companionTrail">${PX_MATE_SVG}</div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
 <div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div><div class="bed-pose" id="bedPose" aria-hidden="true"><div class="bp-head"><img class="px-avatar" src="${AVATAR_DATA}" alt=""></div><div class="bp-quilt"></div><svg class="bp-legs" viewBox="0 0 96 50" aria-hidden="true"><g class="bp-leg a"><rect x="18" y="10" width="72" height="13" rx="6" fill="#F8EBD6" stroke="#E5A2B4" stroke-width="1.4"/><rect class="bp-shoe" x="3" y="8" width="18" height="17" rx="3"/></g><g class="bp-leg b" transform="translate(9,20)"><rect x="18" y="10" width="72" height="13" rx="6" fill="#F1D9BC" stroke="#E5A2B4" stroke-width="1.4"/><rect class="bp-shoe" x="3" y="8" width="18" height="17" rx="3"/></g></svg><div class="room-zzz hidden" id="roomZzz">Zzz</div></div></div></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
-<div class="gs-char-hint">轻点小人 · 收起身边的星星光点</div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
-<div class="gs-room-hint hidden" id="roomHint">A / D 慢慢走 · 走到最右边推开门 ✦</div>
+<div class="room-tip" id="roomTip"></div>
+<div class="room-dim-veil" id="roomDimVeil"></div>
 <div class="gs-pad left" id="padLeft"><span class="pad-tip">‹</span></div>
 <div class="gs-pad right" id="padRight"><span class="pad-tip">›</span></div>
 <div class="gs-home hidden" id="homeGate" title="回温馨小屋">
@@ -3398,7 +3483,6 @@ function renderScene(){
   if(sc.id==='path') startCatchTicker();
   /* 户外只在出生点留一扇小门；底部场景栏、小屋衣橱按钮一律退场 */
   const home=$('#homeGate'); if(home) home.classList.toggle('hidden', S.inRoom);
-  const rmHint=$('#roomHint'); if(rmHint) rmHint.classList.toggle('hidden', !S.inRoom);
   const wbtn=$('#btnWardrobe'); if(wbtn) wbtn.classList.toggle('hidden', !S.inRoom);
   const ebtn=$('#btnExplore'); if(ebtn) ebtn.classList.toggle('hidden', S.inRoom);
   const stay=$('#mapStay'); if(stay) stay.onclick=closeTravelMap;
@@ -3492,7 +3576,7 @@ function updateHUD(pop){
 }
 function renderCommissions(g){
   const list=(g||gameGet()).commissions?.list||[];
-  $('#commissionBox').innerHTML = `<b>今日委托 ✦</b>` + list.map(c=>
+  $('#commissionBox').innerHTML = `<b>手账 ✦</b>` + list.map(c=>
     `<span class="cm ${c.done?'done':''}">${esc(c.text)} ${c.done?'✓':`(${c.progress}/${c.need})`}</span>`).join('');
 }
 
@@ -3613,7 +3697,8 @@ function sitAt(sp){
 }
 function standUp(){
   const c=charEl();
-  if(c){ c.classList.remove('sitting','swinging'); c.style.removeProperty('--sit-rise'); }
+  if(c){ c.classList.remove('sitting','swinging','rug-sit'); c.style.removeProperty('--sit-rise'); }
+  const m=$('#companion'); if(m) m.classList.remove('circling');
   const a=$('#gsArt'); if(a) a.classList.remove('swinging','bottle-drag');
   sitting=false; swingActive=false;
   clearBenchTimer();
