@@ -637,6 +637,66 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gm-chip.gm-star.pop{animation:gmPop .65s ease}
 @keyframes gmPop{0%{transform:scale(1)}38%{transform:scale(1.17);box-shadow:0 0 22px rgba(230,200,140,.75)}100%{transform:scale(1)}}
 
+/* ---------------- 主线收集槽：✦ 星碎进度 5 / 30（极细金边 + 会生长的像素条） ---------------- */
+.gm-chip.gm-quest{cursor:pointer;display:inline-flex;align-items:center;gap:7px;position:relative;overflow:hidden;
+  color:#A48C68;border-color:rgba(217,198,165,.85);background:rgba(255,250,240,.30);padding:5px 10px 5px 9px}
+.gm-chip.gm-quest:hover{border-color:var(--gold);background:rgba(255,248,235,.55)}
+.gm-quest .hq-cap{font-size:10px;letter-spacing:.12em;white-space:nowrap;opacity:.9}
+.gm-quest .hq-bar{position:relative;width:56px;height:4px;background:rgba(190,170,140,.26);border-radius:1px;overflow:hidden}
+.gm-quest .hq-bar i{display:block;height:100%;width:0;border-radius:1px;
+  background:linear-gradient(90deg,#F2E2B6,#E9C275 58%,#FFF8E2);
+  box-shadow:0 0 7px rgba(233,194,117,.8);transition:width .8s cubic-bezier(.2,.8,.3,1)}
+.gm-quest .hq-num{font-size:10px;letter-spacing:.05em;font-variant-numeric:tabular-nums;min-width:30px;text-align:right}
+.gm-quest .hq-spark{position:absolute;right:4px;top:50%;width:3px;height:3px;margin-top:-1px;background:#FFF8E2;
+  box-shadow:0 0 7px 2px rgba(255,236,180,.95);opacity:0;pointer-events:none}
+.gm-quest.grow .hq-spark{animation:hqSpark .85s ease-out}
+@keyframes hqSpark{0%{opacity:0;right:4px}25%{opacity:1}100%{opacity:0;right:calc(100% - 8px)}}
+.gm-quest.pop{animation:gmPop .65s ease}
+.gm-quest.full{border-color:#E9C275;background:rgba(255,244,220,.5);box-shadow:0 0 15px rgba(233,194,117,.35)}
+
+/* ---------------- 主线追踪：左上角半透明和纸便签（导航栏下方） ---------------- */
+.gm-shell{position:relative}
+.quest-card{position:absolute;left:29px;top:58px;z-index:62;width:226px;padding:9px 12px 10px;
+  transform:rotate(-.7deg);transform-origin:12% 0;
+  border:1px solid rgba(217,198,165,.72);border-radius:2px;
+  background:linear-gradient(158deg,rgba(255,253,246,.86),rgba(251,244,233,.66));
+  box-shadow:0 4px 15px rgba(120,105,90,.13),inset 0 0 0 1px rgba(255,255,255,.55);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  transition:transform .5s cubic-bezier(.2,.8,.3,1),opacity .5s ease;
+  animation:qcIn .75s cubic-bezier(.2,.8,.3,1) both}
+@keyframes qcIn{from{opacity:0;transform:rotate(-2.6deg) translateY(-8px)}to{opacity:1;transform:rotate(-.7deg)}}
+.quest-card::before{content:"";position:absolute;left:50%;top:-3px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;
+  background:#E3CBA2;box-shadow:0 0 0 1px rgba(255,255,255,.7),0 1px 3px rgba(120,100,80,.3)}
+.quest-card.done{opacity:.72;transform:rotate(-.3deg) translateY(-1px)}
+.quest-card.folded{padding-bottom:6px}
+.quest-card.folded .qc-body{max-height:0;opacity:0;margin-top:0;overflow:hidden}
+.qc-head{display:flex;align-items:center;gap:6px}
+.qc-tag{font-family:var(--serif);font-size:9px;letter-spacing:.2em;color:#BCA279;opacity:.95}
+.qc-dot{width:3px;height:3px;background:#E9C275;box-shadow:0 0 5px rgba(233,194,117,.9)}
+.qc-fold{margin-left:auto;width:14px;height:14px;padding:0;border:1px solid var(--line-soft);border-radius:2px;
+  background:transparent;color:#B8A483;font-size:9px;line-height:1;cursor:pointer;
+  font-family:var(--serif);transition:.35s}
+.qc-fold:hover{border-color:var(--gold);color:#A08C6C}
+.qc-body{max-height:120px;opacity:1;margin-top:5px;transition:max-height .5s ease,opacity .35s ease,margin .35s ease}
+.qc-text{font-family:var(--serif);font-size:11.5px;line-height:1.72;letter-spacing:.02em;color:#6C6257;
+  margin:0;min-height:2.7em;transition:color .4s ease}
+.qc-text.done{color:#A99C8B;text-decoration:line-through;text-decoration-thickness:1px;
+  text-decoration-color:rgba(211,176,112,.9)}
+.qc-text.swap{animation:qcSwap .5s ease}
+@keyframes qcSwap{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:none}}
+.qc-meta{display:flex;align-items:center;gap:6px;margin-top:2px}
+.qc-num{font-family:var(--serif);font-size:9px;letter-spacing:.09em;color:#B0A08A;font-variant-numeric:tabular-nums}
+.qc-check{margin-left:auto;font-size:12px;line-height:1;color:#C9A967;opacity:0;transform:scale(.3);
+  transition:opacity .35s ease,transform .45s cubic-bezier(.2,1.5,.4,1)}
+.qc-check.on{opacity:1;transform:scale(1)}
+.qc-bar{height:2px;margin-top:6px;background:rgba(200,182,152,.3);overflow:hidden}
+.qc-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#F0DFB8,#E2C183);
+  transition:width .8s cubic-bezier(.2,.8,.3,1)}
+@media (max-width:860px){
+  .quest-card{left:16px;top:52px;width:174px;padding:7px 9px 8px}
+  .qc-text{font-size:11px;line-height:1.7}
+}
+
 /* ---------------- 唯一舞台容器 ---------------- */
 #game-stage{position:relative;flex:1 1 auto;min-height:340px;margin:0 20px;border-radius:8px;overflow:hidden;
   border:1px solid var(--line);
@@ -715,7 +775,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs-mate.near{filter:drop-shadow(0 0 12px rgba(255,236,176,.95)) drop-shadow(0 0 18px rgba(255,220,150,.55)) drop-shadow(0 3px 5px rgba(90,75,65,.22))}
 
 /* ---------------- 星星光点：像素十字，不是发光圆圈 ---------------- */
-.gs-orb{position:absolute;width:4px;height:4px;margin:-2px;z-index:26;cursor:pointer;
+.gs-orb{position:absolute;width:4px;height:4px;margin:-2px;z-index:26;cursor:pointer;touch-action:none;
   background:#FFFDF2;image-rendering:pixelated;
   box-shadow:4px 0 0 #FFFDF2,-4px 0 0 #FFFDF2,0 4px 0 #FFFDF2,0 -4px 0 #FFFDF2,
              2px 2px 0 rgba(255,238,190,.95),-2px 2px 0 rgba(255,238,190,.95),
@@ -724,12 +784,143 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   animation:gsOrbBlink 1.5s steps(1,end) infinite;transition:transform .32s steps(2,end)}
 @keyframes gsOrbBlink{0%{opacity:1}50%{opacity:.42}100%{opacity:1}}
 .gs-orb.near{transform:scale(2.3)}
+/* 光点自己带一个极小的玩法记号：◍ 按住 / ··· 连点 / ↑ 上拖 */
+.gs-orb::after{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:5px;
+  font-family:var(--serif);font-size:6.5px;letter-spacing:.06em;color:#B09A7C;white-space:nowrap;
+  opacity:0;transition:opacity .3s ease;pointer-events:none;text-shadow:0 0 4px rgba(255,252,244,.9)}
+.gs-orb::before{content:"";position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px;
+  border-radius:50%}                       /* 看不见的大一点的点击区，拖拽更好按 */
+.gs-orb[data-mode="hold"]::after{content:"◍"}
+.gs-orb[data-mode="triple"]::after{content:"···"}
+.gs-orb[data-mode="drag"]::after{content:"↑"}
+.gs-orb.near::after{opacity:.75}
+.gs--library .gs-orb::after,.gs--cafe .gs-orb::after{color:#F2E4C8;text-shadow:0 0 5px rgba(30,26,34,.8)}
 .gs-orb.gone{opacity:0;transform:scale(0);transition:.3s}
 .gs-fly{position:fixed;width:4px;height:4px;z-index:960;pointer-events:none;
   background:#FFFDF2;
   box-shadow:4px 0 0 #FFFDF2,-4px 0 0 #FFFDF2,0 4px 0 #FFFDF2,0 -4px 0 0 #FFFDF2,
              0 0 12px 5px rgba(255,232,166,.85);
   transition:left .85s cubic-bezier(.35,.1,.2,1),top .85s cubic-bezier(.35,.1,.2,1),opacity .85s}
+
+/* ---------------- 收集微操：长按蓄力 / 连点 / 向上拖（光点旁的小提示条 + 蓄力进度） ---------------- */
+.gs-orb.pending{animation:orbPending .7s steps(2,end) infinite}
+@keyframes orbPending{0%,100%{transform:scale(2.3)}50%{transform:scale(2.9)}}
+.gs-orb.dragging{z-index:27}
+.gs-collect{position:absolute;z-index:49;transform:translate(-50%,-100%);
+  display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;
+  transition:opacity .22s ease;opacity:1}
+.gs-collect.hidden{opacity:0}
+.gs-collect .cc-text{font-family:var(--serif);font-size:9.5px;letter-spacing:.1em;color:#6C6257;
+  padding:2px 7px;border:1px solid rgba(217,198,165,.8);border-radius:1px;
+  background:rgba(255,253,247,.88);white-space:nowrap;box-shadow:0 2px 7px rgba(120,105,90,.12)}
+.gs-collect .cc-bar{width:58px;height:3px;background:rgba(255,255,255,.55);border:1px solid rgba(217,198,165,.72)}
+.gs-collect .cc-bar i{display:block;height:100%;width:0;background:#E9C275;transition:width .07s linear}
+.gs-collect .cc-bar.love i{background:#E7A8B8}
+.gs--library .gs-collect .cc-text,.gs--cafe .gs-collect .cc-text{color:#F6EEE1;background:rgba(46,42,52,.72);border-color:rgba(255,240,210,.45)}
+.gs-char.charging .gs-char-pose{filter:drop-shadow(0 0 10px rgba(255,238,186,.92)) drop-shadow(0 0 18px rgba(233,194,117,.55))}
+.gs-char.charging .px-avatar{filter:brightness(1.14) saturate(1.04) drop-shadow(0 0 9px rgba(255,240,205,.8)) drop-shadow(0 5px 7px rgba(90,75,65,.2))}
+
+/* ---------------- 小喵雷达引导：飞到下一个光点旁，绕着它转圈 ---------------- */
+.gs-mate.radar{bottom:auto;margin-left:0;z-index:33;transform:translate(-50%,-50%);
+  transition:left 1.15s cubic-bezier(.2,.8,.3,1),top 1.15s cubic-bezier(.2,.8,.3,1);
+  animation:radarOrbit 4.2s linear infinite;
+  filter:drop-shadow(0 0 10px rgba(255,236,190,.8)) drop-shadow(0 0 16px rgba(255,220,150,.42)) drop-shadow(0 3px 5px rgba(90,75,65,.22))}
+@keyframes radarOrbit{
+  0%{transform:translate(-50%,-50%) translate(25px,0)}
+  12.5%{transform:translate(-50%,-50%) translate(17.7px,17.7px)}
+  25%{transform:translate(-50%,-50%) translate(0,25px)}
+  37.5%{transform:translate(-50%,-50%) translate(-17.7px,17.7px)}
+  50%{transform:translate(-50%,-50%) translate(-25px,0)}
+  62.5%{transform:translate(-50%,-50%) translate(-17.7px,-17.7px)}
+  75%{transform:translate(-50%,-50%) translate(0,-25px)}
+  87.5%{transform:translate(-50%,-50%) translate(17.7px,-17.7px)}
+  100%{transform:translate(-50%,-50%) translate(25px,0)}}
+.gs-radar-ring{position:absolute;width:12px;height:12px;margin:-6px;z-index:25;border-radius:50%;
+  border:1px dashed rgba(233,194,117,.92);pointer-events:none;animation:radarPing 2s ease-out infinite}
+@keyframes radarPing{0%{transform:scale(.5);opacity:.9}70%{opacity:.35}100%{transform:scale(3.1);opacity:0}}
+
+/* ---------------- 探索瞬间：屏幕边缘极小像素文字 ---------------- */
+.gs-moment-log{position:absolute;left:13px;bottom:13px;z-index:50;display:flex;flex-direction:column-reverse;
+  gap:3px;pointer-events:none;max-width:60%}
+.gs-moment-log .ml-line{font-family:ui-monospace,"Courier New",monospace;font-size:9px;letter-spacing:.05em;
+  line-height:1.5;color:rgba(96,88,78,.74);padding:1px 5px;border-left:1px solid rgba(217,198,165,.85);
+  background:rgba(255,253,247,.38);animation:mlIn .5s ease both;transition:opacity .6s ease}
+.gs-moment-log .ml-line::before{content:"· ";opacity:.6}
+.gs-moment-log .ml-line.out{opacity:0}
+.gs--library .gs-moment-log .ml-line,.gs--cafe .gs-moment-log .ml-line{
+  color:rgba(246,238,225,.82);background:rgba(40,36,44,.34);border-left-color:rgba(255,236,190,.55)}
+@keyframes mlIn{from{opacity:0;transform:translateX(-7px)}to{opacity:1;transform:none}}
+
+/* ---------------- 星蕾星图：30 个格位点亮的隐藏图 ---------------- */
+.gs-chart{position:absolute;inset:0;z-index:78;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 46%,rgba(48,42,58,.34),rgba(40,34,30,.52));
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:chartVeil .45s ease both}
+@keyframes chartVeil{from{opacity:0}to{opacity:1}}
+.gs-chart .sc-box{position:relative;width:min(400px,88%);padding:18px 20px 15px;text-align:center;
+  border:1px solid rgba(217,198,165,.7);border-radius:2px;
+  background:linear-gradient(168deg,#FFFDF7,#FBF1E1 62%,#F6EADA);
+  box-shadow:0 18px 54px rgba(50,42,34,.32),inset 0 0 0 1px rgba(255,255,255,.6);
+  animation:chartIn .55s cubic-bezier(.2,.8,.3,1) both}
+@keyframes chartIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.sc-title{font-family:var(--hand);font-size:24px;letter-spacing:.14em;color:#8A7A65;margin:0}
+.sc-sub{font-family:var(--serif);font-size:9.5px;letter-spacing:.14em;color:#B3A188;margin:2px 0 8px}
+.sc-map{display:block;width:100%;height:auto;max-height:46vh}
+.sc-node{transition:opacity .5s ease}
+.sc-node .n-dot{transition:r .4s ease,fill .4s ease}
+.sc-node.lit .n-dot{fill:#FFF3CE}
+.sc-node.lit .n-halo{opacity:.55;animation:scTwinkle 3.4s ease-in-out infinite}
+@keyframes scTwinkle{0%,100%{opacity:.28}50%{opacity:.72}}
+.sc-node .n-halo{opacity:0;transition:opacity .8s ease}
+.sc-link{stroke:#E4D3B4;stroke-width:.8;fill:none;opacity:.35;transition:opacity .5s ease}
+.sc-link.lit{stroke:#E9C275;opacity:.8;filter:drop-shadow(0 0 2px rgba(233,194,117,.8))}
+.sc-count{font-family:var(--serif);font-size:11px;letter-spacing:.16em;color:#A08E74;margin-top:6px}
+.sc-tip{font-family:var(--serif);font-size:9.5px;line-height:1.8;color:#B0A08A;margin:4px 0 10px}
+.sc-close{font-family:var(--serif);font-weight:300;letter-spacing:.12em;color:#7E746A;
+  background:transparent;border:1px solid var(--line);border-radius:2px;padding:5px 16px;font-size:10.5px;cursor:pointer;transition:.4s}
+.sc-close:hover{border-color:var(--gold);color:#A08C6C;background:rgba(255,248,235,.5)}
+
+/* ---------------- 主线达成：全屏星图点亮 ---------------- */
+.gs-finale{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 44%,rgba(255,250,238,.97),rgba(247,235,217,.98) 52%,rgba(232,219,203,.99))}
+.gs-finale::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 46%,rgba(255,233,180,.55),transparent 52%);
+  animation:finGlow 4.6s ease-in-out infinite}
+.gs-finale::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 46%,transparent 42%,rgba(150,118,78,.10) 78%,rgba(130,100,66,.16) 100%)}
+@keyframes finGlow{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:.85;transform:scale(1.08)}}
+.gs-finale .fin-star{position:absolute;width:3px;height:3px;background:#FFF8E2;pointer-events:none;
+  box-shadow:0 0 8px 3px rgba(255,232,170,.85);animation:finTwinkle 3s steps(2,end) infinite}
+@keyframes finTwinkle{0%,100%{opacity:.25}50%{opacity:1}}
+.gs-finale .fin-map{position:absolute;left:50%;top:51%;width:min(820px,96vw);transform:translate(-50%,-50%);
+  opacity:.6;pointer-events:none;filter:drop-shadow(0 0 16px rgba(255,232,180,.6))}
+.gs-finale .fin-map svg{display:block;width:100%;height:auto}
+.gs-finale .fin-box{position:relative;z-index:2;width:min(540px,92%);text-align:center;animation:finBox 1s cubic-bezier(.2,.8,.3,1) both}
+.gs-finale .fin-box::before{content:"";position:absolute;left:50%;top:50%;width:118%;height:146%;transform:translate(-50%,-50%);
+  z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,rgba(255,251,242,.8),rgba(255,250,240,.4) 46%,transparent 68%)}
+@keyframes finBox{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.fin-eyebrow{font-family:var(--serif);font-size:9.5px;letter-spacing:.36em;color:#A98C60}
+.fin-title{font-family:var(--hand);font-size:clamp(28px,4.6vw,44px);letter-spacing:.1em;color:#7C6248;margin:6px 0 2px;
+  white-space:nowrap;text-shadow:0 0 18px rgba(255,236,190,.9)}
+.fin-sub{font-family:var(--serif);font-size:11.5px;letter-spacing:.1em;color:#7C674E;line-height:2;margin-top:10px}
+.fin-gift{margin:16px auto 0;padding:10px 14px;width:min(320px,92%);
+  border:1px solid rgba(217,198,165,.8);background:rgba(255,252,243,.62);
+  font-family:var(--serif);font-size:10.5px;letter-spacing:.1em;color:#79664D;line-height:1.95}
+.fin-gift b{font-weight:400;color:#A4813F}
+.fin-btn{margin-top:16px;font-family:var(--serif);font-weight:300;letter-spacing:.16em;color:#7E746A;
+  background:rgba(255,252,244,.6);border:1px solid rgba(217,198,165,.9);border-radius:2px;
+  padding:8px 26px;font-size:11px;cursor:pointer;transition:.45s}
+.fin-btn:hover{border-color:var(--gold);color:#A08C6C;background:#FFFBF2;box-shadow:0 0 18px rgba(233,194,117,.35)}
+.gs-finale .fin-cat{position:absolute;left:-90px;top:24%;width:64px;height:54px;z-index:3;
+  animation:finCat 5.4s cubic-bezier(.3,.1,.25,1) .2s both;filter:drop-shadow(0 0 10px rgba(255,236,190,.9))}
+@keyframes finCat{
+  0%{left:-90px;top:64%;transform:scale(.8)}
+  38%{left:36%;top:12%;transform:scale(1)}
+  56%{left:54%;top:16%;transform:scale(1)}
+  100%{left:calc(100% + 90px);top:30%;transform:scale(.85)}}
+.gs-finale .fin-petals{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.gs-finale .fin-petal{position:absolute;width:5px;height:5px;background:#F6D7DA;opacity:.85;
+  animation:finPetal linear forwards}
+@keyframes finPetal{from{transform:translateY(-20px) rotate(0);opacity:.9}to{transform:translateY(105vh) rotate(220deg);opacity:0}}
 
 /* ---------------- 交互热点：透明 + 细边，绝无白底按钮 ---------------- */
 .gs-spots{position:absolute;inset:0;z-index:28;pointer-events:none}
@@ -772,7 +963,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs-purr{position:absolute;font-family:var(--hand);font-size:17px;color:#8B7A67;animation:gsNoteUp 2s ease-out forwards}
 
 /* ---------------- 舞台内浮层：小喵头顶极小像素气泡，绝不用大白框 ---------------- */
-.gs-dialog{position:absolute;left:39%;bottom:calc(33% + 62px);transform:translateX(-50%);z-index:48;
+.gs-dialog{position:absolute;left:39%;bottom:calc(33% + 96px);transform:translateX(-50%);z-index:48;
   width:max-content;max-width:min(190px,52%);padding:4px 9px;
   border:1px solid rgba(217,198,165,.85);border-radius:2px;
   background:rgba(255,253,247,.84);backdrop-filter:blur(4px);
@@ -824,6 +1015,21 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .ach-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .ach-chip{padding:4px 9px;border:1px solid var(--line);border-radius:2px;font-size:10.5px;color:#9C8A70;background:rgba(255,255,255,.42)}
 .ach-chip.locked{opacity:.34;filter:grayscale(1)}
+/* 旅行报告里的「探索瞬间」：手账边注，一行一件小事 */
+.ex-meter{display:flex;align-items:center;gap:7px;margin:0 0 11px}
+.ex-meter b{font-family:var(--serif);font-size:9px;letter-spacing:.16em;color:#B29C7C;font-weight:400}
+.ex-bar{flex:1 1 auto;height:3px;background:rgba(200,182,152,.32);overflow:hidden}
+.ex-bar i{display:block;height:100%;background:linear-gradient(90deg,#F0DFB8,#D9BE8C);transition:width .8s ease}
+.ex-meter em{font-style:normal;font-family:var(--serif);font-size:9.5px;color:#A08E74;min-width:22px;text-align:right}
+.jr-wrap{margin-top:2px;padding:9px 10px 8px;border:1px solid var(--line-soft);border-radius:3px;
+  background:repeating-linear-gradient(180deg,rgba(255,253,247,.72) 0 25px,rgba(232,220,198,.35) 25px 26px)}
+.jr-cap{font-family:var(--serif);font-size:9.5px;letter-spacing:.14em;color:#B29C7C;margin-bottom:5px}
+.jr-line{display:flex;gap:7px;align-items:flex-start;font-size:10px;line-height:1.6;color:#6E6457;min-height:13px}
+.jr-line i{flex:none;font-style:normal;font-family:ui-monospace,"Courier New",monospace;font-size:8.5px;
+  letter-spacing:.02em;color:#B4A690;min-width:70px;white-space:nowrap}
+.jr-line span{flex:1 1 auto;min-width:0;font-family:var(--serif);letter-spacing:.02em}
+.jr-quest{margin-top:6px;padding-top:5px;border-top:1px dashed rgba(217,198,165,.6);
+  font-family:var(--serif);font-size:9.5px;letter-spacing:.1em;color:#A08E74}
 
 /* ---------------- 底部：像素小箭头高亮当前场景 ---------------- */
 .gm-bottom{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 20px}
@@ -1840,6 +2046,12 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
     <div class="gm-status">
       <span class="gm-chip" id="hudSteps">小脚步 6 / 12</span>
       <span class="gm-chip gm-star" id="hudStar">✦ 星碎 0</span>
+      <button class="gm-chip gm-quest" id="hudQuest" title="点亮星蕾星图 · 查看收集进度">
+        <span class="hq-cap">✦ 星碎进度</span>
+        <span class="hq-bar"><i id="hudQuestFill"></i></span>
+        <b class="hq-num" id="hudQuestNum">0 / 30</b>
+        <i class="hq-spark" aria-hidden="true"></i>
+      </button>
       <button class="gm-btn" id="btnWardrobe">✧ 衣橱</button>
       <button class="gm-btn" id="btnExplore">✦ 探索一次（1 小脚步）</button>
       <button class="gm-btn" id="btnReport">✎ 旅行报告</button>
@@ -1847,10 +2059,42 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
     </div>
   </header>
 
+  <!-- 主线追踪：导航栏下方的半透明和纸便签（内容随 currentQuest 动态刷新） -->
+  <aside class="quest-card" id="questCard" aria-live="polite">
+    <div class="qc-head">
+      <span class="qc-dot"></span>
+      <span class="qc-tag">主线 · 星蕾星图</span>
+      <button class="qc-fold" id="questFold" title="收起 / 展开">—</button>
+    </div>
+    <div class="qc-body">
+      <p class="qc-text" id="questText">前往樱花小径，寻找发光的星星 ✦</p>
+      <div class="qc-meta">
+        <span class="qc-num" id="questMeta">星碎 0 / 30</span>
+        <span class="qc-check" id="questCheck">✓</span>
+      </div>
+      <div class="qc-bar"><i id="questFill"></i></div>
+    </div>
+  </aside>
+
   <!-- 唯一的舞台容器：切换场景时，内部所有 DOM 被彻底清空后重建 -->
   <div id="game-stage"></div>
 
   <div class="gm-comm" id="commissionBox"></div>
+ </div>
+
+ <!-- 主线达成：全屏星图点亮（一次性，收下礼物后关闭） -->
+ <div class="gs-finale hidden" id="questFinale" aria-live="polite">
+   <div class="fin-stars" id="finStars" aria-hidden="true"></div>
+   <div class="fin-petals" id="finPetals" aria-hidden="true"></div>
+   <div class="fin-cat" id="finCat" aria-hidden="true"></div>
+   <div class="fin-map" id="finMap" aria-hidden="true"></div>
+   <div class="fin-box">
+     <div class="fin-eyebrow">S T A R · B U D · M A P</div>
+     <h2 class="fin-title">星蕾星图 · 点亮</h2>
+     <p class="fin-sub">三十颗散落的星碎，终于拼成了一朵花。<br>小喵叼着最后一瓣月光，落在了你的裙角上。</p>
+     <div class="fin-gift">解锁并换上 <b>【星蕾月白】</b><br><span id="finGiftNote">一层柔和月光，正落在你的肩上。</span></div>
+     <button class="fin-btn" id="finClose">收下这份礼物 ✦</button>
+   </div>
  </div>
 </section>
 
@@ -1966,6 +2210,7 @@ const S = { screen:'gate', gameFrom:'desk', authed:false, gateOpening:false,
 function hashName(){ const h = location.hash.replace('#',''); return SCREENS.includes(h) ? h : null; }
 function go(name, opts={}){
   if(!SCREENS.includes(name)) name='desk';
+  if(name!=='game'){ stopRadarLoop(); cancelCollect(); closeStarChart(); }
   const state = { screen:name, from:opts.from||S.gameFrom };
   if(opts.replace) history.replaceState(state,'','#'+name); else history.pushState(state,'','#'+name);
   renderRoute(name, state);
@@ -2797,7 +3042,8 @@ const ACHIEVEMENTS = [
   {id:'sakuraCat',   title:'路过的小猫',   text:'它没说话，但让你摸了。'},
   {id:'bottleLetter',title:'灯塔的信',     text:'有人把话留在门缝里，等你来读。'},
   {id:'wish',        title:'许愿一次',     text:'你许了一个愿，水没有笑你。'},
-  {id:'note',        title:'午夜便签',     text:'有人提前写好了：今天你最大。'}
+  {id:'note',        title:'午夜便签',     text:'有人提前写好了：今天你最大。'},
+  {id:'starmap',     title:'星图点亮',     text:'三十颗星碎，拼成你的生日星图。'}
 ];
 const OUTFITS = [
   {id:'cotton', name:'初始棉麻裙', desc:'最舒服的一件，风一吹就轻轻晃。'},
@@ -3965,6 +4211,7 @@ async function doorDream(){
   if(!sc || sc.id!=='path' || !$('#gsDoorLeaf')) return;
   doorBusy=true;
   doorOpen();
+  logMoment('在樱花小径敲开了树根下的小木门');
   await swait(360);                                   /* 门先开一条缝，东西才飘得出来 */
   const kinds=pickDreamKinds();
   const boost = kinds.length===1 ? 1.7 : (kinds.length===2 ? 1.3 : 1);
@@ -4050,7 +4297,11 @@ function defaultGame(){
     unlockedSeen:['garden','path'], inRoom:true,
     stats:{catPats:0, benchSeconds:0, reportViews:0, explored:0, discoveries:0, pathCollects:0},
     steps:{date:todayStr(), left:6, cap:12},
-    commissions:null, current:0, charX:46, sound:true
+    commissions:null, current:0, charX:46, sound:true,
+    /* 主线：点亮星蕾星图（30 颗星碎） */
+    quest:{shards:0, pathFirst:false, done:false, finaleSeen:false},
+    /* 探索瞬间：屏幕边缘的小字，同时写进旅行报告 */
+    journal:[]
   };
 }
 function gameGet(){
@@ -4061,6 +4312,10 @@ function gameGet(){
   for(const k of Object.keys(d.materials)) if(g.materials[k]===undefined) g.materials[k]=0;
   for(const k of Object.keys(d.stats)) if(g.stats[k]===undefined) g.stats[k]=0;
   if(!g.totals) g.totals={};
+  /* 旧存档没有主线字段时补齐，进度从 0 重新点亮，不影响任何既有数据 */
+  if(!g.quest || typeof g.quest!=='object') g.quest={...d.quest};
+  for(const k of Object.keys(d.quest)) if(g.quest[k]===undefined) g.quest[k]=d.quest[k];
+  if(!Array.isArray(g.journal)) g.journal=[];
   return g;
 }
 const gameSet = g => DB.write(KEYS.game,g);
@@ -4115,6 +4370,219 @@ function addMat(g,key,n=1){
 }
 function withGame(fn){ const g=gameGet(); fn(g); gameSet(g); return g; }
 
+/* ========================================================== 主线：点亮星蕾星图 ==========================================================
+   30 颗星碎 → 点亮一张藏起来的五瓣花星图 → 解锁并自动穿上【星蕾月白】。
+   所有进度都写在 game_save.quest 里，刷新 / 锁屏 / 换设备都还在原位。 */
+const QUEST_TOTAL = 30;
+const QUEST_STAGES = [
+  { id:1, short:'找到第一颗星碎了 ✦',
+    text:'前往樱花小径，寻找发光的星星 ✦',
+    meta:g=>`星碎 ${Math.min(QUEST_TOTAL,(g.quest&&g.quest.shards)||0)} / 30 · 长按 / 连点 / 向上拖` },
+  { id:2, short:'星碎又多了一颗 ✦',
+    text:g=>`星碎还不够，去其他场景看看吧\n（当前 ${Math.min(QUEST_TOTAL,(g.quest&&g.quest.shards)||0)}/30）`,
+    meta:g=>`还差 ${QUEST_TOTAL-Math.min(QUEST_TOTAL,(g.quest&&g.quest.shards)||0)} 颗 · 小喵会替你带路` },
+  { id:3, short:'星图点亮了 ✦',
+    text:'星图已点亮！去小屋里换上生日套装吧。',
+    meta:'星蕾月白 · 已经穿在你身上了' },
+  { id:4, short:'生日套装穿好了 ✦',
+    text:'主线完成 · 星蕾星图亮着，慢慢逛吧 ✦',
+    meta:'小喵说：生日这天，走多慢都可以' }
+];
+let currentQuest = {id:1, text:'', meta:'', progress:0, done:false};
+let questShown = 0, questSwapT = null, questSwapping = false;
+
+function questStageIndex(g){
+  const q=(g&&g.quest)||{};
+  if(q.done) return q.finaleSeen ? 3 : 2;
+  if(q.pathFirst) return 1;
+  return 0;
+}
+/* 便签 + 顶部收集槽：唯一的状态出口，任何收集 / 换装后都走这里 */
+function updateQuestUI(force){
+  const g=gameGet(), q=g.quest||{}, st=QUEST_STAGES[questStageIndex(g)];
+  const shards=Math.max(0,Math.min(QUEST_TOTAL,q.shards||0));
+  const pct=Math.round(shards/QUEST_TOTAL*1000)/10;
+  const text=typeof st.text==='function'?st.text(g):st.text;
+  const meta=typeof st.meta==='function'?st.meta(g):st.meta;
+  currentQuest={id:st.id,text,meta,progress:shards,done:shards>=QUEST_TOTAL};
+
+  const fill=$('#hudQuestFill'), num=$('#hudQuestNum'), chip=$('#hudQuest');
+  if(fill) fill.style.width=pct+'%';
+  if(num) num.textContent=shards+' / '+QUEST_TOTAL;
+  if(chip) chip.classList.toggle('full', shards>=QUEST_TOTAL);
+  const bar=$('#questFill'); if(bar) bar.style.width=pct+'%';
+  const mEl=$('#questMeta'); if(mEl) mEl.textContent=meta;
+  const tEl=$('#questText'), ckEl=$('#questCheck'), card=$('#questCard');
+
+  /* 正在打勾的过渡里，只更新数字，别打断动画 */
+  if(questSwapping && !force) return;
+
+  if(!force && questShown && st.id>questShown){
+    const last=QUEST_STAGES.find(x=>x.id===questShown)||{short:'这一小步完成啦 ✦'};
+    questShown=st.id; questSwapping=true;
+    if(tEl){ tEl.textContent=last.short; tEl.classList.remove('swap'); tEl.classList.add('done'); }
+    if(ckEl){ ckEl.classList.remove('on'); void ckEl.offsetWidth; ckEl.classList.add('on'); }
+    if(card) card.classList.add('done');
+    clearTimeout(questSwapT);
+    questSwapT=setTimeout(()=>{
+      questSwapT=null; questSwapping=false;
+      /* 到点重新读一次存档：打勾的 1.5 秒里可能又捡了两颗，文案要写最新的数字 */
+      const gg=gameGet(), ss=QUEST_STAGES[questStageIndex(gg)];
+      const tt=typeof ss.text==='function'?ss.text(gg):ss.text;
+      const mm=typeof ss.meta==='function'?ss.meta(gg):ss.meta;
+      const t2=$('#questText'), ck2=$('#questCheck'), card2=$('#questCard'), m2=$('#questMeta');
+      questShown=ss.id;
+      if(m2) m2.textContent=mm;
+      if(t2){ t2.classList.remove('done','swap'); t2.innerHTML=String(tt).replace(/\n/g,'<br>'); void t2.offsetWidth; t2.classList.add('swap'); }
+      if(ck2) ck2.classList.toggle('on', ss.id>=4);
+      if(card2) card2.classList.toggle('done', ss.id>=4);
+    },1500);
+    return;
+  }
+
+  questShown=st.id; questSwapping=false;
+  clearTimeout(questSwapT); questSwapT=null;
+  if(tEl){ tEl.classList.remove('done'); const html=String(text).replace(/\n/g,'<br>'); if(tEl.innerHTML!==html) tEl.innerHTML=html; }
+  if(ckEl) ckEl.classList.toggle('on', st.id>=4);
+  if(card) card.classList.toggle('done', st.id>=4);
+}
+/* 收集到星碎 → 收集槽长一格，并给一次生长闪光 */
+function addQuestShard(n=1){
+  const g=gameGet();
+  if(!g.quest) g.quest={shards:0,pathFirst:false,done:false,finaleSeen:false};
+  if(g.quest.done) return;
+  g.quest.shards=Math.max(0,Math.min(QUEST_TOTAL,(g.quest.shards||0)+n));
+  if(!S.inRoom && curScene() && curScene().id==='path') g.quest.pathFirst=true;
+  const full=g.quest.shards>=QUEST_TOTAL;
+  gameSet(g);
+  const chip=$('#hudQuest');
+  if(chip){ chip.classList.remove('grow','pop'); void chip.offsetWidth; chip.classList.add('grow','pop'); }
+  updateHUD();
+  if(full) setTimeout(()=>questComplete(), 1000);
+}
+function questComplete(){
+  const g=gameGet();
+  if(!g.quest || g.quest.done) return;
+  g.quest.shards=QUEST_TOTAL; g.quest.done=true;
+  g.outfit='moon';                                   /* 自动穿上生日限定 */
+  gameSet(g);
+  refreshGameAvatar(); syncFacing();
+  if(typeof refreshProfile==='function') refreshProfile();
+  unlockAchievement('starmap',g);
+  logMoment('星蕾星图点亮了，三十颗星碎拼成一朵花');
+  buildFinale();
+  const f=$('#questFinale'); if(f) f.classList.remove('hidden');
+  updateQuestUI(true);
+  say('小喵','星图亮了……你真的把三十颗都找齐了 ✦');
+  playChime(); setTimeout(()=>{ playChime(); }, 520);
+}
+function buildFinale(){
+  const stars=$('#finStars');
+  if(stars) stars.innerHTML=Array.from({length:46},()=>{
+    const x=(Math.random()*100).toFixed(2), y=(Math.random()*100).toFixed(2);
+    const d=(Math.random()*3).toFixed(2), sz=Math.random()<.28?4:3;
+    return `<i class="fin-star" style="left:${x}%;top:${y}%;width:${sz}px;height:${sz}px;animation-delay:${d}s"></i>`;
+  }).join('');
+  const petals=$('#finPetals');
+  if(petals) petals.innerHTML=Array.from({length:26},()=>{
+    const x=(Math.random()*100).toFixed(2), dur=(4+Math.random()*4).toFixed(2), d=(Math.random()*3).toFixed(2);
+    return `<i class="fin-petal" style="left:${x}%;animation-duration:${dur}s;animation-delay:${d}s"></i>`;
+  }).join('');
+  const cat=$('#finCat'); if(cat) cat.innerHTML=PX_MATE_SVG;
+  const map=$('#finMap'); if(map) map.innerHTML=starMapSVG(QUEST_TOTAL);
+}
+function closeFinale(){
+  const f=$('#questFinale'); if(f) f.classList.add('hidden');
+  const g=gameGet(); if(g.quest){ g.quest.finaleSeen=true; gameSet(g); }
+  updateQuestUI(true);
+  toast('换上了「生日限定【星蕾月白】」✦');
+  glintAvatar();
+  if(charEl()) pulsePose('spin',900);
+  fxStarBurst();
+}
+/* 五瓣花星图：5 瓣 × 6 颗 = 30 个格位，按收集顺序一瓣一瓣亮起来 */
+function starMapSVG(lit){
+  const cx=150, cy=150, petals=[];
+  for(let p=0;p<5;p++){
+    const A=-Math.PI/2 + p*(Math.PI*2/5);
+    const dx=Math.cos(A), dy=Math.sin(A), nx=-dy, ny=dx, w=31;
+    const b=[cx+dx*13, cy+dy*13], t=[cx+dx*126, cy+dy*126];
+    const c1=[cx+dx*50+nx*w, cy+dy*50+ny*w], c2=[cx+dx*102+nx*w*.92, cy+dy*102+ny*w*.92];
+    const c3=[cx+dx*102-nx*w*.92, cy+dy*102-ny*w*.92], c4=[cx+dx*50-nx*w, cy+dy*50-ny*w];
+    const nodes=[];
+    for(let j=0;j<6;j++){ const r=13+113*(j/5); nodes.push([cx+dx*r, cy+dy*r]); }
+    const d=`M${b[0].toFixed(1)} ${b[1].toFixed(1)} C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${t[0].toFixed(1)} ${t[1].toFixed(1)} C${c3[0].toFixed(1)} ${c3[1].toFixed(1)} ${c4[0].toFixed(1)} ${c4[1].toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}Z`;
+    petals.push({d,nodes,p,on:Math.max(0,Math.min(6,lit-p*6))});
+  }
+  let svg='<svg class="sc-map" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">';
+  svg+='<circle cx="150" cy="150" r="124" fill="none" stroke="rgba(217,198,165,.26)" stroke-width=".6" stroke-dasharray="1 4"/>';
+  petals.forEach(pt=>{
+    const fill = pt.on>=6 ? 'rgba(255,229,166,.62)' : (pt.on>0 ? 'rgba(255,240,199,.5)' : 'rgba(255,252,244,.7)');
+    svg+=`<path d="${pt.d}" fill="${fill}" stroke="rgba(203,178,140,${pt.on?'.95':'.62'})" stroke-width="${pt.on?'1.1':'.8'}"
+      ${pt.on>=6?'filter="url(#scBloom)"':''}/>`;
+  });
+  /* 中脉连线：收一颗亮一段 */
+  petals.forEach(pt=>{
+    for(let j=1;j<6;j++){
+      if(pt.on<j+1) break;
+      const [x1,y1]=pt.nodes[j-1], [x2,y2]=pt.nodes[j];
+      svg+=`<path class="sc-link lit" d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}"/>`;
+    }
+  });
+  petals.forEach(pt=>pt.nodes.forEach(([x,y],j)=>{
+    const on=(pt.p*6+j)<lit;
+    svg+=`<g class="sc-node ${on?'lit':''}">
+      ${on?`<circle class="n-halo" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7.2" fill="#FFF3CE"/>`:''}
+      <circle class="n-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${on?2.5:1.9}" fill="${on?'#FFF6DA':'#DCC9AB'}"/>
+    </g>`;
+  }));
+  svg+=`<circle cx="150" cy="150" r="${4.4+Math.min(lit,30)*0.05}" fill="#FFF8E4" opacity="${.55+Math.min(lit,30)/60}" filter="url(#scBloom)"/>`;
+  svg+=`<defs><filter id="scBloom" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  svg+='</svg>';
+  return svg;
+}
+function openStarChart(){
+  const panel=$('#starChart'); if(!panel) return;
+  const g=gameGet(), shards=Math.max(0,Math.min(QUEST_TOTAL,(g.quest&&g.quest.shards)||0));
+  const wrap=$('#scMapWrap'); if(wrap) wrap.innerHTML=starMapSVG(shards);
+  const c=$('#scCount'); if(c) c.textContent=shards+' / '+QUEST_TOTAL;
+  const tip=$('#scTip');
+  if(tip) tip.textContent=(g.quest&&g.quest.done)
+    ? '星图全亮了。三十颗星碎拼成的那朵花，正落在你的裙角上 ✦'
+    : `还差 ${QUEST_TOTAL-shards} 颗星碎。小喵会在你发呆的时候，先飞去替你守着。`;
+  panel.classList.remove('hidden');
+  playChime();
+}
+function closeStarChart(){ const p=$('#starChart'); if(p) p.classList.add('hidden'); }
+
+/* ---------------- 探索瞬间：屏幕边缘的极小像素字，同时写进旅行报告 ---------------- */
+function logMoment(text){
+  if(!text) return;
+  const g=gameGet();
+  if(!Array.isArray(g.journal)) g.journal=[];
+  const d=new Date();
+  g.journal.push({d:todayStr(d), hm:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'), text});
+  if(g.journal.length>80) g.journal=g.journal.slice(-80);
+  gameSet(g);
+  pushMomentLine(text);
+}
+function pushMomentLine(text){
+  const box=$('#momentLog'); if(!box) return;
+  const line=document.createElement('div');
+  line.className='ml-line'; line.textContent=text;
+  box.appendChild(line);
+  while(box.children.length>3) box.removeChild(box.firstChild);
+  sceneLater(()=>{ line.classList.add('out'); sceneLater(()=>{ if(line.isConnected) line.remove(); },720); }, 5600);
+}
+function seedMomentLog(){
+  const box=$('#momentLog'); if(!box) return;
+  box.innerHTML='';
+  const today=todayStr();
+  (gameGet().journal||[]).filter(j=>j.d===today).slice(-2)
+    .forEach(j=>{ const l=document.createElement('div'); l.className='ml-line'; l.textContent=j.text; box.appendChild(l); });
+}
+
 /* ---------------------------------------------------------- 舞台：全量清空 → 单一场景重建 ---------------------------------------------------------- */
 const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-deco" id="gsDeco"></div>
@@ -4126,10 +4594,13 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-catch-layer" id="catchLayer"></div>
 <div class="gs-door-fx" id="doorFx"></div>
 <div id="orbsLayer"></div>
+<div class="gs-radar-ring" id="radarRing" style="display:none"></div>
+<div class="gs-moment-log" id="momentLog"></div>
 <div class="gs-mate-trail" id="companionTrail"></div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
 <div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="rug-thought" aria-hidden="true"><div class="rug-thought-body"><i></i><i></i><i></i></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
+<div class="gs-collect hidden" id="collectTip"><div class="cc-text" id="collectTipText"></div><div class="cc-bar"><i id="collectTipBar"></i></div></div>
 <div class="room-tip" id="roomTip"></div>
 <div class="room-quilt" id="roomQuilt" aria-hidden="true"></div>
 <div class="room-zzz" id="roomZzz" aria-hidden="true">Zzz</div>
@@ -4164,6 +4635,16 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
       <span class="map-tip" id="mapTip">锁着的地方，去前面的风景多走走就会亮起来 ✦</span>
       <button class="gm-btn" id="mapStay">待在屋里</button>
     </div>
+  </div>
+</div>
+<div class="gs-chart hidden" id="starChart">
+  <div class="sc-box">
+    <h3 class="sc-title">星蕾星图</h3>
+    <div class="sc-sub">三十颗星碎 · 一朵会亮的花</div>
+    <div id="scMapWrap"></div>
+    <div class="sc-count" id="scCount">0 / 30</div>
+    <p class="sc-tip" id="scTip">找场景里会呼吸的小星光：长按、连点、或按住向上拖，把星碎收进口袋。</p>
+    <button class="sc-close" id="scClose">合上星图</button>
   </div>
 </div>`;
 /* ---------------------------------------------------------- 场景级定时器 + 动作物理校准 ----------------------------------------------------------
@@ -4211,9 +4692,10 @@ function pulsePose(cls, ms){
 /* 平滑走到某个水平坐标，到达后再执行动作回调（对齐长椅 / 动物 / 秋千） */
 function travelTo(x, cb){
   const c=charEl(), m=$('#companion'), t=$('#companionTrail');
+  if(collectState) cancelCollect();
   S.charX = Math.max(6, Math.min(94, x));
   if(c){ c.classList.add('travel'); c.style.left=S.charX+'%'; }
-  if(m) m.style.left=(S.charX-8)+'%';
+  if(m && !m.classList.contains('radar')) m.style.left=(S.charX-8)+'%';
   if(t) t.style.left=(S.charX-11)+'%';
   updateOrbs(); updateCompanion();
   withGame(g=>{ g.charX=S.charX; });
@@ -4225,10 +4707,19 @@ function clearStage(){
   catchPetals=[];                               /* 旧场景待接花瓣随 DOM 一起销毁 */
   sitting=false; swingActive=false;
   doorBusy=false;                               /* 旧场景的门动画随 DOM 一起作废 */
+  collectState=null; orbStates=[]; radarTarget=-1;   /* 收集小玩法与光点状态随场景重置 */
+  stopRadarLoop();
   S.roomRest=false; S.mateOnWindow=false; S.mapOpen=false;
   const stage=$('#game-stage');
   while(stage.firstChild) stage.removeChild(stage.firstChild);
   return stage;
+}
+/* 主线便签贴着顶栏下沿：顶栏在窄屏会换行，位置必须实测而不是写死 */
+function layoutQuestCard(){
+  const card=$('#questCard'), top=$('#screen-game .gm-top'), shell=$('#screen-game .gm-shell');
+  if(!card || !top || !shell) return;
+  const sr=shell.getBoundingClientRect(), tr=top.getBoundingClientRect();
+  card.style.top=Math.max(2, Math.round(tr.bottom - sr.top + 2))+'px';
 }
 function renderScene(){
   const sc=curScene();
@@ -4245,6 +4736,12 @@ function renderScene(){
   renderOrbs();
   renderPropZones();                            /* 小屋床/窗/衣橱/门，或户外的邮筒等近物 */
   if(sc.id==='path') startCatchTicker();
+  S.lastCollect=Date.now();                     /* 进新场景重新计发呆时间 */
+  seedMomentLog();                              /* 屏幕边缘补上今天最后两件小事 */
+  const scClose=$('#scClose'); if(scClose) scClose.onclick=closeStarChart;
+  updateQuestUI();
+  layoutQuestCard();
+  startRadarLoop();
   /* 户外只在出生点留一扇小门；底部场景栏、小屋衣橱按钮一律退场 */
   const home=$('#homeGate'); if(home) home.classList.toggle('hidden', S.inRoom);
   const wbtn=$('#btnWardrobe'); if(wbtn) wbtn.classList.toggle('hidden', !S.inRoom);
@@ -4254,6 +4751,13 @@ function renderScene(){
   bindMove($('#padLeft'),-1);
   bindMove($('#padRight'),1);
   $('#character').addEventListener('click', harvest);
+  /* 长按小人蓄力 / 连点小人：按下就计数，比等 click 快半拍，手感才跟得上 */
+  $('#character').addEventListener('pointerdown', e=>{
+    if(e.button!==undefined && e.button!==0) return;
+    const i=nearOrbIndex();
+    if(i<0 || orbStates[i].mode==='drag') return;    /* 拖拽必须在光点本身按住 */
+    pressCollect(i,e);
+  });
   $('#character').style.left=S.charX+'%';
   $('#companion').style.left=(S.charX-8)+'%';
   $('#companionTrail').style.left=(S.charX-11)+'%';
@@ -4289,16 +4793,259 @@ function renderSpots(){
     }
   });
 }
+/* ========================================================== 收集微操：长按蓄力 / 连点互动 / 向上拖拽 ==========================================================
+   三种玩法随机分配在场景光点上，光点旁永远先给一句极小的操作提示。
+   无论哪种，收集动作都不改变人物形状：只有整格位移、亮度变化与粒子。 */
+const COLLECT_MODES = {
+  hold:  {hint:'长按小人 1 秒 · 蓄力', done:'握紧啦——光从指缝里透出来 ✦'},
+  triple:{hint:'快速连点 3 下',        done:'它「啵」地吐出最后一颗星 ✦'},
+  drag:  {hint:'按住光点向上拖',      done:'接住啦！星碎落在手心里 ✦'}
+};
+const COLLECT_THEMES = {
+  garden:{hold:'摘下一枚花苞', triple:'敲了敲旧邮筒', drag:'接住一滴晨露'},
+  path:  {hold:'摘下樱花花苞', triple:'摸了摸橘猫',   drag:'接住飘落的花瓣'},
+  sea:   {hold:'捡起一片海玻璃', triple:'敲了敲灯塔的门', drag:'捞起漂流瓶'},
+  library:{hold:'抽出一本旧书', triple:'敲了敲书脊', drag:'接住飘落的书页'},
+  train: {hold:'够到行李架的星', triple:'敲了敲车窗', drag:'接住窗外的云絮'},
+  cafe:  {hold:'端起温热的杯子', triple:'摸了摸橘猫', drag:'接住落下的糖霜'}
+};
+let orbStates=[], collectState=null, collectLockUntil=0;
+const orbEl = i => $(`#orbsLayer .gs-orb[data-orb="${i}"]`);
+function pickModes(n){
+  const pool=['hold','triple','drag'];
+  for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  return Array.from({length:n},(_,i)=>pool[i%3]);
+}
+function nearOrbIndex(){
+  let best=-1, bd=13;
+  orbStates.forEach((o,i)=>{
+    if(o.done) return;
+    const d=Math.abs(o.x-S.charX);
+    if(d<bd){ bd=d; best=i; }
+  });
+  return best;
+}
 function renderOrbs(){
-  const sc=curScene();
-  $('#orbsLayer').innerHTML = sc.orbs.map((o,i)=>
-    `<span class="gs-orb" data-orb="${i}" data-x="${o.x}" style="left:${o.x}%;top:${o.y}%"></span>`).join('');
+  const sc=curScene(), orbs=sc.orbs||[], modes=pickModes(orbs.length);
+  orbStates=orbs.map((o,i)=>({x:o.x,y:o.y,mode:modes[i],done:false}));
+  $('#orbsLayer').innerHTML=orbStates.map((o,i)=>
+    `<span class="gs-orb" data-orb="${i}" data-mode="${o.mode}" data-x="${o.x}" style="left:${o.x}%;top:${o.y}%"></span>`).join('');
+  $$('#orbsLayer .gs-orb').forEach((el,i)=>{
+    el.addEventListener('pointerdown',e=>{
+      if(e.button!==undefined && e.button!==0) return;
+      e.preventDefault();
+      pressCollect(i,e);
+    });
+  });
+  hideCollectTip();
 }
 function updateOrbs(){
   $$('#orbsLayer .gs-orb').forEach(o=>{
     o.classList.toggle('near', Math.abs(parseFloat(o.dataset.x)-S.charX)<13);
   });
+  if(!collectState) updateCollectTip();       /* 走近就先把「怎么收」写在光点旁边 */
 }
+function updateCollectTip(){
+  const box=$('#collectTip'), txt=$('#collectTipText'); if(!box) return;
+  const cs=collectState;
+  if(!cs){
+    const i=nearOrbIndex();
+    if(i<0){ hideCollectTip(); return; }
+    const st=orbStates[i];
+    box.style.left=st.x+'%'; box.style.top=(st.y-3.6)+'%';
+    box.classList.remove('hidden');
+    if(txt) txt.textContent=COLLECT_MODES[st.mode].hint;
+    setCollectBar(0);
+    return;
+  }
+  const st=orbStates[cs.i]; if(!st){ hideCollectTip(); return; }
+  box.style.left=st.x+'%'; box.style.top=(st.y-3.6)+'%';
+  box.classList.remove('hidden');
+  if(txt){
+    if(cs.mode==='hold') txt.textContent=cs.pressed?'蓄力中… '+Math.round((cs.charge||0)*100)+'%':'长按小人 1 秒 · 蓄力';
+    else if(cs.mode==='triple') txt.textContent='快速连点 3 下 · '+Math.min(3,cs.taps||0)+'/3';
+    else txt.textContent='按住光点向上拖 · '+Math.round(Math.min(1,(cs.dy||0)/60)*100)+'%';
+  }
+  setCollectBar(cs.mode==='hold'?(cs.charge||0):cs.mode==='triple'?Math.min(1,(cs.taps||0)/3):Math.min(1,(cs.dy||0)/60));
+}
+function hideCollectTip(){ const b=$('#collectTip'); if(b) b.classList.add('hidden'); }
+function setCollectBar(p){ const b=$('#collectTipBar'); if(b) b.style.width=(Math.max(0,Math.min(1,p))*100)+'%'; }
+function beginCollect(i){
+  const st=orbStates[i]; if(!st || st.done) return null;
+  if(collectState && collectState.i===i) return collectState.mode;   /* 已有进度就别重开 */
+  if(collectState) cancelCollect();
+  const el=orbEl(i); if(el) el.classList.add('pending');
+  collectState={i,mode:st.mode,taps:0,charge:0,pressed:false,y0:0,dy:0,dragging:false,done:false};
+  updateCollectTip();
+  return st.mode;
+}
+function pressCollect(i, e){
+  const st=orbStates[i];
+  if(!st || st.done) return false;
+  if(Date.now()<collectLockUntil) return false;
+  if(S.roomRest){ wakeFromBed(false); return false; }
+  if(sitting) standUp();
+  if(Math.abs(st.x-S.charX)>13){ say('小喵','走近一点，那个光点太远啦。'); return false; }
+  if(!collectState || collectState.i!==i) beginCollect(i);
+  const cs=collectState; if(!cs) return false;
+  const now=Date.now();
+  if(cs.mode==='hold'){
+    cs.pressed=true; cs.holdStart=now; cs.charge=0;
+    const c=charEl(); if(c) c.classList.add('charging');
+    updateCollectTip(); chargeTick();
+  } else if(cs.mode==='triple'){
+    if(!cs.tapAt || now-cs.tapAt>1800) cs.taps=0;
+    cs.taps++; cs.tapAt=now;
+    const el=orbEl(i);
+    if(el){ el.classList.remove('pending'); void el.offsetWidth; el.classList.add('pending'); }
+    updateCollectTip();
+    if(cs.taps>=3) finishCollect();
+  } else {
+    cs.dragging=true;
+    cs.y0=(e && typeof e.clientY==='number') ? e.clientY : 0;
+    cs.dy=0;
+    const el=orbEl(i); if(el) el.classList.remove('pending');   /* 拖拽时让位移完全跟手 */
+    const c=charEl(); if(c) c.classList.add('charging');
+    updateCollectTip();
+  }
+  return true;
+}
+function chargeTick(){
+  const cs=collectState;
+  if(!cs || cs.mode!=='hold' || !cs.pressed || cs.done) return;
+  cs.charge=Math.min(1,(Date.now()-cs.holdStart)/1000);
+  updateCollectTip();
+  if(cs.charge>=1){ finishCollect(); return; }
+  sceneLater(chargeTick,60);
+}
+function onCollectMove(e){
+  const cs=collectState;
+  if(!cs || cs.done || cs.mode!=='drag' || !cs.dragging) return;
+  cs.dy=Math.max(0, cs.y0-(typeof e.clientY==='number'?e.clientY:cs.y0));
+  const el=orbEl(cs.i);
+  if(el) el.style.transform='translateY('+(-Math.min(52,cs.dy*0.72)).toFixed(1)+'px) scale(2.3)';
+  updateCollectTip();
+  if(cs.dy>=60) finishCollect();
+}
+function releaseCollect(){
+  const cs=collectState;
+  if(!cs || cs.done) return;
+  if(cs.mode==='hold' && cs.pressed){
+    cs.pressed=false; cs.charge=0;
+    const c=charEl(); if(c) c.classList.remove('charging');
+    setCollectBar(0);
+    if(!cs.warned){ cs.warned=true; say('小喵','要按住不放 1 秒哦，光才会留下来。'); }
+    updateCollectTip();
+  }
+  if(cs.mode==='drag' && cs.dragging){
+    cs.dragging=false;
+    const el=orbEl(cs.i); if(el) el.style.transform='';
+    const c=charEl(); if(c) c.classList.remove('charging');
+    if(cs.dy<60 && !cs.warned2){ cs.warned2=true; say('小喵','按住光点，往上拖一小段就好。'); }
+    cs.dy=0; updateCollectTip();
+  }
+}
+function cancelCollect(){
+  const cs=collectState; if(!cs) return;
+  const el=orbEl(cs.i);
+  if(el){ el.classList.remove('pending'); el.style.transform=''; }
+  const c=charEl(); if(c) c.classList.remove('charging');
+  collectState=null; setCollectBar(0); hideCollectTip();
+}
+function finishCollect(){
+  const cs=collectState;
+  if(!cs || cs.done) return;
+  const st=orbStates[cs.i];
+  if(!st || st.done) return;
+  cs.done=true;
+  const mode=cs.mode, i=cs.i;
+  const el=orbEl(i), rect=el?el.getBoundingClientRect():null;
+  if(el){ el.classList.remove('pending','near'); el.style.transform=''; el.classList.add('gone'); }
+  st.done=true;
+  collectState=null; collectLockUntil=Date.now()+420;
+  hideCollectTip(); setCollectBar(0);
+  const c=charEl(); if(c) c.classList.remove('charging');
+  pulsePose('crouch',520); pulsePose('reach',760);      /* 收下时下蹲伸手，0.5s 复原 */
+  fxNote('✦');
+  const g=gameGet();
+  addMat(g,'star',1);                                    /* 既有的收集 / 解锁 / toast 链路 */
+  gameSet(g);
+  addQuestShard(1);                                      /* 主线 +1，顶部槽长一格 */
+  updateHUD(true);
+  const theme=(COLLECT_THEMES[curScene().id]||{})[mode] || '拾起一颗星碎';
+  say('小喵',(COLLECT_MODES[mode]||COLLECT_MODES.hold).done);
+  logMoment(`在${curScene().name}${theme}，拾到一颗星碎`);
+  playChime();
+  if(rect) sceneLater(()=>flyStar(rect.left,rect.top,'#hudQuest'), 120);   /* 飞向主线收集槽 */
+  S.lastCollect=Date.now(); clearRadar();
+  scheduleOrbRespawn(i);
+  updateOrbs();                                   /* 顺手把下一颗光点的提示补上 */
+}
+/* 收走的光点过一会儿会重新亮起，位置与玩法都换一份，才像活的场景 */
+function scheduleOrbRespawn(i){
+  sceneLater(()=>{
+    const st=orbStates[i]; if(!st || !st.done) return;
+    st.done=false;
+    st.mode=pickModes(3)[Math.floor(Math.random()*3)];
+    st.y=Math.max(28, Math.min(82, st.y+(Math.random()*10-5)));
+    const el=orbEl(i);
+    if(el){
+      el.dataset.mode=st.mode; el.style.top=st.y.toFixed(2)+'%';
+      el.classList.remove('gone'); void el.offsetWidth;
+    }
+    fxNote('✦');
+  }, 7000+Math.random()*3000);
+}
+
+/* ---------------- 小喵雷达：发呆 10 秒就先去下一个光点旁转圈 ---------------- */
+let radarTarget=-1, radarSaidAt=0;
+function clearRadar(){
+  radarTarget=-1;
+  const m=$('#companion');
+  if(m){
+    m.classList.remove('radar');
+    m.style.top='';
+    m.style.left=(S.charX-8)+'%';
+  }
+  const ring=$('#radarRing'); if(ring) ring.style.display='none';
+}
+function aimRadar(i){
+  const st=orbStates[i]; if(!st) return;
+  radarTarget=i;
+  const m=$('#companion');
+  if(m){ m.classList.add('radar'); m.style.left=st.x+'%'; m.style.top=st.y+'%'; }
+  const ring=$('#radarRing');
+  if(ring){ ring.style.display='block'; ring.style.left=st.x+'%'; ring.style.top=st.y+'%'; }
+}
+function tickRadar(){
+  if(S.screen!=='game' || collectState) return;
+  if(Date.now()-(S.lastCollect||0) < 10000){ if(radarTarget>=0) clearRadar(); return; }
+  let i=radarTarget;
+  if(i<0 || !orbStates[i] || orbStates[i].done){
+    let best=-1, bd=999;
+    orbStates.forEach((o,k)=>{
+      if(o.done) return;
+      const d=Math.abs(o.x-S.charX);
+      if(d<bd){ bd=d; best=k; }
+    });
+    if(best<0){ clearRadar(); return; }
+    aimRadar(best);
+    say('小喵','那边好像有星星在眨眼，跟我来 ✦');
+    i=best;
+  }
+  const st=orbStates[i];
+  if(st && Math.abs(st.x-S.charX)<11 && Date.now()-radarSaidAt>6000){
+    radarSaidAt=Date.now();
+    say('小喵','这里好像有东西哦！');
+    fxNote('?');
+  }
+}
+let radarTimer=null;
+function startRadarLoop(){
+  stopRadarLoop();
+  radarTimer=setInterval(tickRadar, 1000);      /* 独立于场景动画，切场景时单独收掉 */
+}
+function stopRadarLoop(){ if(radarTimer){ clearInterval(radarTimer); radarTimer=null; } }
 function updateCompanion(){
   const sc=curScene(), x=S.charX;
   let near=false;
@@ -4336,6 +5083,7 @@ function updateHUD(pop){
   $('#btnSound').textContent = g.sound?'♪ 声音 开':'♪ 声音 关';
   if(pop){ const el=$('#hudStar'); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
   renderCommissions(g);
+  updateQuestUI();                              /* 主线便签 + 收集槽永远跟着存档走 */
   checkUnlocks();                               /* 任何收集后都重新判定一次解锁 */
 }
 function renderCommissions(g){
@@ -4345,31 +5093,21 @@ function renderCommissions(g){
 }
 
 /* ---------------------------------------------------------- 交互：移动 / 收集 / 探索 ---------------------------------------------------------- */
+/* 点小人 = 开始这颗光点的收集小玩法（长按 / 连点 / 拖拽由光点自己的 mode 决定） */
 function harvest(){
-  const char=charEl(); if(!char) return;
-  if(S.roomRest){ wakeFromBed(false); return; }
+  const char=charEl(); if(!char) return null;
+  if(Date.now()<collectLockUntil) return null;
+  if(S.roomRest){ wakeFromBed(false); return null; }
   clearWindowPose();
-  if(sitting){ standUp(); say('小喵','站起来啦，我们继续走吧 ✦'); return; }
-  char.classList.remove('reach'); void char.offsetWidth; char.classList.add('reach');
-  sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove('reach'); },760);
-  const near=$$('#orbsLayer .gs-orb').filter(o=>!o.classList.contains('gone') && Math.abs(parseFloat(o.dataset.x)-S.charX)<13);
-  if(!near.length){ pulsePose('touch',420); say('小喵','再往星星光点那边走两步，我就够得着啦。'); return; }
-  /* 优雅下蹲：整图下移贴合地面（无 scaleY 压缩），头顶浮出极小 ✦ 粒子；0.5s 后复原 */
-  pulsePose('crouch',500);
-  fxNote('✦');
-  near.forEach(o=>o.classList.add('gone'));
-  const g=gameGet(); addMat(g,'star',near.length); gameSet(g); updateHUD(true);
-  sceneLater(()=>{
-    near.forEach((o,k)=>{
-      const r=o.getBoundingClientRect();
-      sceneLater(()=>flyStar(r.left||0,r.top||0), k*130);
-    });
-    playChime();
-    say('小喵',`蹲下来伸手一捞，${near.length} 颗小星星飞进状态栏啦 ✦`);
-  },500);
+  if(sitting){ standUp(); say('小喵','站起来啦，我们继续走吧 ✦'); return null; }
+  const i=nearOrbIndex();
+  if(i<0){ pulsePose('touch',420); say('小喵','再往星星光点那边走两步，我就够得着啦。'); return null; }
+  beginCollect(i);
+  updateCollectTip();
+  return collectState?collectState.mode:null;
 }
-function flyStar(x,y){
-  const t=$('#hudStar'), r=t?t.getBoundingClientRect():{left:0,top:0,width:0,height:0};
+function flyStar(x,y,targetSel){
+  const t=$(targetSel||'#hudStar'), r=t?t.getBoundingClientRect():{left:0,top:0,width:0,height:0};
   const el=document.createElement('i'); el.className='gs-fly';
   el.style.left=x+'px'; el.style.top=y+'px';
   document.body.appendChild(el);
@@ -4393,6 +5131,7 @@ function activateSpot(i){
     if(sp.ach) unlockAchievement(sp.ach,g);
     if(el) el.classList.add('done');
     say('小喵', nearLine || sp.firstLine || sp.line);
+    logMoment(`在${curScene().name}发现了一个${sp.label}…`);
   } else {
     say('小喵', nearLine || sp.line);
   }
@@ -4486,6 +5225,7 @@ function touchAnimal(sp,kind){
     jiggle(sel, cls, 1000);
     if(kind==='sheep') jiggle(sel,'hop',760);       /* 绵羊被摸会整只弹跳起来 */
     if(kind==='cat'){ fxHearts(sp.x+4,sp.y-3); fxPurr(sp.x,sp.y); }   /* 白猫冒爱心 */
+    logMoment(`在${curScene().name}摸了摸${kind==='sheep'?'云朵绵羊':'小橘猫'}`);
   });
 }
 function startSwing(sp){
@@ -4583,13 +5323,14 @@ let moveRAF=0, moveLastT=0, moveFxT=0, moveSaveT=0;
 function stepMove(dir,dt){
   if(S.roomRest) wakeFromBed(true);
   clearWindowPose();
+  if(collectState) cancelCollect();               /* 走开就放弃这次蓄力/拖拽 */
   const g=gameGet();
   S.charX=Math.max(6,Math.min(94,S.charX+dir*MOVE_SPEED*dt));
   const char=charEl(); if(char){ char.style.left=S.charX+'%'; char.classList.add('walking'); }
   S.facing = dir<0 ? 'left' : 'right';
   const avs=$$('#gameAvatar .px-avatar');
   avs.forEach(av=>{ av.classList.add('walking'); av.classList.toggle('face-left', dir<0); });
-  const mate=$('#companion'); if(mate) mate.style.left=(S.charX-8)+'%';
+  const mate=$('#companion'); if(mate && !mate.classList.contains('radar')) mate.style.left=(S.charX-8)+'%';
   const trail=$('#companionTrail'); if(trail) trail.style.left=(S.charX-11)+'%';
   const now=performance.now();
   if(now-moveFxT>210){                      /* 脚印/花瓣/沙沙声按固定节拍触发，不随帧率波动 */
@@ -4816,6 +5557,13 @@ function setOutfit(id){
   toast(`换上了「${OUTFITS.find(o=>o.id===id).name}」✦`);
   openWardrobe();
 }
+/* 探索度：去过的地方、发现的隐藏物、记下来的小事，各算一份 */
+function exploreScore(g){
+  const visited=(g.visited||[]).length;
+  const disc=(g.stats&&g.stats.discoveries)||0;
+  const jr=(g.journal||[]).length;
+  return Math.max(0, Math.min(100, Math.round(visited*6 + disc*8 + jr*4)));
+}
 function openReport(){
   const p=$('#reportPanel'), w=$('#wardrobePanel'), e=$('#eventPanel');
   closeWardrobe(); if(e) e.classList.add('hidden');
@@ -4826,8 +5574,20 @@ function openReport(){
   bump('report',1,g); gameSet(g); updateHUD();
   const g2=gameGet();
   const mats=Object.entries(g2.materials).filter(([,v])=>v>0);
+  const jr=(g2.journal||[]).slice(-6).reverse();
+  const jrHTML=jr.length
+    ? jr.map(j=>`<div class="jr-line"><i>${j.d===todayStr()?'今天':j.d.slice(5)} ${j.hm}</i><span>${esc(j.text)}</span></div>`).join('')
+    : '<div class="tiny">还没有什么小事被记下来，去院子里走走吧。</div>';
+  const q=g2.quest||{};
+  const ex=exploreScore(g2);
   $('#reportBody').innerHTML=`<div class="panel-title">✎ 旅行报告</div>
-    <div class="tiny" style="margin:-6px 0 14px">翻过 ${g2.stats.reportViews} 次 · 探索 ${g2.stats.explored} 次 · 发呆 ${g2.stats.benchSeconds} 秒 · 摸猫 ${g2.stats.catPats} 次</div>
+    <div class="tiny" style="margin:-6px 0 9px">翻过 ${g2.stats.reportViews} 次 · 探索 ${g2.stats.explored} 次 · 发呆 ${g2.stats.benchSeconds} 秒 · 摸猫 ${g2.stats.catPats} 次</div>
+    <div class="ex-meter"><b>探索度</b><span class="ex-bar"><i style="width:${ex}%"></i></span><em>${ex}</em></div>
+    <div class="jr-wrap">
+      <div class="jr-cap">✎ 探索瞬间 · 共 ${(g2.journal||[]).length} 条</div>
+      ${jrHTML}
+      <div class="jr-quest">✦ 星蕾星图 ${Math.min(30,q.shards||0)} / 30 ${q.done?'· 已点亮':'· 还差 '+Math.max(0,30-(q.shards||0))+' 颗'}</div>
+    </div>
     <div class="mat-grid">${mats.length?mats.map(([k,v])=>`<div class="mat-cell"><b>${v}</b><span>${MAT_LABELS[k]||k}</span></div>`).join(''):'<div class="tiny">口袋还空空的，慢慢捡就好。</div>'}</div>
     <div class="ach-list">${ACHIEVEMENTS.map(a=>`<span class="ach-chip ${g2.achievements.includes(a.id)?'':'locked'}" title="${esc(a.text)}">${g2.achievements.includes(a.id)?'✦':'✧'} ${esc(a.title)}</span>`).join('')}</div>
     <div class="tiny" style="margin-top:12px">去过的风景：${g2.visited.map(id=>(id==='room'?ROOM:SCENES.find(s=>s.id===id))?.name).filter(Boolean).join(' · ')||'还没出门'}</div>
@@ -4849,13 +5609,19 @@ function onEnterGame(){
   say('小喵','先换好衣服，再推开门出发吧 ✦');
 }
 function initGame(){
-  window.addEventListener('resize', ()=>{ if(S.screen==='game') applyGround(); });
+  window.addEventListener('resize', ()=>{ if(S.screen==='game'){ applyGround(); layoutQuestCard(); } });
   renderSceneTabs();
   $('#btnExplore').onclick=explore;
   $('#btnWardrobe').onclick=openWardrobe;
   $('#btnReport').onclick=openReport;
   $('#btnSound').onclick=()=>{ withGame(g=>{ g.sound=!g.sound; }); updateHUD(); };
-  $('#gameBack').onclick=()=>{ stopBench(); closeEvent();
+  $('#hudQuest').onclick=openStarChart;
+  $('#questFold').onclick=()=>{ const c=$('#questCard'); if(c) c.classList.toggle('folded'); };
+  $('#finClose').onclick=closeFinale;
+  window.addEventListener('pointermove', onCollectMove);
+  window.addEventListener('pointerup', releaseCollect);
+  window.addEventListener('pointercancel', releaseCollect);
+  $('#gameBack').onclick=()=>{ stopBench(); closeEvent(); closeStarChart(); cancelCollect();
     if(S.gameFrom==='blog') go('blog',{from:'blog'}); else go('desk',{from:'desk'}); };
 }
 
