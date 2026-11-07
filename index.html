@@ -1030,6 +1030,135 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   animation:pxGlint .9s cubic-bezier(.2,.8,.3,1) forwards}
 @keyframes pxGlint{0%{background-position:190% 0;opacity:0}
   22%{opacity:1}100%{background-position:-90% 0;opacity:0}}
+
+/* ==========================================================================================
+   四、温馨小屋 · 出门地图 · 回家入口
+   架构：默认先进小屋 → 走到最右木门 → 旅行地图选目的地 → 户外 → 出生点小门回家
+   底部场景栏彻底退场，六张地点卡片只存在于半透明水彩「旅行地图」里。
+   ========================================================================================== */
+.gm-bottom{display:none !important}
+.gs--room{background:linear-gradient(180deg,#FCF7EE,#FAF1E2 58%,#EFE1CC)}
+#game-stage.gs--room::after{opacity:.07}
+#game-stage.scene-fade .gs-art,#game-stage.scene-fade .gs-deco,
+#game-stage.scene-fade .gs-char,#game-stage.scene-fade .gs-mate{opacity:.12;transition:opacity .48s ease}
+
+/* ---------- 4.1 小屋：暖黄水彩光晕 / 浮尘 / 窗外星星 ---------- */
+.room-glow{position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 44% 58% at 22% 14%,rgba(255,224,154,.40),transparent 74%),
+    radial-gradient(ellipse 40% 50% at 82% 22%,rgba(255,236,199,.28),transparent 78%),
+    radial-gradient(ellipse 62% 38% at 50% 98%,rgba(224,196,158,.16),transparent 80%);
+  animation:roomGlow 9s ease-in-out infinite alternate}
+@keyframes roomGlow{from{opacity:.62}to{opacity:1}}
+.room-dust{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.room-dust-bit{position:absolute;width:3px;height:3px;border-radius:50%;
+  background:rgba(255,232,180,.9);box-shadow:0 0 6px 2px rgba(255,224,164,.55);
+  animation:roomDust var(--dd,9s) linear var(--dl,0s) infinite}
+@keyframes roomDust{0%{transform:translate3d(0,10px,0);opacity:0}
+  16%{opacity:.7}84%{opacity:.5}100%{transform:translate3d(16px,-80px,0);opacity:0}}
+.gs--room .room-star{transform-box:fill-box;transform-origin:center;
+  animation:roomTwinkle 2.8s ease-in-out infinite alternate}
+@keyframes roomTwinkle{from{opacity:.24;transform:scale(.6)}to{opacity:1;transform:scale(1.3)}}
+.gs--room .room-curtain{transform-box:fill-box;transform-origin:top center;
+  animation:roomCurtain 6.5s ease-in-out infinite alternate}
+@keyframes roomCurtain{from{transform:skewX(-1.5deg)}to{transform:skewX(1.8deg)}}
+.gs-room-hint{position:absolute;left:16px;top:13px;z-index:29;pointer-events:none;
+  padding:4px 11px;border:1px solid rgba(217,198,165,.55);border-radius:2px;
+  background:rgba(255,252,245,.62);backdrop-filter:blur(4px);
+  font-family:var(--serif);font-size:9.5px;letter-spacing:.09em;color:#8B7C6B}
+
+/* ---------- 4.2 小屋动作：跳上床躺下 / Zzz / 屏幕微暗 / 趴窗台 ---------- */
+.gs-char.jump-bed .gs-char-float{animation:gsBedJump .66s cubic-bezier(.2,.8,.3,1)}
+@keyframes gsBedJump{0%{transform:translateY(0)}
+  34%{transform:translateY(-44px)}62%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+.gs-char.in-bed .gs-char-float{animation:none}
+.gs-char.in-bed .gs-char-pose{
+  transform:translateY(calc(-1 * var(--bed-rise,88px))) rotate(76deg) scale(.9);
+  transform-origin:50% 82%}
+.gs-char.in-bed .px-avatar{animation:none;translate:0 0;rotate:0deg;scale:1 1;
+  clip-path:inset(0 0 12% 0)}
+.gs-char.in-bed .gs-zzz{display:block;top:-62%;right:-26px;left:auto}
+/* 躺在床上：一颗独立、恒可见的 Zzz 气泡（不依赖动画首帧） */
+.room-zzz{position:absolute;left:30%;top:45%;z-index:36;pointer-events:none;
+  font-family:var(--serif);font-size:21px;letter-spacing:.14em;color:#8A7458;
+  text-shadow:2px 0 0 rgba(255,253,247,.92),0 2px 0 rgba(255,253,247,.92),0 0 10px rgba(255,240,205,.9);
+  animation:roomZzz 2.6s ease-in-out infinite alternate}
+@keyframes roomZzz{from{transform:translateY(0);opacity:.78}to{transform:translateY(-10px);opacity:1}}
+/* 屋子微微暗下来（暖白墙压暗一层，不改变立绘配色） */
+#game-stage.room-night .gs-art,#game-stage.room-night .gs-deco{filter:brightness(.88) saturate(.9)}
+#game-stage.room-night{box-shadow:inset 0 0 130px rgba(72,52,40,.30),0 14px 40px rgba(115,98,84,.16)}
+.gs-char.at-window .gs-char-pose{transform:translateY(-30px) rotate(-7deg);transform-origin:50% 100%}
+.gs-mate.on-window{bottom:40% !important;left:52% !important}
+.gs-mate-trail.on-window{opacity:0}
+.gs-vignette.room-dim{background:radial-gradient(ellipse at 50% 44%,transparent 28%,rgba(64,48,40,.30) 100%)}
+.gs-vignette.room-dim{transition:background .8s ease}
+
+/* ---------- 4.3 户外出生点：小巧木门 + 传送光阵 ---------- */
+.gs-home{position:absolute;left:1.4%;bottom:9.5%;width:8.2%;height:34%;z-index:34;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  filter:drop-shadow(0 7px 11px rgba(60,45,35,.28));
+  transition:transform .35s cubic-bezier(.2,.8,.3,1)}
+.gs-home:hover{transform:translateY(-5px) scale(1.05)}
+.gs-home>svg{display:block;width:100%;height:82%;shape-rendering:crispEdges;
+  animation:homeGlow 3.4s ease-in-out infinite alternate}
+@keyframes homeGlow{from{filter:drop-shadow(0 0 3px rgba(255,226,166,.55))}
+  to{filter:drop-shadow(0 0 11px rgba(255,226,166,.95))}}
+.gs-home .home-tag{margin-top:3px;padding:2px 7px;border:1px solid rgba(217,198,165,.75);border-radius:2px;
+  background:rgba(255,251,242,.78);font-family:var(--serif);font-size:9px;letter-spacing:.08em;
+  color:#8A7455;white-space:nowrap}
+
+/* ---------- 4.4 旅行地图：半透明水彩晕染 + 淡蕾丝边（绝非纯白死板弹窗） ---------- */
+.gs-map{position:absolute;inset:0;z-index:62;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 44%,rgba(255,248,235,.24),rgba(88,72,58,.26));
+  backdrop-filter:blur(3px);animation:mapIn .45s cubic-bezier(.2,.8,.3,1)}
+.gs-map.closing{animation:mapOut .5s ease forwards}
+/* 入场只做极轻缩放：不加 opacity，避免无头/低帧率环境卡在半透明首帧 */
+@keyframes mapIn{from{opacity:1;transform:scale(1.018)}to{opacity:1;transform:scale(1)}}
+@keyframes mapOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.97)}}
+.gs-map .map-card{position:relative;width:min(700px,90%);max-height:86%;overflow:auto;
+  padding:24px 28px 18px;border-radius:9px;
+  background:
+    radial-gradient(ellipse 48% 62% at 14% 10%,rgba(255,244,218,.96),transparent 74%),
+    radial-gradient(ellipse 44% 58% at 86% 88%,rgba(246,220,228,.90),transparent 76%),
+    radial-gradient(ellipse 52% 54% at 62% 28%,rgba(234,230,246,.86),transparent 78%),
+    linear-gradient(150deg,rgba(255,252,245,.86),rgba(250,240,228,.80));
+  border:1px solid rgba(217,198,165,.76);
+  box-shadow:0 22px 64px rgba(92,72,56,.26),inset 0 0 60px rgba(255,255,255,.52);
+  backdrop-filter:blur(10px)}
+.gs-map .map-card::before{content:"";position:absolute;inset:7px;border-radius:6px;pointer-events:none;
+  border:1px dashed rgba(217,198,165,.68)}
+.gs-map .map-lace{position:absolute;inset:0;border-radius:9px;pointer-events:none;opacity:.65;
+  background:
+    repeating-radial-gradient(circle at 10px 0,transparent 0 4px,rgba(217,198,165,.65) 4px 5.2px,transparent 5.2px 10px) repeat-x top/100% 11px,
+    repeating-radial-gradient(circle at 10px 100%,transparent 0 4px,rgba(217,198,165,.65) 4px 5.2px,transparent 5.2px 10px) repeat-x bottom/100% 11px}
+.gs-map .map-title{position:relative;font-family:var(--hand);font-size:clamp(24px,3vw,33px);
+  color:#7A7168;letter-spacing:.14em;text-align:center;margin-top:4px}
+.gs-map .map-sub{position:relative;text-align:center;font-family:var(--serif);font-size:10.5px;
+  letter-spacing:.12em;color:#A2988B;margin:2px 0 17px}
+.gs-map .map-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;flex:none;width:100%}
+.gs-map .gm-tab{height:96px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;white-space:normal;text-align:center;border-radius:5px;
+  background:linear-gradient(155deg,rgba(255,253,247,.62),rgba(248,236,224,.50));
+  border:1px solid rgba(217,198,165,.62)}
+.gs-map .gm-tab::after{inset:3px;border-color:rgba(217,198,165,.28)}
+.gs-map .gm-tab:hover{transform:translateY(-3px);border-color:var(--gold);
+  box-shadow:0 8px 20px rgba(140,112,78,.16)}
+.gs-map .gm-tab .map-ic{font-size:17px;line-height:1.15;color:#C6A97C}
+.gs-map .gm-tab .map-nm{font-family:var(--serif);font-size:12px;letter-spacing:.08em;color:#7E7164}
+.gs-map .gm-tab .map-go{font-size:9px;letter-spacing:.1em;color:#A9936E}
+.gs-map .gm-tab .tab-lockmsg{font-size:9.5px;letter-spacing:.06em;color:#9A8A76}
+.gs-map .gm-tab .tab-prog{font-size:9px;letter-spacing:0;margin-left:0;opacity:.72;color:#9C8A70}
+.gs-map .gm-tab.on{border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(217,198,165,.34),rgba(247,225,225,.40));
+  box-shadow:inset 0 0 0 1px rgba(217,198,165,.26),0 0 16px rgba(217,198,165,.22)}
+.gs-map .map-foot{position:relative;display:flex;justify-content:space-between;align-items:center;
+  gap:14px;margin-top:16px}
+.gs-map .map-tip{font-family:var(--serif);font-size:10px;letter-spacing:.06em;color:#9A8C7B}
+.gs-map #mapStay{white-space:nowrap}
+@media(max-width:600px){
+  .gs-map .map-tabs{grid-template-columns:repeat(2,1fr)}
+  .gs-map .gm-tab{height:84px}
+}
 </style>
 </head>
 <body>
@@ -1198,6 +1327,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
       <span class="gm-chip" id="hudSteps">小脚步 6 / 12</span>
       <span class="gm-chip gm-star" id="hudStar">✦ 星碎 0</span>
       <button class="gm-btn" id="btnWardrobe">✧ 衣橱</button>
+      <button class="gm-btn" id="btnExplore">✦ 探索一次（1 小脚步）</button>
       <button class="gm-btn" id="btnReport">✎ 旅行报告</button>
       <button class="gm-btn" id="btnSound">♪ 声音 开</button>
     </div>
@@ -1206,10 +1336,6 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   <!-- 唯一的舞台容器：切换场景时，内部所有 DOM 被彻底清空后重建 -->
   <div id="game-stage"></div>
 
-  <div class="gm-bottom">
-    <nav class="gm-tabs" id="sceneTabs"></nav>
-    <button class="gm-btn" id="btnExplore">✦ 探索一次（1 小脚步）</button>
-  </div>
   <div class="gm-comm" id="commissionBox"></div>
  </div>
 </section>
@@ -1321,7 +1447,8 @@ function compressImage(file, maxW=800, quality=0.7){
 const SCREENS = ['gate','desk','letter','cake','fortune','blog','game'];
 /* authed = 本次会话已登录（内存态，不写磁盘）；auth_token = 勾选「记住我」后才持久化 */
 const S = { screen:'gate', gameFrom:'desk', authed:false, gateOpening:false,
-            letterOpened:false, cakeDone:false, fortuneTyping:false, gameInited:false, facing:'right' };
+            letterOpened:false, cakeDone:false, fortuneTyping:false, gameInited:false, facing:'right',
+            inRoom:true, mapOpen:false, roomRest:false, mateOnWindow:false };
 function hashName(){ const h = location.hash.replace('#',''); return SCREENS.includes(h) ? h : null; }
 function go(name, opts={}){
   if(!SCREENS.includes(name)) name='desk';
@@ -2419,6 +2546,179 @@ function artCafe(){
 }
 
 /* ---------------------------------------------------------- 六大场景数据（完全独立、互不相干） ---------------------------------------------------------- */
+/* ---------------------------------------------------------- 场景 0：温馨小屋（横版侧视 · 默认起点） ----------------------------------------------------------
+   奶油白墙面 + 极淡暖黄水彩光晕；格子被小木床、蕾丝窗帘夜窗、极简圆地毯、木质衣橱、最右「出发」木门。 */
+function artRoom(){
+  const R=prand(7707);
+  const defs=`
+  <linearGradient id="g0wall" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFF9EE"/><stop offset="56%" stop-color="#FBF1E1"/><stop offset="100%" stop-color="#F3E4CF"/></linearGradient>
+  <radialGradient id="g0lamp"><stop offset="0" stop-color="#FFE5A8" stop-opacity=".82"/>
+    <stop offset="100%" stop-color="#FFE5A8" stop-opacity="0"/></radialGradient>
+  <linearGradient id="g0floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EAD6BB"/>
+    <stop offset="100%" stop-color="#D6B998"/></linearGradient>
+  <linearGradient id="g0wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C79A6D"/>
+    <stop offset="52%" stop-color="#A9794F"/><stop offset="100%" stop-color="#8B5F3E"/></linearGradient>
+  <linearGradient id="g0wood2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B98B60"/>
+    <stop offset="48%" stop-color="#DAB38A"/><stop offset="100%" stop-color="#A87850"/></linearGradient>
+  <linearGradient id="g0night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#575C88"/>
+    <stop offset="60%" stop-color="#8A82A6"/><stop offset="100%" stop-color="#BFA9BC"/></linearGradient>
+  <radialGradient id="g0rug"><stop offset="0" stop-color="#F8E8DF"/><stop offset="76%" stop-color="#ECD5CB"/>
+    <stop offset="100%" stop-color="#DEC0B4"/></radialGradient>
+  <radialGradient id="g0quilt"><stop offset="0" stop-color="#FCF0E7"/><stop offset="100%" stop-color="#EFD9CE"/></radialGradient>
+  <pattern id="g0check" width="34" height="34" patternUnits="userSpaceOnUse">
+    <rect width="34" height="34" fill="url(#g0quilt)"/>
+    <rect width="17" height="34" fill="#E6B7BC" opacity=".40"/>
+    <rect width="34" height="17" fill="#E6B7BC" opacity=".26"/>
+    <path d="M17 0 V34 M0 17 H34" stroke="#FFFFFF" stroke-width="1.4" opacity=".58"/></pattern>
+  <pattern id="g0lace" width="12" height="12" patternUnits="userSpaceOnUse">
+    <circle cx="6" cy="6" r="1.6" fill="#FFFFFF" opacity=".9"/>
+    <circle cx="0" cy="0" r=".9" fill="#FFFFFF" opacity=".55"/>
+    <path d="M0 6 H12 M6 0 V12" stroke="#FFFFFF" stroke-width=".5" opacity=".35"/></pattern>
+  <filter id="g0blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="15"/></filter>
+  `;
+
+  /* 窗外会眨眼的星星 */
+  let stars='';
+  for(let i=0;i<30;i++){
+    const sx=(512+R()*236).toFixed(0), sy=(82+R()*128).toFixed(0), sr=(.9+R()*1.9).toFixed(1);
+    stars+=`<circle class="room-star" cx="${sx}" cy="${sy}" r="${sr}" fill="#FFF6D8"
+      opacity="${(.5+R()*.5).toFixed(2)}" style="animation-delay:${(R()*3).toFixed(2)}s"/>`;
+  }
+  /* 木地板细纹 */
+  let planks='';
+  for(let i=0;i<9;i++) planks+=`<path d="M0 ${402+i*12} H1200" stroke="#C4A582" stroke-width="1.2" opacity=".26"/>`;
+  for(let i=0;i<7;i++) planks+=`<path d="M${i*190} 392 V500" stroke="#C4A582" stroke-width="1.1" opacity=".18"/>`;
+
+  const body=`
+  <g id="g0Wall">
+    <rect width="1200" height="500" fill="url(#g0wall)"/>
+    <ellipse cx="252" cy="88" rx="340" ry="240" fill="url(#g0lamp)" filter="url(#g0blur)"/>
+    <ellipse cx="1052" cy="76" rx="250" ry="200" fill="url(#g0lamp)" opacity=".58" filter="url(#g0blur)"/>
+    <ellipse cx="630" cy="120" rx="220" ry="150" fill="url(#g0lamp)" opacity=".30" filter="url(#g0blur)"/>
+    <rect x="0" y="392" width="1200" height="108" fill="url(#g0floor)"/>
+    <path d="M0 392 H1200" stroke="#C6A985" stroke-width="4" opacity=".55"/>
+    <path d="M0 398 H1200" stroke="#FFF6E6" stroke-width="2" opacity=".55"/>
+    ${planks}
+  </g>
+
+  <!-- 极简圆形地毯：一块压扁的柔光椭圆，只有两道极细描边 -->
+  <g id="g0Rug">
+    <ellipse cx="600" cy="452" rx="288" ry="46" fill="url(#g0rug)" opacity=".96"/>
+    <ellipse cx="600" cy="452" rx="264" ry="38" fill="none" stroke="#FFF8F0" stroke-width="2" stroke-dasharray="7 9" opacity=".9"/>
+    <ellipse cx="600" cy="452" rx="172" ry="24" fill="none" stroke="#D7B3A9" stroke-width="1.4" opacity=".45"/>
+    <ellipse cx="600" cy="446" rx="120" ry="14" fill="#FFFFFF" opacity=".16"/>
+  </g>
+
+  <!-- 墙上的小搁板：书、烛台、一盆小绿植，让小屋有人住过的痕迹 -->
+  <g id="g0Shelf">
+    <ellipse cx="318" cy="196" rx="140" ry="86" fill="url(#g0lamp)" opacity=".55" filter="url(#g0blur)"/>
+    <rect x="196" y="244" width="244" height="9" rx="3" fill="url(#g0wood2)"/>
+    <rect x="208" y="216" width="15" height="28" rx="2" fill="#C9A6A0"/>
+    <rect x="225" y="220" width="12" height="24" rx="2" fill="#A9B7AE"/>
+    <rect x="239" y="212" width="17" height="32" rx="2" fill="#D9BE9B"/>
+    <rect x="300" y="230" width="30" height="14" rx="3" fill="#EAD7BA"/>
+    <path d="M315 230 V216" stroke="#F6E6B8" stroke-width="4"/>
+    <ellipse cx="315" cy="210" rx="5" ry="9" fill="#FFD98A" opacity=".9"/>
+    <ellipse cx="315" cy="212" rx="26" ry="24" fill="url(#g0lamp)" opacity=".7"/>
+    <path d="M382 244 Q378 222 366 216 Q372 232 370 244 M382 244 Q390 220 402 214 Q394 232 396 244" fill="#A7B99C" opacity=".85"/>
+    <rect x="372" y="238" width="24" height="8" rx="2" fill="#C9A17C"/>
+  </g>
+
+  <!-- 小木床：格子被 + 床尾的软枕头 -->
+  <g id="g0Bed">
+    <rect x="140" y="246" width="27" height="180" rx="7" fill="url(#g0wood)"/>
+    <rect x="151" y="260" width="11" height="150" rx="4" fill="#DCB489" opacity=".55"/>
+    <rect x="152" y="350" width="326" height="70" rx="9" fill="url(#g0wood)"/>
+    <rect x="160" y="338" width="310" height="48" rx="9" fill="#FFF8EC"/>
+    <path d="M168 336 H456 Q466 336 466 350 V380 Q466 392 454 392 H168 Q160 392 160 380 V346 Q160 336 168 336 Z"
+      fill="url(#g0check)" stroke="#E5CABC" stroke-width="2"/>
+    <path d="M168 337 H456" stroke="#FFFFFF" stroke-width="4" opacity=".72"/>
+    <path d="M164 372 Q300 366 462 372" fill="none" stroke="#D9B2AC" stroke-width="1.6" opacity=".4"/>
+    <rect x="392" y="309" width="76" height="38" rx="17" fill="#FFFCF5" stroke="#E8D5C5" stroke-width="2"/>
+    <path d="M400 318 Q430 308 460 318" fill="none" stroke="#EADBCB" stroke-width="2"/>
+    <rect x="166" y="416" width="19" height="23" rx="3" fill="#8B5F3E"/>
+    <rect x="444" y="416" width="19" height="23" rx="3" fill="#8B5F3E"/>
+    <ellipse cx="310" cy="440" rx="180" ry="9" fill="#9A7352" opacity=".16"/>
+  </g>
+
+  <!-- 中间：蕾丝窗帘的窗户，窗外飘着星星 -->
+  <g id="g0Window">
+    <rect x="490" y="60" width="280" height="254" rx="7" fill="#B78B61"/>
+    <rect x="504" y="74" width="252" height="220" fill="url(#g0night)"/>
+    <circle cx="694" cy="122" r="22" fill="#FFF4D6" opacity=".92"/>
+    <circle cx="684" cy="114" r="21" fill="#626792" opacity=".92"/>
+    ${stars}
+    <path d="M504 252 Q560 218 612 244 T756 228 V294 H504 Z" fill="#6D6687" opacity=".44"/>
+    <path d="M504 268 Q580 246 650 266 T756 252 V294 H504 Z" fill="#5C5878" opacity=".32"/>
+    <rect x="624" y="74" width="7" height="220" fill="#EADCC2"/>
+    <rect x="504" y="180" width="252" height="6" fill="#EADCC2"/>
+    <rect x="478" y="292" width="304" height="15" rx="4" fill="url(#g0wood2)"/>
+    <rect x="470" y="50" width="320" height="9" rx="4" fill="#A8794F"/>
+    <g class="room-curtain">
+      <path d="M490 60 H568 Q558 176 540 292 H490 Z" fill="#FFF8F0" opacity=".82"/>
+      <path d="M490 60 H568 Q558 176 540 292 H490 Z" fill="url(#g0lace)" opacity=".72"/>
+      <path d="M770 60 H692 Q702 176 720 292 H770 Z" fill="#FFF8F0" opacity=".82"/>
+      <path d="M770 60 H692 Q702 176 720 292 H770 Z" fill="url(#g0lace)" opacity=".72"/>
+      <path d="M568 60 Q558 176 540 292" fill="none" stroke="#E9D8C4" stroke-width="3" opacity=".8"/>
+      <path d="M692 60 Q702 176 720 292" fill="none" stroke="#E9D8C4" stroke-width="3" opacity=".8"/>
+    </g>
+  </g>
+
+  <!-- 右侧：木质衣橱（只有在这里才能打开换装面板） -->
+  <g id="g0Wardrobe">
+    <ellipse cx="946" cy="432" rx="112" ry="10" fill="#9A7352" opacity=".18"/>
+    <rect x="842" y="152" width="208" height="14" rx="4" fill="#8B5F3E"/>
+    <rect x="852" y="160" width="188" height="270" rx="8" fill="url(#g0wood)"/>
+    <rect x="862" y="172" width="168" height="248" rx="5" fill="#C99B6E"/>
+    <rect x="868" y="178" width="76" height="236" rx="4" fill="url(#g0wood2)"/>
+    <rect x="948" y="178" width="76" height="236" rx="4" fill="url(#g0wood2)"/>
+    <rect x="878" y="190" width="56" height="96" rx="3" fill="none" stroke="#8B5F3E" stroke-width="3" opacity=".58"/>
+    <rect x="958" y="190" width="56" height="96" rx="3" fill="none" stroke="#8B5F3E" stroke-width="3" opacity=".58"/>
+    <rect x="878" y="298" width="56" height="98" rx="3" fill="none" stroke="#8B5F3E" stroke-width="3" opacity=".58"/>
+    <rect x="958" y="298" width="56" height="98" rx="3" fill="none" stroke="#8B5F3E" stroke-width="3" opacity=".58"/>
+    <circle cx="938" cy="296" r="5.5" fill="#F5DEA9" stroke="#A9794F" stroke-width="1.5"/>
+    <circle cx="954" cy="296" r="5.5" fill="#F5DEA9" stroke="#A9794F" stroke-width="1.5"/>
+    <path d="M946 200 c-7 -8 -16 0 0 11 c16 -11 7 -19 0 -11 z" fill="#F3D9B4" opacity=".7"/>
+  </g>
+
+  <!-- 最右：木门 + 门把手上挂着的「出发」小木牌 -->
+  <g id="g0Door">
+    <ellipse cx="1134" cy="440" rx="76" ry="10" fill="#FFE9BC" opacity=".46"/>
+    <rect x="1072" y="90" width="122" height="354" rx="6" fill="#8B5F3E"/>
+    <rect x="1080" y="98" width="106" height="338" rx="5" fill="url(#g0wood2)"/>
+    <rect x="1091" y="114" width="84" height="128" rx="3" fill="none" stroke="#8B5F3E" stroke-width="4" opacity=".62"/>
+    <rect x="1091" y="258" width="84" height="160" rx="3" fill="none" stroke="#8B5F3E" stroke-width="4" opacity=".62"/>
+    <path d="M1094 118 H1172" stroke="#FFF3DC" stroke-width="2" opacity=".32"/>
+    <circle cx="1172" cy="290" r="8" fill="#F3D89F" stroke="#A9794F" stroke-width="2"/>
+    <circle cx="1170" cy="288" r="2.4" fill="#FFF6DC" opacity=".9"/>
+    <path d="M1098 106 V146 M1166 106 V146" stroke="#8A6A4A" stroke-width="2.5" opacity=".9"/>
+    <rect x="1086" y="144" width="92" height="48" rx="7" fill="#EBCB9B" stroke="#A9794F" stroke-width="3"/>
+    <rect x="1091" y="149" width="82" height="38" rx="5" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity=".55"/>
+    <text x="1132" y="177" text-anchor="middle" font-family="serif" font-size="24"
+      letter-spacing="3" fill="#79553A">出发</text>
+  </g>`;
+  return artWrap(defs, body);
+}
+
+function roomDecoHTML(){
+  let dust='';
+  for(let i=0;i<12;i++){
+    const x=(8+Math.random()*84).toFixed(1), top=(18+Math.random()*64).toFixed(1);
+    const d=(8+Math.random()*8).toFixed(1), dl=(-Math.random()*10).toFixed(1);
+    dust+=`<i class="room-dust-bit" style="left:${x}%;top:${top}%;--dd:${d}s;--dl:${dl}s"></i>`;
+  }
+  return `<div class="room-glow"></div><div class="room-dust">${dust}</div>`;
+}
+
+/* 小屋是「家」，与六个户外场景分开定义；切换户外时完全不渲染小屋元素 */
+const ROOM = {
+  id:'room', name:'温馨小屋', mood:'暖暖的', art:artRoom, night:false,
+  tip:'先换好衣服，再推开门出发吧。', specialty:['star'],
+  orbs:[{x:24,y:62},{x:50,y:56},{x:78,y:66}], spots:[]
+};
+function curScene(){ return S.inRoom ? ROOM : (SCENES[S.gameScene] || SCENES[0]); }
+
 const SCENES = [
  {
   id:'garden', name:'晴天花庭', mood:'生机', art:artGarden, night:false, event:'duck',
@@ -2541,7 +2841,7 @@ function checkUnlocks(g){
       if(sc) topToast('✦ 解锁了「'+sc.name+'」','unlock');
     });
   }
-  if(S.screen==='game' && $('#sceneTabs')) renderSceneTabs(save);
+  if(S.screen==='game') renderSceneTabs(save);
 }
 function renderSceneTabs(given){
   const box=$('#sceneTabs'); if(!box) return;
@@ -2549,20 +2849,32 @@ function renderSceneTabs(given){
   box.innerHTML=SCENES.map((sc,i)=>{
     const locked=!open.includes(sc.id);
     const prog=locked?lockProgress(g,sc.id):'';
-    return `<button class="gm-tab ${i===S.gameScene?'on':''} ${locked?'locked':''}" data-scene="${i}"
-      title="${esc(locked?(sc.name+' · '+prog):sc.tip)}">${locked?'<span class="tab-lock" aria-hidden="true"></span>':''}${esc(sc.name)}${locked&&prog?`<small class="tab-prog">${esc(prog)}</small>`:''}</button>`;
+    const on=(!S.inRoom && i===S.gameScene)?'on':'';
+    return `<button class="gm-tab map-card ${on} ${locked?'locked':''}" data-scene="${i}"
+      title="${esc(locked?(sc.name+' · '+lockReason(sc.id)):sc.tip)}">
+      <span class="map-ic">${locked?'✧':MAP_ICONS[sc.id]}</span>
+      <span class="map-nm">${esc(sc.name)}</span>
+      ${locked?`<small class="tab-lockmsg">${lockReason(sc.id)}</small><small class="tab-prog">${esc(prog)}</small>`
+              :'<span class="map-go">出发 ✦</span>'}</button>`;
   }).join('');
-  $$('#sceneTabs [data-scene]').forEach(b=>b.onclick=()=>switchScene(+b.dataset.scene));
+  $$('#sceneTabs [data-scene]').forEach(b=>b.onclick=()=>mapPickScene(+b.dataset.scene));
 }
 
 /* ========================================================== 近物互动：小木门 / 旧邮筒 ========================================================== */
 const NEARBY = {
+  room:[
+    {id:'bed',      x:27, r:16, act:'bed',      hint:'点一点小床 ✦',       zone:[12,50,28,36], trigger:'click'},
+    {id:'window',   x:52, r:14, act:'window',   hint:'点一点窗户 ✦',       zone:[41,13,23,49], trigger:'click'},
+    {id:'wardrobe', x:79, r:12, act:'wardrobe', hint:'点一点衣橱换衣服 ✦',  zone:[71,31,15,55], trigger:'click'},
+    {id:'door',     x:91, r:10, act:'map',      hint:'空格 · 推开门看地图', zone:[90,19,10,69], trigger:'space'}
+  ],
   garden:[{id:'postbox', x:9,  r:15, hint:'点一点旧邮筒 ✦', line:'今天没有来信哦。', trigger:'click'}],
   path:[  {id:'door',    x:85, r:15, hint:'空格 · 敲敲小木门', line:'里面会不会住着精灵？', trigger:'space'}]
 };
 function nearbyHere(){
-  const sc=SCENES[S.gameScene]; if(!sc) return null;
-  return (NEARBY[sc.id]||[]).find(p=>Math.abs(S.charX-p.x)<=p.r)||null;
+  const sc=curScene(); if(!sc) return null;
+  const list=NEARBY[sc.id]||[];
+  return list.find(p=>(sc.id==='room'?p.trigger==='space':true) && Math.abs(S.charX-p.x)<=p.r)||null;
 }
 function updateNearHint(){
   const h=$('#nearHint'); if(!h) return;
@@ -2573,19 +2885,133 @@ function updateNearHint(){
 function tryNearby(trigger, direct){
   const p=direct||nearbyHere();
   if(!p || (!direct && p.trigger!==trigger)) return false;
+  if(p.act==='map'){ roomDoor(); return true; }
+  if(p.act==='bed'){ roomBed(); return true; }
+  if(p.act==='window'){ roomWindow(); return true; }
+  if(p.act==='wardrobe'){ openWardrobe(); return true; }
   say('小喵',p.line);
   fxNote('✦');
   return true;
 }
 function renderPropZones(){
   const layer=$('#propLayer'); if(!layer) return;
-  const sc=SCENES[S.gameScene], list=NEARBY[sc.id]||[];
-  layer.innerHTML=list.map(p=>
-    `<div class="gs-prop-zone" data-prop="${p.id}" style="left:${Math.max(0,p.x-7)}%;top:56%;width:14%;height:22%"></div>`).join('');
+  const sc=curScene(), list=NEARBY[sc.id]||[];
+  if(sc.id==='room'){
+    layer.innerHTML=list.map(p=>{
+      const z=p.zone||[0,0,10,10];
+      return `<div class="gs-prop-zone room-zone" data-prop="${p.id}" title="${esc(p.hint)}"
+        style="left:${z[0]}%;top:${z[1]}%;width:${z[2]}%;height:${z[3]}%"></div>`;
+    }).join('');
+  } else {
+    layer.innerHTML=list.map(p=>
+      `<div class="gs-prop-zone" data-prop="${p.id}" style="left:${Math.max(0,p.x-7)}%;top:56%;width:14%;height:22%"></div>`).join('');
+  }
   $$('#propLayer .gs-prop-zone').forEach(z=>{
     const p=list.find(q=>q.id===z.dataset.prop);
     if(p) z.addEventListener('click',()=>tryNearby('click',p));
   });
+}
+
+/* ========================================================== 出门 / 回家 / 旅行地图 / 小屋互动 ==========================================================
+   链路：小屋（默认）→ 走到最右木门 → 旅行地图选卡片（淡出）→ 户外 → 出生点小木门 → 回家。
+   底部场景栏已废弃，六张地点卡片只存在于半透明水彩「旅行地图」中。 */
+const MAP_ICONS = {garden:'✿', path:'❀', sea:'☾', library:'✦', train:'☁', cafe:'✧'};
+function lockReason(id){ return (id==='sea'||id==='train') ? '星碎不足' : '探索度不够'; }
+
+function openTravelMap(){
+  if(!S.inRoom) return;
+  closeWardrobe(); closeEvent();
+  const m=$('#travelMap'); if(!m) return;
+  renderSceneTabs();
+  m.classList.remove('hidden','closing');
+  S.mapOpen=true;
+  const tip=$('#mapTip'); if(tip) tip.textContent='锁着的地方，去前面的风景多走走就会亮起来 ✦';
+}
+function closeTravelMap(){
+  const m=$('#travelMap'); if(m){ m.classList.add('hidden'); m.classList.remove('closing'); }
+  S.mapOpen=false;
+}
+/* 选卡 → 地图与舞台一起淡出，再进入户外，绝不「啪」地硬切 */
+function mapPickScene(i){
+  if(!isSceneUnlocked(i)){ topToast('这里还没解锁哦，去前面的地方多走走吧。','lock'); return; }
+  const m=$('#travelMap'), st=$('#game-stage');
+  if(m) m.classList.add('closing');
+  if(st) st.classList.add('scene-fade');
+  S.mapOpen=false;
+  sceneLater(()=>{ closeTravelMap(); switchScene(i,true); }, 470);
+}
+function enterRoom(){
+  S.inRoom=true; S.mapOpen=false; S.roomRest=false; S.mateOnWindow=false; S.charX=46;
+  withGame(g=>{ g.inRoom=true; g.charX=46; });
+  closeWardrobe(); closeEvent(); closeTravelMap(); stopBench();
+  renderScene();
+  say('小喵','到家啦，先歇一会儿吧 ✦');
+}
+function goHome(){
+  if(S.inRoom) return;
+  const st=$('#game-stage'); if(st) st.classList.add('scene-fade');
+  stopBench(); closeEvent(); closeWardrobe();
+  sceneLater(()=>{ enterRoom(); topToast('回到温馨小屋 ✦'); }, 450);
+}
+
+/* ---------------- 小屋四件互动：门 / 床 / 窗 / 衣橱 ---------------- */
+function roomDoor(){
+  if(!S.inRoom) return;
+  clearWindowPose(); wakeFromBed(true);
+  if(S.charX<82) travelTo(88, ()=>openTravelMap());
+  else openTravelMap();
+}
+function roomBed(){
+  if(!S.inRoom) return;
+  clearWindowPose();
+  const c=charEl(); if(!c) return;
+  c.classList.remove('in-bed','at-window','jump-bed');
+  c.style.setProperty('--bed-rise', Math.round(stageH()*(445-330)/500)+'px');
+  travelTo(27, ()=>{
+    const n=charEl(); if(!n || !S.inRoom) return;
+    n.classList.add('jump-bed');
+    sceneLater(()=>{
+      const q=charEl(); if(!q || !S.inRoom) return;
+      q.classList.remove('jump-bed'); q.classList.add('in-bed');
+      S.roomRest=true;
+      const v=$('#gsVignette'); if(v) v.classList.add('room-dim');
+      const st=$('#game-stage'); if(st) st.classList.add('room-night');
+      const zz=$('#roomZzz'); if(zz) zz.classList.remove('hidden');
+      say('小喵','呼……被子软得像云，先睡一小会儿 ✦');
+      fxNote('Zzz');
+      sceneLater(()=>{ if(S.roomRest) wakeFromBed(true); }, 9000);
+    }, 660);
+  });
+  topToast('跳上小床，躺一会儿 ✦');
+}
+function wakeFromBed(auto){
+  S.roomRest=false;
+  const c=charEl(); if(c) c.classList.remove('in-bed','jump-bed');
+  const v=$('#gsVignette'); if(v) v.classList.remove('room-dim');
+  const st=$('#game-stage'); if(st) st.classList.remove('room-night');
+  const zz=$('#roomZzz'); if(zz) zz.classList.add('hidden');
+  if(!auto) say('小喵','醒啦？门还等着我们呢 ✦');
+}
+function roomWindow(){
+  if(!S.inRoom) return;
+  wakeFromBed(true);
+  travelTo(52, ()=>{
+    if(!S.inRoom) return;
+    S.mateOnWindow=true;
+    const c=charEl(); if(c) c.classList.add('at-window');
+    const m=$('#companion'); if(m) m.classList.add('on-window');
+    const t=$('#companionTrail'); if(t) t.classList.add('on-window');
+    say('小喵','窗外的星星在慢慢走呢 ✦');
+    for(let i=0;i<3;i++) sceneLater(()=>fxNote('✦'), i*260);
+    sceneLater(()=>clearWindowPose(), 7000);
+  });
+}
+function clearWindowPose(){
+  if(!S.mateOnWindow) return;
+  S.mateOnWindow=false;
+  const c=charEl(); if(c) c.classList.remove('at-window');
+  const m=$('#companion'); if(m) m.classList.remove('on-window');
+  const t=$('#companionTrail'); if(t) t.classList.remove('on-window');
 }
 
 /* ========================================================== 樱花小径：水彩景深 + 风吹花瓣 + 接花瓣 ========================================================== */
@@ -2610,7 +3036,7 @@ function pathDecoHTML(){
 function startCatchTicker(){
   if(!$('#catchLayer')) return;
   const spawn=()=>{
-    if(S.screen==='game' && SCENES[S.gameScene] && SCENES[S.gameScene].id==='path' && catchPetals.length<4)
+    if(S.screen==='game' && curScene() && curScene().id==='path' && catchPetals.length<4)
       spawnCatchPetal();
     sceneLater(spawn, 1100+Math.random()*900);
   };
@@ -2712,7 +3138,7 @@ function defaultGame(){
   return {
     profile:{name:'77', sign:'慢慢来，好汤都是慢火熬的。'},
     outfit:'cotton', materials, totals:{}, achievements:[], discoveries:{}, visited:[],
-    unlockedSeen:['garden','path'],
+    unlockedSeen:['garden','path'], inRoom:true,
     stats:{catPats:0, benchSeconds:0, reportViews:0, explored:0, discoveries:0, pathCollects:0},
     steps:{date:todayStr(), left:6, cap:12},
     commissions:null, current:0, charX:46, sound:true
@@ -2764,7 +3190,7 @@ function addMat(g,key,n=1){
   g.materials[key]=(g.materials[key]||0)+n;
   g.totals[key]=(g.totals[key]||0)+n;
   /* 在【樱花小径】里每完成一次收集就记一笔，用于解锁【星空图书馆】 */
-  if(SCENES[S.gameScene] && SCENES[S.gameScene].id==='path')
+  if(curScene() && curScene().id==='path')
     g.stats.pathCollects=(g.stats.pathCollects||0)+1;
   if(g.totals.star>=30) unlockAchievement('star30',g);
   if(g.totals.ribbon>=20) unlockAchievement('ribbon20',g);
@@ -2776,8 +3202,7 @@ function addMat(g,key,n=1){
 function withGame(fn){ const g=gameGet(); fn(g); gameSet(g); return g; }
 
 /* ---------------------------------------------------------- 舞台：全量清空 → 单一场景重建 ---------------------------------------------------------- */
-const STAGE_LAYERS = `
-<div class="gs-art" id="gsArt"></div>
+const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-deco" id="gsDeco"></div>
 <div class="gs-vignette" id="gsVignette"></div>
 <div class="gs-fx" id="fxLayer"></div>
@@ -2790,13 +3215,40 @@ const STAGE_LAYERS = `
 <div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
 <div class="gs-char-hint">轻点小人 · 收起身边的星星光点</div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
+<div class="gs-room-hint hidden" id="roomHint">A / D 慢慢走 · 走到最右边推开门 ✦</div>
+<div class="room-zzz hidden" id="roomZzz">Zzz</div>
 <div class="gs-pad left" id="padLeft"><span class="pad-tip">‹</span></div>
 <div class="gs-pad right" id="padRight"><span class="pad-tip">›</span></div>
+<div class="gs-home hidden" id="homeGate" title="回温馨小屋">
+  <svg viewBox="0 0 64 96" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+    <ellipse cx="32" cy="91" rx="29" ry="4" fill="#FFE9BC" opacity=".6"/>
+    <rect x="3" y="7" width="58" height="7" rx="2" fill="#A9794F"/>
+    <rect x="7" y="12" width="50" height="79" rx="3" fill="#8B5F3E"/>
+    <rect x="10" y="15" width="44" height="74" rx="2" fill="#C99B6E"/>
+    <rect x="14" y="20" width="36" height="30" rx="2" fill="none" stroke="#8B5F3E" stroke-width="2.5" opacity=".75"/>
+    <rect x="14" y="55" width="36" height="29" rx="2" fill="none" stroke="#8B5F3E" stroke-width="2.5" opacity=".75"/>
+    <circle cx="46" cy="53" r="3.4" fill="#F3D89F" stroke="#A9794F" stroke-width="1"/>
+    <path d="M14 17 H50" stroke="#FFF1D8" stroke-width="1.6" opacity=".6"/>
+  </svg>
+  <span class="home-tag">回家 ✦</span>
+</div>
 <div class="gs-wardrobe-veil hidden" id="wardrobeVeil"></div>
 <div class="gs-dialog hidden" id="gameDialog"></div>
 <div class="gs-panel gs-side hidden" id="wardrobePanel"><div id="wardrobeBody"></div></div>
 <div class="gs-panel gs-side hidden" id="reportPanel"><div id="reportBody"></div></div>
-<div class="gs-panel gs-event hidden" id="eventPanel"><div id="eventBody"></div></div>`;
+<div class="gs-panel gs-event hidden" id="eventPanel"><div id="eventBody"></div></div>
+<div class="gs-map hidden" id="travelMap">
+  <div class="map-card">
+    <div class="map-lace"></div>
+    <div class="map-title">今天想去哪里呢？</div>
+    <div class="map-sub">门外风很轻 · 换好衣服再出发 ✦</div>
+    <nav class="gm-tabs map-tabs" id="sceneTabs"></nav>
+    <div class="map-foot">
+      <span class="map-tip" id="mapTip">锁着的地方，去前面的风景多走走就会亮起来 ✦</span>
+      <button class="gm-btn" id="mapStay">待在屋里</button>
+    </div>
+  </div>
+</div>`;
 /* ---------------------------------------------------------- 场景级定时器 + 动作物理校准 ----------------------------------------------------------
    所有动画回调都登记在 sceneTimers；切场景时连同 DOM 一并撤销，旧场景的动画绝不会打到新场景上。 */
 let sceneTimers = [];
@@ -2855,25 +3307,33 @@ function clearStage(){
   clearSceneTimers();                            /* 撤销旧场景所有动画回调 */
   catchPetals=[];                               /* 旧场景待接花瓣随 DOM 一起销毁 */
   sitting=false; swingActive=false;
+  S.roomRest=false; S.mateOnWindow=false; S.mapOpen=false;
   const stage=$('#game-stage');
   while(stage.firstChild) stage.removeChild(stage.firstChild);
   return stage;
 }
 function renderScene(){
-  const sc=SCENES[S.gameScene];
+  const sc=curScene();
   const stage=clearStage();                       /* ← 清空全部 DOM，杜绝场景元素串场 */
-  stage.className='gs--'+sc.id;                   /* 舞台底色也随场景整体替换 */
+  stage.className='gs--'+sc.id+(S.inRoom?' in-room':'');   /* 舞台底色整体替换，切换时顺带清掉淡出态 */
   stage.insertAdjacentHTML('beforeend', STAGE_LAYERS);
   $('#gsArt').innerHTML = sc.art();              /* 只渲染当前这一个场景的 SVG */
-  $('#gsDeco').innerHTML = (sc.id==='path') ? pathDecoHTML() : '';  /* 水彩景深 + 风吹花瓣 */
+  $('#gsDeco').innerHTML = sc.id==='path' ? pathDecoHTML() : (sc.id==='room' ? roomDecoHTML() : '');
   $('#gsVignette').classList.toggle('night', !!sc.night);
   $('#gameTitle').innerHTML = `${esc(sc.name)} <span class="gm-mood">· ${esc(sc.mood)}</span>`;
-  renderSceneTabs();                             /* 锁定态 / 进度 / 当前高亮 */
+  renderSceneTabs();                             /* 旅行地图里六张卡片的锁定态 / 进度 */
   refreshGameAvatar();
   renderSpots();
   renderOrbs();
-  renderPropZones();                            /* 邮筒等近物点击区 */
-  if(sc.id==='path') startCatchTicker();         /* 樱花小径专属：发光花瓣接取玩法 */
+  renderPropZones();                            /* 小屋床/窗/衣橱/门，或户外的邮筒等近物 */
+  if(sc.id==='path') startCatchTicker();
+  /* 户外只在出生点留一扇小门；底部场景栏、小屋衣橱按钮一律退场 */
+  const home=$('#homeGate'); if(home) home.classList.toggle('hidden', S.inRoom);
+  const rmHint=$('#roomHint'); if(rmHint) rmHint.classList.toggle('hidden', !S.inRoom);
+  const wbtn=$('#btnWardrobe'); if(wbtn) wbtn.classList.toggle('hidden', !S.inRoom);
+  const ebtn=$('#btnExplore'); if(ebtn) ebtn.classList.toggle('hidden', S.inRoom);
+  const stay=$('#mapStay'); if(stay) stay.onclick=closeTravelMap;
+  if(home) home.onclick=goHome;
   bindMove($('#padLeft'),-1);
   bindMove($('#padRight'),1);
   $('#character').addEventListener('click', harvest);
@@ -2893,7 +3353,7 @@ function renderScene(){
   updateHUD();
 }
 function renderSpots(){
-  const sc=SCENES[S.gameScene], g=gameGet();
+  const sc=curScene(), g=gameGet();
   $('#hotspots').innerHTML = sc.spots.map((sp,i)=>{
     const done = sp.hidden && g.discoveries[sp.id];
     return `<div class="gs-spot ${sp.hidden?'hidden-spot':''} ${done?'done':''}" data-spot="${i}"
@@ -2913,7 +3373,7 @@ function renderSpots(){
   });
 }
 function renderOrbs(){
-  const sc=SCENES[S.gameScene];
+  const sc=curScene();
   $('#orbsLayer').innerHTML = sc.orbs.map((o,i)=>
     `<span class="gs-orb" data-orb="${i}" data-x="${o.x}" style="left:${o.x}%;top:${o.y}%"></span>`).join('');
 }
@@ -2923,7 +3383,7 @@ function updateOrbs(){
   });
 }
 function updateCompanion(){
-  const sc=SCENES[S.gameScene], x=S.charX;
+  const sc=curScene(), x=S.charX;
   let near=false;
   $$('#hotspots .gs-spot').forEach((el,i)=>{
     const sp=sc.spots[i]; if(!sp.hidden) return;
@@ -2945,9 +3405,10 @@ function switchScene(i, force=false){
     topToast('这里还没解锁哦，去前面的地方多走走吧。','lock');
     return;
   }
-  closeWardrobe(); stopBench(); closeEvent();
-  S.gameScene=i; S.charX=46;
-  withGame(g=>{ g.current=i; g.charX=46; });
+  closeWardrobe(); stopBench(); closeEvent(); closeTravelMap();
+  clearWindowPose(); wakeFromBed(true);
+  S.inRoom=false; S.gameScene=i; S.charX=16;      /* 户外出生在最左侧，回家小门就在身旁 */
+  withGame(g=>{ g.current=i; g.charX=16; g.inRoom=false; });
   renderScene();                                   /* 全量清空 + 重建，画面里只有这一个场景 */
   say('小喵',`到了「${SCENES[i].name}」。${SCENES[i].tip}`);
 }
@@ -2969,6 +3430,8 @@ function renderCommissions(g){
 /* ---------------------------------------------------------- 交互：移动 / 收集 / 探索 ---------------------------------------------------------- */
 function harvest(){
   const char=charEl(); if(!char) return;
+  if(S.roomRest){ wakeFromBed(false); return; }
+  clearWindowPose();
   if(sitting){ standUp(); say('小喵','站起来啦，我们继续走吧 ✦'); return; }
   char.classList.remove('reach'); void char.offsetWidth; char.classList.add('reach');
   sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove('reach'); },760);
@@ -3000,7 +3463,7 @@ function flyStar(x,y){
   setTimeout(()=>el.remove(),1000);
 }
 function activateSpot(i){
-  const sc=SCENES[S.gameScene], sp=sc.spots[i]; if(!sp) return;
+  const sc=curScene(), sp=sc.spots[i]; if(!sp) return;
   const g=gameGet();
   const el=$(`#hotspots [data-spot="${i}"]`);
   /* 走到近物旁再点，小喵会说专属的那句话 */
@@ -3067,7 +3530,7 @@ function typeSvgText(text){
 /* ---------- 特殊交互：坐下 / 起身 / 摸动物 / 荡秋千 ---------- */
 function sitAt(sp){
   const c=charEl(); if(!c) return;
-  c.style.setProperty('--sit-rise', riseFor(SEAT_Y[SCENES[S.gameScene].id]||400)+'px');
+  c.style.setProperty('--sit-rise', riseFor(SEAT_Y[curScene().id]||400)+'px');
   travelTo(sp.x, ()=>{
     const n=charEl(), art=$('#gsArt');
     if(art) art.classList.remove('swinging');
@@ -3092,7 +3555,7 @@ function jiggle(sel, cls, ms){
   sceneLater(()=>{ const n=$(sel); if(n) n.classList.remove(cls); }, ms);
 }
 function touchAnimal(sp,kind){
-  const sceneId=SCENES[S.gameScene].id;
+  const sceneId=curScene().id;
   const sel = sceneId==='cafe' ? '#gsCatBelly' : (kind==='sheep' ? '#gsSheep' : '#gsCat');
   const cls = kind==='sheep' ? 'jelly' : (sceneId==='cafe' ? 'patted' : 'stretch');
   /* 停在动物侧边一点点，让伸手动作与小动物都看得清，而不是整个人压上去 */
@@ -3174,8 +3637,9 @@ function drawStarOnGlass(){
   const old=$$('#fxLayer .gs-star-draw'); if(old.length>12) old[0].remove();
 }
 function explore(){
+  if(S.inRoom){ topToast('先推开门出去，才能探索哦 ✦'); return; }
   const g=gameGet(); rollDaily(g);
-  const sc=SCENES[S.gameScene];
+  const sc=curScene();
   if(g.steps.left>0){
     g.steps.left--;
     const m=rnd(sc.specialty);
@@ -3196,6 +3660,8 @@ const MOVE_SPEED=19;          /* 恒定速度：每秒平移 19% 舞台宽度 */
 let moveRAF=0, moveLastT=0, moveFxT=0, moveSaveT=0;
 
 function stepMove(dir,dt){
+  if(S.roomRest) wakeFromBed(true);
+  clearWindowPose();
   const g=gameGet();
   S.charX=Math.max(6,Math.min(94,S.charX+dir*MOVE_SPEED*dt));
   const char=charEl(); if(char){ char.style.left=S.charX+'%'; char.classList.add('walking'); }
@@ -3207,7 +3673,7 @@ function stepMove(dir,dt){
   const now=performance.now();
   if(now-moveFxT>210){                      /* 脚印/花瓣/沙沙声按固定节拍触发，不随帧率波动 */
     moveFxT=now;
-    const sc=SCENES[S.gameScene];
+    const sc=curScene();
     if(sc && sc.id==='sea') fxRipple(S.charX);
     else if(Math.random()<.55) fxPetal(S.charX);
     playRustle(); updateOrbs();
@@ -3238,6 +3704,8 @@ function releaseHold(d){ heldDir[d]=false; }
 /* 单步移动（触屏方向垫 / 单击）：复用同一套位移核心，单步距离 = 0.21s × 19%/s ≈ 4%，与原手感一致 */
 let walkTimer=null;
 function moveChar(dir){
+  if(S.roomRest){ wakeFromBed(false); return; }
+  clearWindowPose();
   if(sitting){ standUp(); say('小喵','站起来啦，我们继续走吧 ✦'); return; }
   if(swingActive){ stopSwing(); return; }
   stepMove(dir,0.21);
@@ -3396,6 +3864,7 @@ function closeEvent(){
 
 /* ---------------------------------------------------------- 衣橱 / 旅行报告 ---------------------------------------------------------- */
 function openWardrobe(){
+  if(!S.inRoom){ topToast('要回小屋才能换衣服哦 ✦','lock'); return; }
   const g=gameGet(), p=$('#wardrobePanel'), r=$('#reportPanel'), e=$('#eventPanel');
   if(r) r.classList.add('hidden'); if(e) e.classList.add('hidden');
   p.classList.remove('hidden');
@@ -3439,7 +3908,7 @@ function openReport(){
     <div class="tiny" style="margin:-6px 0 14px">翻过 ${g2.stats.reportViews} 次 · 探索 ${g2.stats.explored} 次 · 发呆 ${g2.stats.benchSeconds} 秒 · 摸猫 ${g2.stats.catPats} 次</div>
     <div class="mat-grid">${mats.length?mats.map(([k,v])=>`<div class="mat-cell"><b>${v}</b><span>${MAT_LABELS[k]||k}</span></div>`).join(''):'<div class="tiny">口袋还空空的，慢慢捡就好。</div>'}</div>
     <div class="ach-list">${ACHIEVEMENTS.map(a=>`<span class="ach-chip ${g2.achievements.includes(a.id)?'':'locked'}" title="${esc(a.text)}">${g2.achievements.includes(a.id)?'✦':'✧'} ${esc(a.title)}</span>`).join('')}</div>
-    <div class="tiny" style="margin-top:12px">去过的风景：${g2.visited.map(id=>SCENES.find(s=>s.id===id)?.name).filter(Boolean).join(' · ')||'还没出门'}</div>
+    <div class="tiny" style="margin-top:12px">去过的风景：${g2.visited.map(id=>(id==='room'?ROOM:SCENES.find(s=>s.id===id))?.name).filter(Boolean).join(' · ')||'还没出门'}</div>
     <button class="gm-btn" id="rpClose" style="margin-top:14px">合上报告</button>`;
   $('#rpClose').onclick=()=>p.classList.add('hidden');
 }
@@ -3448,15 +3917,14 @@ function openReport(){
 function onEnterGame(){
   if(!S.gameInited){ initGame(); S.gameInited=true; }
   const g=gameGet(); rollDaily(g); gameSet(g);
+  /* 家的代入感：每次打开小游戏都先回到温馨小屋，再由木门选目的地 */
+  S.inRoom=true; S.mapOpen=false; S.roomRest=false; S.mateOnWindow=false;
   S.gameScene = (Number.isInteger(g.current) && g.current>=0 && g.current<SCENES.length) ? g.current : 0;
-  S.charX = (typeof g.charX==='number' && g.charX>=6 && g.charX<=94) ? g.charX : 46;
-  if(!isSceneUnlocked(S.gameScene)){            /* 旧存档指向未解锁场景 → 回到花庭 */
-    S.gameScene=0; S.charX=46;
-    withGame(sv=>{ sv.current=0; sv.charX=46; });
-  }
+  S.charX=46;
+  withGame(sv=>{ sv.inRoom=true; sv.charX=46; });
   $('#gameBack').textContent = S.gameFrom==='blog' ? '← 返回博客' : '← 返回书桌';
   renderScene();
-  say('小喵','我在这儿呢，跟着你慢慢走。');
+  say('小喵','先换好衣服，再推开门出发吧 ✦');
 }
 function initGame(){
   window.addEventListener('resize', ()=>{ if(S.screen==='game') applyGround(); });
