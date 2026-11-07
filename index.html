@@ -1220,6 +1220,68 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 /* 白猫的柔光轮廓：像素猫在浅粉水彩背景上也能浮出来 */
 .gs--path #gsCat{filter:drop-shadow(0 1px 0 rgba(255,255,255,.9)) drop-shadow(0 3px 5px rgba(150,120,110,.22))}
 
+/* ---------- 3.55 樱花小径：树根小木门（开门 → 门内飘出梦幻物 → 缓缓关上） ---------- */
+#gsDoorLeaf{transform-box:fill-box;transform-origin:left center;
+  transition:transform 1.55s cubic-bezier(.42,.06,.28,1),filter 1.1s ease}
+#gsDoorLeaf.open{transform:perspective(560px) rotateY(-76deg);filter:brightness(1.04);
+  transition:transform 1.08s cubic-bezier(.22,.8,.3,1)}
+#gsDoorGlow{opacity:0;transition:opacity 1.05s ease}
+#gsDoorGlow.on{opacity:1}
+#gsDoorway{opacity:.94}
+.gs-door-fx{position:absolute;inset:0;z-index:31;pointer-events:none;overflow:hidden}
+
+/* 门内飘出的四类梦幻物：泡泡 / 蝴蝶 / 星星 / 丝带，全部沿同一条柔和抛物线飘升 */
+.gs-dream{position:absolute;opacity:0;transform:translate(-50%,-50%);will-change:transform,opacity;
+  animation:dreamFloat var(--dur,4s) cubic-bezier(.24,.6,.3,1) forwards}
+@keyframes dreamFloat{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.32) rotate(0deg)}
+  9%{opacity:1}
+  46%{opacity:.96;transform:translate(calc(-50% + var(--dx1,0px)),calc(-50% + var(--dy1,-70px)))
+    scale(var(--sc1,1.04)) rotate(var(--rot1,4deg))}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),calc(-50% + var(--dy,-160px)))
+    scale(var(--sc,1.15)) rotate(var(--rot,6deg))}
+}
+.gs-dream.bubble{width:var(--sz,14px);height:var(--sz,14px);border-radius:50%;
+  background:radial-gradient(circle at 33% 26%,rgba(255,255,255,.98) 0%,rgba(255,236,245,.72) 34%,
+    rgba(226,214,246,.44) 68%,rgba(255,255,255,.06) 100%);
+  box-shadow:inset 0 0 6px rgba(255,255,255,.95),inset 0 0 1px 1px rgba(255,255,255,.9),
+    0 0 12px rgba(255,204,232,.68);
+  border:1px solid rgba(255,255,255,.85)}
+.gs-dream.bubble::after{content:'';position:absolute;left:23%;top:19%;width:27%;height:23%;border-radius:50%;
+  background:rgba(255,255,255,.96)}
+.gs-dream.butterfly{width:var(--sz,16px);height:auto;
+  filter:drop-shadow(0 1px 2px rgba(192,126,162,.35)) drop-shadow(0 0 7px rgba(255,240,248,.7))}
+.gs-dream.butterfly svg{display:block;width:100%;height:auto;overflow:visible}
+.gs-dream.butterfly .bwing{transform-box:fill-box;animation:dreamFlap .44s ease-in-out infinite alternate}
+.gs-dream.butterfly .bwing.l{transform-origin:right center}
+.gs-dream.butterfly .bwing.r{transform-origin:left center}
+@keyframes dreamFlap{from{transform:scaleX(1)}to{transform:scaleX(.52)}}
+.gs-dream.star{width:var(--sz,12px);height:var(--sz,12px);
+  filter:drop-shadow(0 0 6px rgba(255,228,160,.9))}
+.gs-dream.star svg{display:block;width:100%;height:100%;overflow:visible;
+  animation:dreamTwinkle 1.15s ease-in-out infinite alternate}
+@keyframes dreamTwinkle{from{opacity:.66;transform:scale(.9)}to{opacity:1;transform:scale(1.08)}}
+.gs-dream.star svg path{fill:#E9C275}
+.gs-dream.ribbon{width:var(--sz,34px);height:auto;
+  filter:drop-shadow(0 1px 2px rgba(212,148,178,.28))}
+.gs-dream.ribbon svg{display:block;width:100%;height:auto;overflow:visible;
+  animation:dreamWave 1.7s ease-in-out infinite alternate}
+@keyframes dreamWave{from{transform:rotate(-7deg) skewY(-5deg)}to{transform:rotate(7deg) skewY(5deg)}}
+
+/* 小概率：门里飞出的小精灵，飞到头顶撒花瓣再回门里 */
+.gs-sprite{position:absolute;width:34px;height:44px;transform:translate(-50%,-50%);z-index:2;
+  transition:left 1.2s cubic-bezier(.36,.06,.28,1),top 1.2s cubic-bezier(.36,.06,.28,1);
+  filter:drop-shadow(0 0 11px rgba(255,240,196,.92))}
+.gs-sprite svg{display:block;width:100%;height:100%;overflow:visible}
+.gs-sprite .spr-wing{transform-box:fill-box;transform-origin:center;
+  animation:sprFlap .2s steps(2,end) infinite alternate}
+@keyframes sprFlap{from{transform:scaleY(1)}to{transform:scaleY(.66)}}
+.gs-sprite .spr-glow{animation:sprGlow 1.3s ease-in-out infinite alternate}
+@keyframes sprGlow{from{opacity:.55}to{opacity:1}}
+.gs-sprite.pour{animation:sprPour .6s ease-in-out}
+@keyframes sprPour{0%,100%{transform:translate(-50%,-50%) rotate(0deg)}
+  50%{transform:translate(-50%,-50%) rotate(-13deg)}}
+
 /* ---------- 3.6 衣橱：界面半透明柔化 + 换装高光闪烁 ---------- */
 .gs-wardrobe-veil{position:absolute;inset:0;z-index:46;pointer-events:none;
   background:rgba(253,251,247,.30);backdrop-filter:blur(1.5px);
@@ -2902,10 +2964,21 @@ function artPath(){
       +px(1024,404-i*22,6,3,'#A98165','opacity=".38"')
       +`<path d="M${1014+((i%3)-1)*4} ${400-i*22} q6 4 0 10" stroke="#51382B" stroke-width="2" fill="none" opacity=".22"/>`;
   }
-  /* 树根小木门（保持交互坐标 83%~88%） */
+  /* 树根小木门（保持交互坐标 83%~88%）：门框底板 → 门洞 → 门内暖光 → 可动门扇 → 门框描边 */
   const door=px(996,352,58,66,'url(#g2wood)')+'<path d="M996 352 a29 29 0 0 1 58 0 Z" fill="#B48E6B"/>'
-    +px(1001,358,48,60,'#C9A47F')+px(1003,360,44,2,'#E0C09B')
-    +px(1002,412,46,3,'#7A5842','opacity=".3"')+px(1040,388,4,4,'#EBD3A6');
+    /* 门洞：拱形，比门扇小一圈，开门后才露出来 */
+    +'<g id="gsDoorway"><path d="M1004 418 L1004 383 a21 21 0 0 1 42 0 L1046 418 Z" fill="url(#g2doorway)"/>'
+    +'<ellipse cx="1025" cy="414" rx="19" ry="4.5" fill="#FFE7BE" opacity=".72"/></g>'
+    /* 溢出到门外的暖光（默认透明，开门时淡入） */
+    +'<ellipse id="gsDoorGlow" cx="1025" cy="392" rx="54" ry="42" fill="url(#g2doorGlow)"/>'
+    /* 可动门扇：铰链在左边缘，开门时绕左边向内转 */
+    +'<g id="gsDoorLeaf"><path d="M1001 418 L1001 382 a24 24 0 0 1 48 0 L1049 418 Z" fill="#C9A47F"/>'
+    +px(1003,360,44,2,'#E0C09B')
+    +px(1001,389,48,1,'#B8916B','opacity=".5"')+px(1001,404,48,1,'#B8916B','opacity=".4"')
+    +'<path d="M1025 386 L1025 418" stroke="#B8916B" stroke-width="1" opacity=".38"/>'
+    +px(1040,388,4,4,'#EBD3A6')+px(1002,412,46,3,'#7A5842','opacity=".3"')+'</g>'
+    /* 门框描边：不随门扇动，开门后仍能看见框 */
+    +'<path d="M1000 418 L1000 381 a25 25 0 0 1 50 0 L1050 418" fill="none" stroke="#A8815E" stroke-width="2.4" opacity=".85"/>';
   /* 云朵绵羊：毛茸茸的多层小卷毛 + 柔光 */
   let sheep='<g id="gsSheep">';
   [[368,368,34],[396,356,31],[424,370,29],[388,380,30]].forEach(([cx,cy,r])=>{
@@ -2927,6 +3000,8 @@ function artPath(){
   <radialGradient id="g2blossom"><stop offset="0" stop-color="#FFF7FA" stop-opacity=".95"/><stop offset="52%" stop-color="#F4C2D5" stop-opacity=".84"/><stop offset="86%" stop-color="#EDAFC6" stop-opacity=".34"/><stop offset="100%" stop-color="#EDAFC6" stop-opacity="0"/></radialGradient>
   <radialGradient id="g2blossom2"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".9"/><stop offset="62%" stop-color="#F7CEDC" stop-opacity=".55"/><stop offset="100%" stop-color="#F2C4D5" stop-opacity="0"/></radialGradient>
   <radialGradient id="g2fluff"><stop offset="0" stop-color="#FFFFFF"/><stop offset="72%" stop-color="#FFFCF4"/><stop offset="100%" stop-color="#E9DED2"/></radialGradient>
+  <linearGradient id="g2doorway" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4E3A30"/><stop offset="52%" stop-color="#7A5C48"/><stop offset="100%" stop-color="#C69B6E"/></linearGradient>
+  <radialGradient id="g2doorGlow"><stop offset="0" stop-color="#FFF6DC" stop-opacity=".95"/><stop offset="46%" stop-color="#FFE3BC" stop-opacity=".52"/><stop offset="78%" stop-color="#FFD6AE" stop-opacity=".2"/><stop offset="100%" stop-color="#FFD6AE" stop-opacity="0"/></radialGradient>
   <filter id="gs-puff" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
   <filter id="g2woodInner" x="-20%" y="-20%" width="140%" height="140%">
     <feComponentTransfer in="SourceAlpha" result="a"><feFuncA type="linear" slope="1"/></feComponentTransfer>
@@ -3367,8 +3442,8 @@ const SCENES = [
    {id:'sheep',  label:'摸摸云朵绵羊', x:34,y:68, act:'sheep',   mat:'sakura', line:'它软得像一朵会走路的云，蹭了蹭你的手。'},
    {id:'cat',    label:'树根旁的小猫', x:76,y:76, act:'purr',    hidden:true, ach:'sakuraCat', mat:'lace',
     line:'呼噜……呼噜……它翻了个身，又睡了。', firstLine:'它没说话，但让你摸了。'},
-   {id:'door',   label:'小木门',       x:85,y:70, act:'collect', mat:'star', nearLine:'里面会不会住着精灵？',
-    line:'门缝里漏出一点光，捡到一颗小星星。'},
+   {id:'door',   label:'小木门',       x:85,y:70, act:'doorDream', mat:'star', nearLine:'里面会不会住着精灵？',
+    line:'门缝里漏出一点光，好像有谁在里面呼吸。'},
    {id:'petal',  label:'拾樱花瓣',     x:56,y:52, act:'collect', mat:'sakura', line:'接住一片还没落地的花瓣。'},
    {id:'evt',    label:'树上有动静',   x:66,y:40, act:'event',   line:'树上好像缠住了什么。'}
   ]
@@ -3495,7 +3570,7 @@ const NEARBY = {
     {id:'door',     x:91, r:11, act:'map',      tip:'出门',   hint:'走到门前按空格开门',   zone:[89,19,11,70], trigger:'space'}
   ],
   garden:[{id:'postbox', x:9,  r:15, hint:'点一点旧邮筒 ✦', line:'今天没有来信哦。', trigger:'click'}],
-  path:[  {id:'door',    x:85, r:15, hint:'空格 · 敲敲小木门', line:'里面会不会住着精灵？', trigger:'space'}]
+  path:[  {id:'door',    x:85, r:15, act:'doorDream', hint:'空格 · 敲敲小木门', line:'里面会不会住着精灵？', trigger:'space'}]
 };
 function nearbyHere(){
   const sc=curScene(); if(!sc) return null;
@@ -3519,6 +3594,7 @@ function tryNearby(trigger, direct){
   if(p.act==='window'){ roomWindow(); return true; }
   if(p.act==='wardrobe'){ openWardrobe(); return true; }
   if(p.act==='sit'){ roomRug(); return true; }
+  if(p.act==='doorDream'){ startDoorDream(); return true; }
   say('小喵',p.line);
   fxNote('✦');
   return true;
@@ -3769,6 +3845,138 @@ function checkPetalCatch(){
   }
 }
 
+/* ========================================================== 樱花小径：树根小木门的梦幻彩蛋 ==========================================================
+   点门 → 门缓缓打开 → 门里随机飘出 1~3 种梦幻物（泡泡 / 蝴蝶 / 星星 / 丝带）
+   → 小概率飞出一只小精灵，到头顶撒一把花瓣再飞回门里 → 等门里的东西飘完，门自己缓缓关上。
+   门扇只做绕铰链的 3D 转动，梦幻物只做位移 + 淡入淡出，画面里没有任何一处被拉伸或裁切。 */
+const DOOR_X = 85.6, DOOR_Y = 76;
+let doorBusy = false;
+const swait = ms => new Promise(res => sceneLater(res, ms));
+function doorOpen(){
+  const leaf=$('#gsDoorLeaf'), glow=$('#gsDoorGlow');
+  if(leaf) leaf.classList.add('open');
+  if(glow) glow.classList.add('on');
+}
+function doorClose(){
+  const leaf=$('#gsDoorLeaf'), glow=$('#gsDoorGlow');
+  if(leaf) leaf.classList.remove('open');
+  if(glow) glow.classList.remove('on');
+}
+/* 四类梦幻物：全部是极淡的粉/紫/香槟金，跟水彩场景一个调子 */
+const DREAM_HTML = {
+  bubble: ()=>'',
+  butterfly: ()=>'<svg viewBox="0 0 22 16" aria-hidden="true">'
+    +'<g class="bwing l"><path d="M11 8 C6 0 1 1 1 6 c0 4 5 6 10 5 Z" fill="#F0AECE" opacity=".97"/>'
+    +'<path d="M11 9 C7 13 3 13 3 10 c0-2 4-3 8-2 Z" fill="#F7D2E4" opacity=".95"/></g>'
+    +'<g class="bwing r"><path d="M11 8 C16 0 21 1 21 6 c0 4-5 6-10 5 Z" fill="#DFC0EB" opacity=".97"/>'
+    +'<path d="M11 9 C15 13 19 13 19 10 c0-2-4-3-8-2 Z" fill="#EBD6F2" opacity=".95"/></g>'
+    +'<rect x="10.4" y="5" width="1.2" height="8.4" rx=".6" fill="#B98A6E"/>'
+    +'<circle cx="11" cy="4.6" r="1.1" fill="#A97A5F"/></svg>',
+  star: ()=>'<svg viewBox="0 0 16 16" aria-hidden="true">'
+    +'<path d="M8 0.5 L9.75 6.25 L15.5 8 L9.75 9.75 L8 15.5 L6.25 9.75 L0.5 8 L6.25 6.25 Z" fill="#E9C275"/>'
+    +'<circle cx="8" cy="8" r="1.9" fill="#FFFDF2"/></svg>',
+  ribbon: ()=>'<svg viewBox="0 0 46 18" aria-hidden="true">'
+    +'<path d="M3 13 C11 2 17 15 25 8 S40 2 43 7" fill="none" stroke="#E9A6C4" stroke-width="4.2" stroke-linecap="round" opacity=".95"/>'
+    +'<path d="M3 13 C11 2 17 15 25 8 S40 2 43 7" fill="none" stroke="#FFF3F8" stroke-width="1.4" stroke-linecap="round" opacity=".9"/>'
+    +'<path d="M3 16 C12 7 18 17 26 11 S40 6 43 10" fill="none" stroke="#DCC6EC" stroke-width="1.8" stroke-linecap="round" opacity=".65"/></svg>'
+};
+/* 小精灵：粉白身体 + 半透明翅膀 + 头顶一点光 */
+const SPRITE_SVG = '<svg viewBox="0 0 22 28" aria-hidden="true">'
+  +'<g class="spr-wing"><path d="M9 13 C3 4 0 8 3 14 C1 17 4.5 20 9 16 Z" fill="#FFFFFF" opacity=".8"/>'
+  +'<path d="M13 13 C19 4 22 8 19 14 C21 17 17.5 20 13 16 Z" fill="#FFFFFF" opacity=".72"/></g>'
+  +'<path d="M6.6 16.6 L11 26 L15.4 16.6 C13 18.2 9 18.2 6.6 16.6 Z" fill="#F3D2E0"/>'
+  +'<path d="M11 6.4 C14.2 6.4 15.8 8.8 15.8 11.4 L15.8 16.4 C15.8 18.4 13.5 19.4 11 19.4 C8.5 19.4 6.2 18.4 6.2 16.4 L6.2 11.4 C6.2 8.8 7.8 6.4 11 6.4 Z" fill="#FFF7EA"/>'
+  +'<circle cx="11" cy="5.8" r="4.2" fill="#FFE9D4"/>'
+  +'<path d="M6.8 5.8 a4.2 4.2 0 0 1 8.4 0 Z" fill="#F6DCEC" opacity=".8"/>'
+  +'<circle cx="9.4" cy="6.2" r=".85" fill="#8A6A5C"/><circle cx="12.6" cy="6.2" r=".85" fill="#8A6A5C"/>'
+  +'<circle class="spr-glow" cx="11" cy="1.5" r="1.5" fill="#FFF8DA"/></svg>';
+const DREAM_KINDS=['bubble','butterfly','star','ribbon'];
+function pickDreamKinds(){
+  const pool=DREAM_KINDS.slice(), out=[];
+  const n=1+Math.floor(Math.random()*3);              /* 随机 1~3 种一起飘 */
+  for(let i=0;i<n && pool.length;i++) out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+  return out;
+}
+function spawnDream(kind, boost){
+  const layer=$('#doorFx'), st=$('#game-stage');
+  if(!layer || !st) return;
+  const W=st.clientWidth||1080, H=st.clientHeight||560;
+  const base = kind==='ribbon' ? 4 : (kind==='butterfly' ? 6 : (kind==='star' ? 9 : 10));
+  const count = Math.round(base*(boost||1));        /* 只飘一种时数量补足，画面才不空 */
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');
+    el.className='gs-dream '+kind;
+    el.style.left=(DOOR_X+(Math.random()*3.2-1.6)).toFixed(2)+'%';
+    el.style.top=(DOOR_Y+(Math.random()*2.4-0.6)).toFixed(2)+'%';
+    const side = Math.random()<0.28 ? 1 : -1;                 /* 多数向左飘散，少数往右下绕 */
+    const dx = side*(W*(0.12+Math.random()*0.32));
+    const dy = -(H*(0.36+Math.random()*0.36));
+    el.style.setProperty('--dx', dx.toFixed(0)+'px');
+    el.style.setProperty('--dy', dy.toFixed(0)+'px');
+    el.style.setProperty('--dx1', (dx*0.52+(Math.random()*44-22)).toFixed(0)+'px');
+    el.style.setProperty('--dy1', (dy*0.46).toFixed(0)+'px');
+    el.style.setProperty('--rot1', (Math.random()*14-7).toFixed(1)+'deg');
+    el.style.setProperty('--rot', (Math.random()*26-13).toFixed(1)+'deg');
+    el.style.setProperty('--sc1', (1+Math.random()*0.14).toFixed(2));
+    el.style.setProperty('--sc', (0.95+Math.random()*0.5).toFixed(2));
+    el.style.setProperty('--dur', (3.8+Math.random()*1.6).toFixed(2)+'s');
+    el.style.setProperty('--sz', (kind==='ribbon' ? 42+Math.random()*18
+      : kind==='butterfly' ? 22+Math.random()*10
+      : kind==='star' ? 17+Math.random()*11
+      : 14+Math.random()*12).toFixed(0)+'px');
+    el.style.animationDelay=(Math.random()*1.2).toFixed(2)+'s';
+    if(DREAM_HTML[kind]) el.innerHTML=DREAM_HTML[kind]();
+    layer.appendChild(el);
+    sceneLater(()=>el.remove(), 6400);
+  }
+}
+/* 小概率事件：小精灵从门里飞出来，到人物头顶撒花瓣，再飞回门里 */
+async function spriteVisit(){
+  const layer=$('#doorFx'); if(!layer) return;
+  const el=document.createElement('div');
+  el.className='gs-sprite'; el.id='gsSprite';
+  el.style.left=DOOR_X+'%'; el.style.top=(DOOR_Y+1)+'%';
+  el.innerHTML=SPRITE_SVG;
+  layer.appendChild(el);
+  await swait(90);
+  if(!el.isConnected) return;
+  el.style.left=(S.charX+3.5)+'%'; el.style.top='57%';      /* 飘到头顶上方 */
+  await swait(1250);
+  if(!el.isConnected) return;
+  el.classList.add('pour');
+  for(let i=0;i<16;i++) sceneLater(()=>fxPetal(S.charX-8+Math.random()*16), i*60);
+  say('小喵','门里飞出一只小精灵，在你头顶撒了一把花瓣 ✦');
+  await swait(1750);
+  if(!el.isConnected) return;
+  el.classList.remove('pour');
+  el.style.left=DOOR_X+'%'; el.style.top=(DOOR_Y+1)+'%';    /* 飞回门里 */
+  await swait(1250);
+  if(el.isConnected) el.remove();
+}
+/* 点门 / 空格敲门：先走到门边，再开门 */
+function startDoorDream(){
+  if(doorBusy) return;
+  if(!$('#gsDoorLeaf')) return;
+  travelTo(75.5, ()=>doorDream());        /* 站在门左侧一点，门和门里飘出的东西都不被人物挡住 */
+}
+async function doorDream(){
+  if(doorBusy) return;
+  const sc=curScene();
+  if(!sc || sc.id!=='path' || !$('#gsDoorLeaf')) return;
+  doorBusy=true;
+  doorOpen();
+  await swait(360);                                   /* 门先开一条缝，东西才飘得出来 */
+  const kinds=pickDreamKinds();
+  const boost = kinds.length===1 ? 1.7 : (kinds.length===2 ? 1.3 : 1);
+  kinds.forEach((k,i)=>sceneLater(()=>spawnDream(k,boost), i*300));
+  const hasSprite=Math.random()<0.22;                 /* 约两成概率出小精灵 */
+  if(hasSprite) sceneLater(()=>{ spriteVisit(); }, 760);
+  await swait(hasSprite ? 6300 : 3300+kinds.length*260);
+  doorClose();                                        /* 缓缓关上（CSS 1.55s） */
+  await swait(1700);
+  doorBusy=false;
+}
+
 /* ========================================================== 衣橱柔化 / 换装高光 ========================================================== */
 function closeWardrobe(){
   const p=$('#wardrobePanel'); if(p) p.classList.add('hidden');
@@ -3916,6 +4124,7 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-spots" id="hotspots"></div>
 <div class="gs-prop-layer" id="propLayer"></div>
 <div class="gs-catch-layer" id="catchLayer"></div>
+<div class="gs-door-fx" id="doorFx"></div>
 <div id="orbsLayer"></div>
 <div class="gs-mate-trail" id="companionTrail"></div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
@@ -4015,6 +4224,7 @@ function clearStage(){
   clearSceneTimers();                            /* 撤销旧场景所有动画回调 */
   catchPetals=[];                               /* 旧场景待接花瓣随 DOM 一起销毁 */
   sitting=false; swingActive=false;
+  doorBusy=false;                               /* 旧场景的门动画随 DOM 一起作废 */
   S.roomRest=false; S.mateOnWindow=false; S.mapOpen=false;
   const stage=$('#game-stage');
   while(stage.firstChild) stage.removeChild(stage.firstChild);
@@ -4203,6 +4413,7 @@ function activateSpot(i){
       $('#gsArt')?.classList.add('bottle-drag');
       startEvent('bottleDrag'); break;
     case 'event':    startEvent(sc.event); break;
+    case 'doorDream': startDoorDream(); break;
     case 'collect':  break;
   }
   /* 图书馆：发光书的文字以打字机效果浮现 */
