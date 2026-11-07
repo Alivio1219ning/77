@@ -461,19 +461,21 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .px-avatar{display:block;width:96px;height:96px;image-rendering:pixelated;shape-rendering:crispEdges;
   filter:drop-shadow(0 5px 7px rgba(90,75,65,.22))}
 .px-avatar>svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
-.px-hair{fill:#4A3A34}.px-hair-hi{fill:#6A5346}
-.px-skin{fill:#F8DFCF}.px-skin-sh{fill:#ECC9B7}
-.px-eye{fill:#332925}.px-eye-hi{fill:#FFFFFF}
-.px-blush{fill:#F0B4B4}.px-mouth{fill:#C58E86}
-.px-ribbon{fill:#F2C9CD}
-.px-dress{fill:#F1E4D1}.px-dress-sh{fill:#DCC8B0}.px-trim{fill:#D9C6A5}
-.px-shoe{fill:#8B7564}
+.px-hair{fill:#6B4A43}.px-hair-hi{fill:#9C87B8}
+.px-skin{fill:#FBEDE2}.px-skin-sh{fill:#F1D8C6}
+.px-eye{fill:#3B3A5A}.px-eye-hi{fill:#FFFFFF}
+.px-lid{fill:#E9AFC2}
+.px-blush{fill:#F29FB2}.px-mouth{fill:#E2758F}
+.px-ribbon{fill:#EE8FA9}
+.px-dress{fill:#F2B7C8}.px-dress-sh{fill:#E29EB4}.px-trim{fill:#FFF7F0}
+.px-blouse{fill:#FFFDF8}.px-dark{fill:#423D5C}
+.px-shoe{fill:#423D5C}
 .px-cape,.px-cape-sh,.px-wing,.px-star{display:none}
 .px-arm{display:none}
 /* 生日限定【星蕾月白】：只靠切换 .moon 这一个 class 完成整套换装 */
-.px-avatar.moon .px-hair{fill:#5B4A40}.px-avatar.moon .px-hair-hi{fill:#7A6455}
 .px-avatar.moon .px-dress{fill:#FFFFFF}.px-avatar.moon .px-dress-sh{fill:#DCE9F1}
-.px-avatar.moon .px-trim{fill:#EBD9AF}.px-avatar.moon .px-ribbon{fill:#FFF2D6}
+.px-avatar.moon .px-trim{fill:#EBD9AF}.px-avatar.moon .px-ribbon{fill:#F6C9D8}
+.px-avatar.moon .px-dark{fill:#B9CFE2}
 .px-avatar.moon .px-cape{display:block;fill:#C9DDEB}
 .px-avatar.moon .px-cape-sh{display:block;fill:#A9C7DA}
 .px-avatar.moon .px-wing{display:block;fill:rgba(255,255,255,.72)}
@@ -1307,15 +1309,20 @@ function initNav(){
   $$('[data-back]').forEach(b => b.addEventListener('click', ()=>{
     if(history.length>1) history.back(); else go('desk');
   }));
-  document.addEventListener('visibilitychange', ()=>{
-    if(!document.hidden && S.screen==='blog'){
-      const soft=!!S.pendingProfileGlow; S.pendingProfileGlow=false; refreshProfile(soft);
-    }
-  });
   document.addEventListener('keydown', e=>{
     if(S.screen!=='game') return;
-    if(['ArrowLeft','a','A'].includes(e.key)) { e.preventDefault(); moveChar(-1); }
-    if(['ArrowRight','d','D'].includes(e.key)) { e.preventDefault(); moveChar(1); }
+    const d=MOVE_KEYS[e.key];
+    if(d){ e.preventDefault(); if(!e.repeat) startHold(d); }
+  });
+  document.addEventListener('keyup', e=>{
+    const d=MOVE_KEYS[e.key]; if(d) releaseHold(d);
+  });
+  window.addEventListener('blur', ()=>{ heldDir.L=heldDir.R=false; });   /* 切窗时停止移动 */
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){ heldDir.L=heldDir.R=false; }
+    else if(!document.hidden && S.screen==='blog'){
+      const soft=!!S.pendingProfileGlow; S.pendingProfileGlow=false; refreshProfile(soft);
+    }
   });
 }
 
@@ -1865,36 +1872,49 @@ const OUTFITS = [
   {id:'moon',   name:'生日限定【星蕾月白】', desc:'白色像素裙 · 淡蓝披风 · 半透明蕾丝小翅膀'}
 ];
 
-/* ---------------------------------------------------------- 像素小人：32×32 网格 ----------------------------------------------------------
-   每个数组项 = [x, y, w, h, CSS class]。所有色块都用 CSS class 上色，换装只切换 .moon 一个 class。 */
+/* ---------------------------------------------------------- 像素小人：32×32 网格（对照参考图：深棕长发 · 紫挑染 · 大眼粉影 · 粉开衫背带裙） ----------
+   每个数组项 = [x, y, w, h, CSS class]。后画的覆盖先画的，所有色块用 CSS class 上色，换装只切 .moon 一个 class。 */
 const PX_PARTS = [
-  /* 丸子头与后发 */
-  [20,2,5,4,'px-hair'], [21,1,3,2,'px-hair-hi'], [9,3,14,3,'px-hair'], [8,6,16,12,'px-hair'], [9,4,5,2,'px-hair-hi'],
+  /* 头顶与后发轮廓（大头身） */
+  [10,1,12,2,'px-hair'], [8,3,16,3,'px-hair'], [7,6,18,3,'px-hair'],
+  [6,8,2,3,'px-hair'], [24,8,2,3,'px-hair'],
+  /* 两侧长发：一直垂到裙摆 */
+  [5,9,4,14,'px-hair'], [4,15,2,9,'px-hair'], [5,23,3,4,'px-hair'],
+  [23,9,4,14,'px-hair'], [26,15,2,9,'px-hair'], [24,23,3,4,'px-hair'],
+  /* 紫色高光挑染（参考图的薰衣草色块） */
+  [11,4,3,1,'px-hair-hi'], [19,3,3,1,'px-hair-hi'], [8,7,2,2,'px-hair-hi'], [22,6,2,2,'px-hair-hi'],
+  [6,13,1,3,'px-hair-hi'], [25,12,1,3,'px-hair-hi'], [7,19,1,2,'px-hair-hi'], [26,19,1,2,'px-hair-hi'],
+  [14,2,3,1,'px-hair-hi'],
   /* 脸 */
-  [10,8,12,10,'px-skin'], [10,16,12,2,'px-skin-sh'],
-  /* 齐刘海：锯齿下沿 */
-  [9,5,14,4,'px-hair'], [9,9,3,2,'px-hair'], [13,9,3,3,'px-hair'], [17,9,3,2,'px-hair'], [21,9,2,3,'px-hair'],
-  [10,6,4,1,'px-hair-hi'],
-  /* 黑色像素豆豆眼 + 高光 + 粉色像素腮红 + 嘴 */
-  [12,13,2,2,'px-eye'], [18,13,2,2,'px-eye'], [12,13,1,1,'px-eye-hi'], [18,13,1,1,'px-eye-hi'],
-  [10,16,2,1,'px-blush'], [20,16,2,1,'px-blush'], [15,17,2,1,'px-mouth'],
-  /* 发带蝴蝶结 */
-  [20,5,3,2,'px-ribbon'], [22,4,2,2,'px-ribbon'], [22,7,2,2,'px-ribbon'],
+  [10,11,12,8,'px-skin'], [11,18,10,1,'px-skin-sh'],
+  /* 齐刘海：锯齿下沿 + 粉色挑染 */
+  [8,8,16,3,'px-hair'], [8,11,3,2,'px-hair'], [12,11,3,2,'px-hair'], [16,11,3,2,'px-hair'], [20,11,3,2,'px-hair'],
+  [12,9,2,2,'px-ribbon'], [17,9,2,1,'px-ribbon'],
+  /* 大眼睛：粉色眼影 + 深蓝紫像素眼 + 白高光（参考图同款） */
+  [11,12,4,1,'px-lid'], [17,12,4,1,'px-lid'],
+  [11,13,3,3,'px-eye'], [18,13,3,3,'px-eye'],
+  [11,13,1,1,'px-eye-hi'], [18,13,1,1,'px-eye-hi'], [13,15,1,1,'px-eye-hi'], [20,15,1,1,'px-eye-hi'],
+  /* 粉腮红 + 张开的小嘴 */
+  [10,16,2,2,'px-blush'], [20,16,2,2,'px-blush'], [15,16,2,2,'px-mouth'],
+  /* 侧发粉色小花饰 */
+  [24,6,2,2,'px-ribbon'], [26,6,2,2,'px-ribbon'], [25,8,2,2,'px-ribbon'],
   /* 星蕾月白：淡蓝披风 + 半透明蕾丝小翅膀 + 碎星（默认 display:none） */
   [5,19,4,9,'px-cape'], [23,19,4,9,'px-cape'], [4,25,5,3,'px-cape-sh'], [23,25,5,3,'px-cape-sh'],
   [1,17,4,2,'px-wing'], [0,19,5,2,'px-wing'], [0,21,4,2,'px-wing'],
   [27,17,4,2,'px-wing'], [27,19,5,2,'px-wing'], [28,21,4,2,'px-wing'],
   [4,13,1,1,'px-star'], [27,11,1,1,'px-star'], [7,30,1,1,'px-star'], [25,29,1,1,'px-star'], [2,9,1,1,'px-star'],
-  /* 手臂（垂下 + 伸手时额外出现） */
-  [8,20,2,5,'px-skin'], [22,20,2,5,'px-skin'],
+  /* 手臂（粉袖）+ 伸手动作时额外出现的手 */
+  [9,20,2,5,'px-dress'], [21,20,2,5,'px-dress'],
+  [9,25,2,2,'px-skin'], [21,25,2,2,'px-skin'],
   [24,19,4,2,'px-arm px-skin'], [27,18,2,2,'px-arm px-skin'],
-  /* 像素连衣棉麻裙 */
-  [11,19,10,6,'px-dress'], [10,23,12,4,'px-dress'], [9,26,14,3,'px-dress'],
-  [9,28,14,1,'px-dress-sh'], [11,19,2,6,'px-trim'], [19,19,2,6,'px-trim'],
-  [9,29,14,1,'px-trim'], [14,19,4,1,'px-trim'],
-  /* 两条腿：CSS 两帧交替，各差 1 像素 */
-  [12,30,3,1,'px-leg-a px-skin'], [17,30,3,1,'px-leg-b px-skin'],
-  [12,31,3,1,'px-leg-a px-shoe'], [17,31,3,1,'px-leg-b px-shoe']
+  /* 身体：粉开衫 + 白内搭 + 深色背带前片 */
+  [11,20,10,4,'px-dress'], [13,20,6,2,'px-blouse'], [14,22,4,2,'px-dark'],
+  /* 粉色散摆裙 + 裙摆阴影 + 白色蕾丝裙边 */
+  [11,24,10,2,'px-dress'], [10,26,12,2,'px-dress'],
+  [10,27,12,1,'px-dress-sh'], [10,28,12,1,'px-trim'],
+  /* 两条腿：CSS 两帧交替，各差 1 像素（深色小皮鞋） */
+  [13,29,2,1,'px-leg-a px-skin'], [17,29,2,1,'px-leg-b px-skin'],
+  [13,30,2,2,'px-leg-a px-shoe'], [17,30,2,2,'px-leg-b px-shoe']
 ];
 const PX_SVG = '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">'
   + PX_PARTS.map(p => `<rect x="${p[0]}" y="${p[1]}" width="${p[2]}" height="${p[3]}" class="${p[4]}"/>`).join('')
@@ -2811,30 +2831,59 @@ function explore(){
   bump('explore',1,g);
   gameSet(g); updateHUD(); playChime();
 }
-let walkTimer=null;
-function moveChar(dir){
-  /* 按方向键取消坐下 / 秋千，先恢复站立（物理状态机优先级） */
-  if(sitting){ standUp(); say('小蕾 ✦','站起来啦，我们继续走吧 ✦'); return; }
-  if(swingActive){ stopSwing(); return; }
+/* —— 匀速连续移动：按键状态 + rAF 时间积分，长按 A/D 或 ←/→ 以恒定速度平移 —— */
+const MOVE_KEYS={ArrowLeft:'L',a:'L',A:'L',ArrowRight:'R',d:'R',D:'R'};
+const heldDir={L:false,R:false};
+const MOVE_SPEED=19;          /* 恒定速度：每秒平移 19% 舞台宽度 */
+let moveRAF=0, moveLastT=0, moveFxT=0, moveSaveT=0;
+
+function stepMove(dir,dt){
   const g=gameGet();
-  S.charX = Math.max(6, Math.min(94, (typeof S.charX==='number'?S.charX:46)+dir*4));
-  const char=charEl(); if(char) char.style.left=S.charX+'%';
+  S.charX=Math.max(6,Math.min(94,S.charX+dir*MOVE_SPEED*dt));
+  const char=charEl(); if(char){ char.style.left=S.charX+'%'; char.classList.add('walking'); }
+  const av=$('#gameAvatar .px-avatar'); if(av) av.classList.add('walking');
   const mate=$('#companion'); if(mate) mate.style.left=(S.charX-8)+'%';
   const trail=$('#companionTrail'); if(trail) trail.style.left=(S.charX-11)+'%';
-  const av=$('#gameAvatar .px-avatar');
-  if(av) av.classList.add('walking');
-  if(char) char.classList.add('walking');
+  const now=performance.now();
+  if(now-moveFxT>210){                      /* 脚印/花瓣/沙沙声按固定节拍触发，不随帧率波动 */
+    moveFxT=now;
+    const sc=SCENES[S.gameScene];
+    if(sc && sc.id==='sea') fxRipple(S.charX);
+    else if(Math.random()<.55) fxPetal(S.charX);
+    playRustle(); updateOrbs();
+  }
+  updateCompanion();
+  if(now-moveSaveT>600){ moveSaveT=now; g.charX=S.charX; gameSet(g); }  /* 节流写存档 */
+}
+function endMove(){
+  moveLastT=0;
+  const a=$('#gameAvatar .px-avatar'); if(a) a.classList.remove('walking');
+  const c=charEl(); if(c) c.classList.remove('walking');
+  const g=gameGet(); g.charX=S.charX; gameSet(g);
+}
+function moveFrame(t){
+  moveRAF=0;
+  const dir=(heldDir.R?1:0)-(heldDir.L?1:0);
+  if(!dir || S.screen!=='game'){ endMove(); return; }
+  if(sitting){ standUp(); endMove(); return; }
+  if(swingActive){ stopSwing(); endMove(); return; }
+  const dt=moveLastT?Math.min(.05,(t-moveLastT)/1000):0;
+  moveLastT=t;
+  if(dt>0) stepMove(dir,dt);
+  moveRAF=requestAnimationFrame(moveFrame);
+}
+function startHold(d){ heldDir[d]=true; if(!moveRAF){ moveLastT=0; moveRAF=requestAnimationFrame(moveFrame); } }
+function releaseHold(d){ heldDir[d]=false; }
+
+/* 单步移动（触屏方向垫 / 单击）：复用同一套位移核心，单步距离 = 0.21s × 19%/s ≈ 4%，与原手感一致 */
+let walkTimer=null;
+function moveChar(dir){
+  if(sitting){ standUp(); say('小蕾 ✦','站起来啦，我们继续走吧 ✦'); return; }
+  if(swingActive){ stopSwing(); return; }
+  stepMove(dir,0.21);
   clearTimeout(walkTimer);
-  walkTimer=setTimeout(()=>{
-    const a=$('#gameAvatar .px-avatar'); if(a) a.classList.remove('walking');
-    const c=charEl(); if(c) c.classList.remove('walking');
-  },320);
-  const sc=SCENES[S.gameScene];
-  if(sc && sc.id==='sea') fxRipple(S.charX);
-  else if(Math.random()<.3) fxPetal(S.charX);
-  updateOrbs(); updateCompanion();
-  g.charX=S.charX; gameSet(g);
-  playRustle();
+  walkTimer=setTimeout(endMove,320);
+  const g=gameGet(); g.charX=S.charX; gameSet(g);
 }
 function bindMove(padEl,dir){
   if(!padEl) return;
