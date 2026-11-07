@@ -1612,6 +1612,231 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   22%{opacity:1}100%{background-position:-90% 0;opacity:0}}
 
 /* ==========================================================================================
+   3.7 六大深度系统：种植 / 好感 / 小喵旅行 / 解谜 / 天气时间 / 合成家具
+   统一奶油底 + 香槟金细边 + 宋体，全部内联绘制，不引入任何外部资源。
+   ========================================================================================== */
+/* ---------- 3.7.1 时间与天气：整块舞台的光照层 + 天气粒子层 ---------- */
+.gs-tod,.gs-weather{position:absolute;inset:0;pointer-events:none}
+.gs-tod{z-index:6}
+.gs-weather{z-index:7}
+.gs-tod.tod-day{background:radial-gradient(ellipse at 50% -6%,rgba(255,251,232,.18),transparent 64%)}
+.gs-tod.tod-dusk{background:linear-gradient(180deg,rgba(255,186,140,.26),rgba(255,214,178,.15) 46%,rgba(255,192,156,.24))}
+.gs-tod.tod-night{background:radial-gradient(ellipse at 50% 68%,rgba(255,238,196,.10) 0%,rgba(40,46,84,.28) 62%,rgba(26,32,64,.42) 100%)}
+.gs-tod .tod-moon{position:absolute;right:9%;top:7%;width:30px;height:30px;border-radius:50%;
+  background:radial-gradient(circle at 36% 34%,#FFFBEA,#F4E6BE 62%,#E6D6A8);
+  box-shadow:0 0 24px 9px rgba(255,244,204,.5),inset -6px -4px 0 rgba(226,212,170,.55)}
+.gs-tod .tod-star{position:absolute;width:2px;height:2px;background:#FFF8E2;
+  box-shadow:0 0 5px 1px rgba(255,246,214,.68);animation:todTwinkle 3.1s steps(1,end) infinite}
+@keyframes todTwinkle{0%,100%{opacity:.28}50%{opacity:1}}
+.gs-weather .wx-drop{position:absolute;top:-14%;width:1.4px;height:15px;border-radius:1px;
+  background:linear-gradient(180deg,rgba(190,214,236,0),rgba(176,208,240,.95));
+  box-shadow:0 0 3px rgba(214,234,252,.6);
+  animation:wxFall linear infinite}
+@keyframes wxFall{from{top:-14%}to{top:106%}}
+.gs-weather.fog::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(252,253,255,.12) 52%,rgba(255,255,255,.24))}
+.gs-weather .wx-wisp{position:absolute;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,0) 68%);
+  filter:blur(3px);animation:wxDrift 24s ease-in-out infinite alternate;pointer-events:none}
+@keyframes wxDrift{from{transform:translateX(-16px)}to{transform:translateX(20px)}}
+.gs-weather .wx-fly{position:absolute;width:3px;height:3px;border-radius:50%;background:#FFF3B0;
+  box-shadow:0 0 9px 2px rgba(255,238,150,.72);animation:wxFly 9s ease-in-out infinite}
+@keyframes wxFly{0%{transform:translate(0,0);opacity:.15}28%{opacity:1}
+  58%{transform:translate(24px,-16px);opacity:.7}82%{transform:translate(-10px,-28px);opacity:1}
+  100%{transform:translate(0,0);opacity:.15}}
+/* 雨天限定：雨滴菇（60 秒冒一朵，最多同时 3 朵） */
+.gs-shroom{position:absolute;width:22px;height:22px;margin:-11px;z-index:27;cursor:pointer;
+  pointer-events:auto;border:0;background:transparent;padding:0;
+  animation:shroomPop .55s cubic-bezier(.2,.9,.3,1) both}
+.gs-shroom svg{width:100%;height:100%;display:block;image-rendering:pixelated;
+  filter:drop-shadow(0 2px 3px rgba(110,95,80,.26))}
+.gs-shroom:hover{transform:translateY(-2px)}
+@keyframes shroomPop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+/* 雾天：隐藏物的光点被放大，更容易被发现 */
+.gs-weather.fog~.gs-spots .gs-spot.hidden-spot .sp-dot{width:9px;height:9px;opacity:1;
+  box-shadow:4px 0 0 rgba(255,248,226,.95),-4px 0 0 rgba(255,248,226,.95),
+             0 4px 0 rgba(255,248,226,.95),0 -4px 0 rgba(255,248,226,.95),
+             0 0 12px 4px rgba(255,240,190,.7)}
+.gs-weather.fog~#orbsLayer .gs-orb{box-shadow:4px 0 0 #FFFDF2,-4px 0 0 #FFFDF2,0 4px 0 #FFFDF2,0 -4px 0 #FFFDF2,
+             2px 2px 0 rgba(255,238,190,.95),-2px 2px 0 rgba(255,238,190,.95),
+             2px -2px 0 rgba(255,238,190,.95),-2px -2px 0 rgba(255,238,190,.95),
+             0 0 15px 6px rgba(255,244,204,.7)}
+/* 夜晚：小喵的光晕更亮 */
+.tod-night .gs-mate{filter:drop-shadow(0 0 12px rgba(255,240,190,.9)) drop-shadow(0 0 20px rgba(255,226,150,.6)) drop-shadow(0 3px 5px rgba(90,75,65,.22))}
+
+/* ---------- 3.7.2 场景「活物层」：花盆 / 工作台 / 家具 / 书 / 海鸥 ---------- */
+.gs-live{position:absolute;inset:0;z-index:27;pointer-events:none}
+.gs-live>*{pointer-events:auto}
+.gs-live.empty{pointer-events:none}
+/* 窗台三个像素花盆 */
+.gs-pot{position:absolute;bottom:41.6%;width:56px;margin-left:-28px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  transition:transform .3s ease}
+.gs-pot:hover{transform:translateY(-2px)}
+.gs-pot .pot-art{width:56px;height:auto;display:block;image-rendering:pixelated;
+  filter:drop-shadow(0 3px 4px rgba(120,95,70,.2))}
+.gs-pot .pot-plant{position:absolute;bottom:27px;left:50%;margin-left:-21px;width:42px;height:58px}
+.gs-pot .pot-plant svg{width:100%;height:100%;display:block;image-rendering:pixelated;
+  transform-origin:50% 100%;animation:potBreath 3.8s ease-in-out infinite alternate}
+@keyframes potBreath{from{transform:translateY(0)}to{transform:translateY(-1px)}}
+.gs-pot.bloom .pot-plant{animation:none}
+.gs-pot.bloom .pot-plant svg{filter:drop-shadow(0 0 4px rgba(255,228,158,.42))}
+.gs-pot .pot-star{position:absolute;bottom:70px;left:50%;margin-left:-5px;font-size:9px;
+  color:#E2B863;opacity:0;pointer-events:none;text-shadow:0 0 6px rgba(255,236,180,.9)}
+.gs-pot.bloom .pot-star{animation:potStar 1.7s steps(1,end) infinite}
+@keyframes potStar{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+.gs-pot .pot-tip{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
+  font-family:var(--serif);font-size:8px;letter-spacing:.04em;color:#A9977C;white-space:nowrap;
+  opacity:0;transition:opacity .28s ease;pointer-events:none;
+  text-shadow:0 0 4px rgba(255,252,244,.95)}
+.gs-pot:hover .pot-tip{opacity:.95}
+.gs-pot.potted .pot-tip{opacity:0}
+/* 工作台（一张小书桌） */
+.gs-bench{position:absolute;left:57%;bottom:5.4%;width:106px;margin-left:-53px;cursor:pointer;
+  transition:transform .3s ease}
+.gs-bench:hover{transform:translateY(-2px)}
+.gs-bench svg{width:100%;height:auto;display:block;image-rendering:pixelated;
+  filter:drop-shadow(0 4px 6px rgba(120,95,70,.22))}
+.gs-bench .bench-tag{position:absolute;left:50%;top:-14px;transform:translateX(-50%);
+  font-family:var(--serif);font-size:8px;letter-spacing:.1em;color:#9A8767;white-space:nowrap;
+  opacity:0;transition:opacity .28s ease;text-shadow:0 0 4px rgba(255,252,244,.95)}
+.gs-bench:hover .bench-tag{opacity:.95}
+/* 已摆放的家具 */
+.gs-furni{position:absolute;pointer-events:none;animation:furniIn .62s cubic-bezier(.2,.8,.3,1) both}
+.gs-furni svg{width:100%;height:auto;display:block;image-rendering:pixelated}
+@keyframes furniIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.gs-furni.chime svg{animation:chimeSway 5.6s ease-in-out infinite alternate;transform-origin:50% 0}
+@keyframes chimeSway{from{transform:rotate(-1.8deg)}to{transform:rotate(1.8deg)}}
+/* 图书馆错位书本 + 纸条 */
+.gs-books{position:absolute;left:56.7%;bottom:29%;margin-left:-46px;width:92px;height:46px;
+  display:flex;gap:5px;justify-content:center;align-items:flex-end;cursor:pointer;z-index:27}
+.gs-books .bk{width:24px;height:40px;border:1px solid rgba(96,78,60,.5);border-radius:2px 2px 0 0;
+  transition:transform .3s cubic-bezier(.2,.8,.3,1);position:relative;cursor:pointer}
+.gs-books .bk::after{content:"";position:absolute;left:3px;right:3px;top:5px;bottom:5px;
+  border-top:1px solid rgba(255,255,255,.55);border-bottom:1px solid rgba(255,255,255,.55)}
+.gs-books .bk.red{background:linear-gradient(180deg,#DC948C,#B96A64)}
+.gs-books .bk.blue{background:linear-gradient(180deg,#8FB2CE,#648AAC)}
+.gs-books .bk.green{background:linear-gradient(180deg,#9AC097,#6E9A6D)}
+.gs-books .bk:hover{transform:translateY(-4px)}
+.gs-books .bk.moved{animation:bkMove .42s ease}
+@keyframes bkMove{0%{transform:translateY(-9px)}100%{transform:translateY(0)}}
+.gs-books.solved{opacity:.55;pointer-events:none}
+.gs-note-paper{position:absolute;left:61.8%;bottom:30.5%;width:64px;padding:5px 6px;
+  font-family:var(--serif);font-size:8px;line-height:1.5;letter-spacing:.02em;color:#6F5A45;z-index:27;
+  background:repeating-linear-gradient(180deg,rgba(255,252,240,.95) 0 8px,rgba(232,220,198,.55) 8px 9px);
+  border:1px solid rgba(214,192,158,.72);transform:rotate(-2.4deg);
+  box-shadow:0 2px 6px rgba(120,100,80,.14)}
+/* 海边海鸥 */
+.gs-gull{position:absolute;left:74%;bottom:12%;width:46px;margin-left:-23px;cursor:pointer;z-index:27;
+  transition:transform 1s cubic-bezier(.3,.8,.3,1),opacity .6s ease}
+.gs-gull svg{width:100%;height:auto;display:block;image-rendering:pixelated;
+  filter:drop-shadow(0 3px 5px rgba(120,110,95,.22))}
+.gs-gull.fly{transform:translateY(-74px)}
+.gs-gull.circle{animation:gullCircle 4.2s ease-in-out}
+@keyframes gullCircle{0%{transform:translate(0,-74px)}
+  25%{transform:translate(-46px,-96px)}50%{transform:translate(-72px,-70px)}
+  75%{transform:translate(-34px,-52px)}100%{transform:translate(0,-74px)}}
+/* 小喵带回来的发光小精灵（房间里飞舞 1 小时） */
+.gs-room-sprite{position:absolute;width:26px;z-index:27;pointer-events:none;
+  animation:spriteWander 17s ease-in-out infinite}
+.gs-room-sprite svg{width:100%;height:auto;display:block;image-rendering:pixelated;
+  filter:drop-shadow(0 0 8px rgba(255,240,200,.85))}
+@keyframes spriteWander{0%{left:24%;bottom:46%}24%{left:54%;bottom:58%}
+  48%{left:74%;bottom:42%}72%{left:44%;bottom:52%}100%{left:24%;bottom:46%}}
+/* 小喵头顶的包裹 / 可点击态 */
+.gs-mate.tappable{pointer-events:auto;cursor:pointer}
+.gs-mate.away{opacity:0;transform:translateY(-40px);transition:opacity .9s ease,transform .9s ease}
+/* 树根小木门上的锁 */
+.gs-door-lock{position:absolute;z-index:27;font-size:11px;line-height:1;cursor:pointer;
+  filter:grayscale(.2) drop-shadow(0 1px 2px rgba(90,70,55,.35));animation:lockBlink 2.6s steps(1,end) infinite}
+@keyframes lockBlink{0%,100%{opacity:.65}50%{opacity:1}}
+/* 羊毛球：掉在地上，小喵飞过去叼 */
+.gs-wool{position:absolute;width:12px;height:12px;margin:-6px;border-radius:50%;
+  background:radial-gradient(circle at 36% 32%,#FFFFFF,#FFF8EE 62%,#E7DCD0);
+  box-shadow:0 2px 4px rgba(120,100,85,.24),inset -1px -1px 0 rgba(220,208,192,.6);
+  animation:woolBob 1.1s ease-in-out infinite alternate}
+@keyframes woolBob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+/* 浇水的水滴 */
+.gs-drop{position:absolute;width:2px;height:6px;background:#BFDCF2;border-radius:1px;
+  box-shadow:0 0 5px rgba(170,214,246,.85);animation:dropUp 1.2s ease-out forwards}
+@keyframes dropUp{0%{opacity:0;transform:translateY(6px)}
+  24%{opacity:1}100%{opacity:0;transform:translateY(-26px)}}
+/* 绵羊绕圈 / 橘猫吃饱打呼噜 */
+.gs--path #gsSheep.circling{animation:sheepCircle 1.5s ease-in-out}
+@keyframes sheepCircle{0%{transform:translate(0,0)}
+  25%{transform:translate(12px,-4px)}50%{transform:translate(0,4px)}
+  75%{transform:translate(-12px,-4px)}100%{transform:translate(0,0)}}
+.gs--cafe #gsCatBelly.fed{animation:catFed 2.6s ease-in-out infinite alternate}
+@keyframes catFed{from{transform:scale(1,1)}to{transform:scale(1.03,1.08)}}
+.gs-mate .mate-bundle{position:absolute;left:50%;top:-15px;transform:translateX(-50%);
+  font-family:var(--serif);font-size:9px;color:#B08E56;padding:0 4px;border-radius:2px;
+  border:1px solid rgba(212,176,110,.72);background:rgba(255,252,242,.92);
+  animation:mateBundle 1.5s steps(1,end) infinite;white-space:nowrap}
+@keyframes mateBundle{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-3px)}}
+
+/* ---------- 3.7.3 背包 / 合成 / 种植 / 小喵：同一块和纸面板里的四页 ---------- */
+.gs-bag{right:16px;top:16px;width:min(366px,90vw);max-height:86%;padding:0;overflow:hidden;
+  display:flex;flex-direction:column;border-color:rgba(212,188,150,.9);
+  background:linear-gradient(158deg,rgba(255,253,248,.94),rgba(249,240,228,.9))}
+#bagBody{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.bg-tabs{flex:none;display:flex;border-bottom:1px solid rgba(217,198,165,.42);background:rgba(255,252,246,.6)}
+.bg-tab{flex:1 1 auto;padding:9px 2px;border:0;background:transparent;cursor:pointer;
+  font-family:var(--serif);font-size:10px;letter-spacing:.08em;color:#A9977C;transition:.3s}
+.bg-tab.on{color:#856F50;background:rgba(255,248,232,.92);box-shadow:inset 0 -1px 0 #D9C6A5}
+.bg-body{flex:1 1 auto;min-height:0;overflow:auto;padding:13px 16px 16px}
+.bg-body::-webkit-scrollbar{width:5px}
+.bg-body::-webkit-scrollbar-thumb{background:rgba(217,198,165,.55);border-radius:3px}
+.bg-sec{font-family:var(--serif);font-size:9px;letter-spacing:.16em;color:#B29C7C;margin:0 0 6px}
+.bg-sec.mt{margin-top:13px}
+.bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.bg-item{display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 3px;
+  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.38)}
+.bg-item b{font-family:var(--hand);font-size:17px;font-weight:400;color:#A48C68;line-height:1.1}
+.bg-item span{font-size:9px;color:#A9997F;text-align:center;line-height:1.4}
+.bg-item.rare{border-color:rgba(212,174,104,.72);background:rgba(255,250,234,.75)}
+.craft-row{display:flex;gap:9px;align-items:center;padding:9px 10px;margin-bottom:8px;
+  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.34)}
+.craft-row .cr-ic{flex:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:2px;background:rgba(255,250,238,.8)}
+.craft-row .cr-ic svg{width:28px;height:28px;display:block;image-rendering:pixelated}
+.craft-row .cr-tx{flex:1 1 auto;min-width:0}
+.craft-row .cr-tx b{display:block;font-family:var(--serif);font-weight:400;font-size:11.5px;color:#7E6A4F}
+.craft-row .cr-tx small{display:block;font-size:9px;line-height:1.55;color:#A9997F}
+.craft-row .cr-tx em{font-style:normal;color:#B4884C}
+.craft-row .cr-btn{flex:none;padding:4px 9px;border:1px solid rgba(212,176,110,.72);border-radius:2px;
+  background:rgba(255,250,236,.92);font-family:var(--serif);font-size:9px;color:#9A7A4E;cursor:pointer}
+.craft-row .cr-btn:disabled{opacity:.4;cursor:default}
+.plant-row{display:flex;gap:9px;align-items:center;padding:8px 10px;margin-bottom:8px;
+  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.34)}
+.plant-row .pr-pot{flex:none;width:30px;height:30px}
+.plant-row .pr-pot svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+.plant-row .pr-tx{flex:1 1 auto;min-width:0}
+.plant-row .pr-tx b{display:block;font-family:var(--serif);font-weight:400;font-size:11px;color:#7E6A4F}
+.plant-row .pr-tx small{display:block;font-size:9px;color:#A9997F;margin-bottom:3px}
+.plant-row .pr-bar{height:3px;background:rgba(203,184,152,.36);overflow:hidden}
+.plant-row .pr-bar i{display:block;height:100%;background:linear-gradient(90deg,#E9D9AC,#CBA667);
+  transition:width .6s ease}
+.bg-plant-btn{padding:4px 8px;border:1px solid rgba(212,176,110,.65);border-radius:2px;
+  background:rgba(255,250,236,.9);font-family:var(--serif);font-size:9px;color:#9A7A4E;cursor:pointer}
+.bg-plant-btn:disabled{opacity:.38;cursor:default}
+.heart-row{display:inline-flex;gap:2px;vertical-align:1px}
+.heart-row i{width:5px;height:5px;background:rgba(203,184,152,.5);border-radius:1px}
+.heart-row i.on{background:#E7A8B8;box-shadow:0 0 4px rgba(231,168,184,.8)}
+.aff-row{display:flex;gap:8px;align-items:center;padding:7px 9px;margin-bottom:6px;
+  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.32)}
+.aff-row .af-tx{flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:10px;color:#8B7C68}
+.aff-row .af-tx small{display:block;font-size:8.5px;color:#B0A18C}
+.aff-row em{font-style:normal;font-family:var(--hand);font-size:14px;color:#B08E56}
+.bg-hero{display:flex;gap:10px;align-items:center;padding:10px;margin-bottom:10px;
+  border:1px dashed rgba(217,198,165,.66);border-radius:3px;background:rgba(255,252,244,.6)}
+.bg-hero .bh-cat{flex:none;width:42px;height:36px}
+.bg-hero .bh-cat svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+.bg-hero .bh-tx{flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:10px;color:#8B7C68;line-height:1.7}
+.bg-hero .bh-tx b{display:block;font-weight:400;font-size:11.5px;color:#7E6A4F}
+.bg-note{font-family:var(--serif);font-size:9px;line-height:1.85;color:#A9997F;letter-spacing:.02em}
+.bg-empty{font-family:var(--serif);font-size:10px;color:#B3A695;line-height:1.9;padding:6px 0}
+
+/* ==========================================================================================
    四、温馨小屋 · 出门地图 · 回家入口
    架构：默认先进小屋 → 走到最右木门 → 旅行地图选目的地 → 户外 → 出生点小门回家
    底部场景栏彻底退场，六张地点卡片只存在于半透明水彩「旅行地图」里。
@@ -2144,6 +2369,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
     <div class="gm-status">
       <span class="gm-chip" id="hudSteps">小脚步 6 / 12</span>
       <span class="gm-chip gm-star" id="hudStar">✦ 星碎 0</span>
+      <span class="gm-chip gm-wx" id="hudWx" title="真实时间 / 天气">☀ 白天 · 晴</span>
       <button class="gm-chip gm-quest" id="hudQuest" title="点亮星蕾星图 · 查看收集进度">
         <span class="hq-cap">✦ 星碎进度</span>
         <span class="hq-bar"><i id="hudQuestFill"></i></span>
@@ -2151,6 +2377,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
         <i class="hq-spark" aria-hidden="true"></i>
       </button>
       <button class="gm-btn" id="btnWardrobe">✧ 衣橱</button>
+      <button class="gm-btn" id="btnBag" title="背包 · 合成 · 种植">✿ 背包</button>
       <button class="gm-btn ach-btn" id="btnAch" title="星蕾图鉴 · 翻看所有星章">✦ 成就<i class="ach-dot" id="achDot"></i></button>
       <button class="gm-btn" id="btnExplore">✦ 探索一次（1 小脚步）</button>
       <button class="gm-btn" id="btnReport">✎ 旅行报告</button>
@@ -2644,6 +2871,7 @@ function drawFortune(){
   }
   const idx = rnd(candidates);
   DB.write(KEYS.fortune, history.concat({date:todayStr(), index:idx, ts:Date.now()}).slice(-20));
+  mateMaybeReturn(true);            /* 占卜过一局，出门的小喵就会提前回来 */
   /* 玻璃瓶的像素物理摇晃，摇完才有星星从瓶口飞出 */
   const fb=$('#fortuneBottle');
   fb.classList.remove('shaking'); void fb.offsetWidth; fb.classList.add('shaking');
@@ -3155,7 +3383,11 @@ const MAT_LABELS = {
   flowerBud:'花苞', dew:'晨露', sakura:'樱花瓣', seaGlass:'海玻璃', page:'旧书页',
   ticket:'旧车票', bean:'咖啡豆', star:'星碎', ribbon:'丝带', lace:'蕾丝',
   feather:'发光羽毛', postcard:'旧明信片', note:'便签', shell:'贝壳',
-  bookmark:'书签', fruit:'风铃果实'
+  bookmark:'书签', fruit:'风铃果实',
+  /* 六大系统新增材料 */
+  wool:'羊毛球', starPetal:'星芒花瓣', mushroom:'雨滴菇', driedFish:'小鱼干',
+  bookmarkOld:'古旧的书签', rustyKey:'生锈的星星钥匙', luckyBell:'幸运猫铃铛',
+  cloudCandy:'云朵棉花糖'
 };
 /* ---------------------------------------------------------- 星蕾图鉴：14 枚星章 ----------------------------------------------------------
    数据即唯一真相：成就面板、解锁 Toast、旅行报告全部从这里取名字与赠语。
@@ -3174,7 +3406,8 @@ const ACHIEVEMENTS = [
   {id:'find_cat_chair',name:'路过的小猫',   desc:'它没说话，但让你摸了。'},
   {id:'find_bottle',   name:'灯塔的信',     desc:'有人把话留在门缝里，等你来读。'},
   {id:'wish_fountain', name:'许愿一次',     desc:'你许了一个愿，水没有笑你。'},
-  {id:'find_note',     name:'午夜便签',     desc:'有人提前写好了：今天你最大。'}
+  {id:'find_note',     name:'午夜便签',     desc:'有人提前写好了：今天你最大。'},
+  {id:'tree_secret',   name:'树洞的秘密',   desc:'树根下那扇小门后面，藏着一整个安静的洞。'}
 ];
 /* 旧版 id → 新版 id：老存档里的成就一条都不会丢 */
 const ACH_ALIAS = {
@@ -3742,14 +3975,7 @@ function artRoom(){
       <path d="M568 60 Q558 176 540 292" fill="none" stroke="#E9D8C4" stroke-width="3" opacity=".8"/>
       <path d="M692 60 Q702 176 720 292" fill="none" stroke="#E9D8C4" stroke-width="3" opacity=".8"/>
     </g>
-    <!-- 窗台上的小绿植 -->
-    <g id="g0Plant">
-      <path d="M556 292 Q552 278 564 274 L582 274 Q594 278 590 292 Z" fill="#C98A5E"/>
-      <rect x="552" y="269" width="40" height="7" rx="3" fill="#B97B50"/>
-      <path d="M572 274 C572 256 560 250 554 240 C567 248 575 260 574 274 Z" fill="#8FB486"/>
-      <path d="M572 274 C572 254 588 246 598 238 C586 250 577 264 574 274 Z" fill="#A6C79A"/>
-      <path d="M573 274 C573 260 569 248 565 240 C572 252 578 264 575 274 Z" fill="#7CA873"/>
-    </g>
+    <!-- 窗台整条留给会生长的三只花盆（原装饰绿植已收起，避免与可种植的花盆重叠） -->
   </g>
 
   <!-- 右侧：木质衣橱（只有在这里才能打开换装面板） -->
@@ -3819,6 +4045,9 @@ const SCENES = [
     nearLine:'今天没有来信哦。',
     line:'邮筒里躺着一张没有寄出的明信片。', firstLine:'你把一个小愿望塞进旧邮筒，水没有笑你。'},
    {id:'dew',     label:'接住晨露',     x:42,y:70, act:'collect', mat:'dew', line:'叶尖上滚下来一颗晨露，凉凉的。'},
+   {id:'key',     label:'长椅底下',     x:80,y:82, act:'pathKey', hidden:true, mat:'',
+    nearLine:'长椅底下好像压着什么东西。',
+    line:'长椅底下躺着一把生锈的星星钥匙，齿上还沾着一点土。', firstLine:'长椅底下躺着一把生锈的星星钥匙。'},
    {id:'evt',     label:'草丛窸窸窣窣', x:62,y:48, act:'event',   line:'好像有什么小东西在等你。'}
   ]
  },
@@ -3846,6 +4075,9 @@ const SCENES = [
     line:'瓶塞拔开，里面是一张被海水泡软的旧明信片。', firstLine:'有人把话留在门缝里，等你来读。'},
    {id:'glass',  label:'捡一片海玻璃', x:92,y:76, act:'collect', mat:'seaGlass', line:'被浪磨圆的一小片绿，握在手里很凉。'},
    {id:'shell',  label:'沙滩贝壳',     x:82,y:80, act:'collect', mat:'shell', line:'贝壳里还留着一点海的声音。'},
+   {id:'gull',   label:'逗一逗海鸥',   x:74,y:80, act:'gull',    mat:'',
+    nearLine:'它歪着头，好像在等你伸手。',
+    line:'海鸥扑棱一下飞起来，绕着你转了两圈。'},
    {id:'evt',    label:'水洼里有动静', x:38,y:58, act:'event',   line:'水洼快干了，有条小鱼在扑腾。'}
   ]
  },
@@ -4345,11 +4577,17 @@ async function spriteVisit(){
   await swait(1250);
   if(el.isConnected) el.remove();
 }
-/* 点门 / 空格敲门：先走到门边，再开门 */
+/* 点门 / 空格敲门：先走到门边；没钥匙就只能听见锁扣响一声 */
 function startDoorDream(){
   if(doorBusy) return;
   if(!$('#gsDoorLeaf')) return;
-  travelTo(75.5, ()=>doorDream());        /* 站在门左侧一点，门和门里飘出的东西都不被人物挡住 */
+  travelTo(75.5, ()=>pathDoorTry());        /* 站在门左侧一点，门和门里飘出的东西都不被人物挡住 */
+}
+function pathDoorTry(){
+  const g=gameGet();
+  if(g.puzzle && g.puzzle.pathOpen){ doorDream(); return; }   /* 已经开过：正常放梦幻物 */
+  if(g.puzzle && g.puzzle.pathKey){ openTreeHole(); return; } /* 有钥匙：直接开树洞 */
+  doorLockedSay();                                            /* 没钥匙：温柔提示 + 🔒 */
 }
 async function doorDream(){
   if(doorBusy) return;
@@ -4381,11 +4619,12 @@ function closeAch(){
   const p=$('#achPanel'); if(p) p.classList.add('hidden');
   const sh=$('#screen-game .gm-shell'); if(sh) sh.classList.remove('ach-open');
 }
-/* 衣橱 / 旅行报告 / 星蕾图鉴 三块面板互斥：一次只翻开一本 */
+/* 衣橱 / 旅行报告 / 星蕾图鉴 / 背包 四块面板互斥：一次只翻开一本 */
 function closeSidePanels(except){
   if(except!=='wardrobe') closeWardrobe();
   if(except!=='report') closeReport();
   if(except!=='ach') closeAch();
+  if(except!=='bag') closeBag();
   if(except!=='event'){ const e=$('#eventPanel'); if(e) e.classList.add('hidden'); }
 }
 /* ---------------------------------------------------------- 星蕾图鉴：面板渲染 ---------------------------------------------------------- */
@@ -4504,7 +4743,21 @@ function defaultGame(){
     /* 主线：点亮星蕾星图（30 颗星碎） */
     quest:{shards:0, pathFirst:false, done:false, finaleSeen:false},
     /* 探索瞬间：屏幕边缘的小字，同时写进旅行报告 */
-    journal:[]
+    journal:[],
+    /* ---- 六大深度系统 ---- */
+    inventory:{seeds:{dew:2, sakura:2, star:1}, furniture:{}, misc:{}},   /* 种子 / 家具 / 杂货 */
+    affection:{sheep:0, cafeCat:0, gull:0},                                /* 动物好感度 */
+    weather:{kind:'', date:'', at:0},                                      /* 今日天气 */
+    plant_states:[                                                         /* 窗台三个花盆 */
+      {seed:'', grow:0, waterAt:0, tickAt:0},
+      {seed:'', grow:0, waterAt:0, tickAt:0},
+      {seed:'', grow:0, waterAt:0, tickAt:0}
+    ],
+    placed:{},                       /* 已摆放的家具 */
+    got:{},                          /* 一次性馈赠标记（猫铃铛等） */
+    giftDay:'',                      /* 香薰每日赠送的日期 */
+    puzzle:{pathKey:false, pathOpen:false, librarySolved:false, books:['blue','green','red']},
+    mate:{state:'home', departAt:0, returnAt:0, bento:'', spriteUntil:0}   /* 小喵旅行 */
   };
 }
 function gameGet(){
@@ -4525,6 +4778,7 @@ function gameGet(){
     g.unlockedAchievements=[...new Set(old.map(k=>ACH_ALIAS[k]||k))];
   }
   g.achievements=g.unlockedAchievements;   /* 两个字段指向同一份，旧代码照旧能读 */
+  playNormalize(g, d);                     /* 六大系统的嵌套字段逐个补齐（旧档一条都不丢） */
   return g;
 }
 const gameSet = g => DB.write(KEYS.game,g);
@@ -4796,6 +5050,8 @@ function seedMomentLog(){
 /* ---------------------------------------------------------- 舞台：全量清空 → 单一场景重建 ---------------------------------------------------------- */
 const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-deco" id="gsDeco"></div>
+<div class="gs-tod tod-day" id="todLayer"></div>
+<div class="gs-weather" id="wLayer"></div>
 <div class="gs-vignette" id="gsVignette"></div>
 <div class="gs-warm-veil" id="gsWarmVeil"></div>
 <div class="gs-fx" id="fxLayer"></div>
@@ -4803,6 +5059,7 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-prop-layer" id="propLayer"></div>
 <div class="gs-catch-layer" id="catchLayer"></div>
 <div class="gs-door-fx" id="doorFx"></div>
+<div class="gs-live" id="liveLayer"></div>
 <div id="orbsLayer"></div>
 <div class="gs-radar-ring" id="radarRing" style="display:none"></div>
 <div class="gs-moment-log" id="momentLog"></div>
@@ -4836,6 +5093,8 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-panel gs-side hidden" id="reportPanel"><div id="reportBody"></div></div>
 <!-- 星蕾图鉴：独立成就面板（与衣橱、旅行报告互斥） -->
 <div class="gs-panel gs-ach hidden" id="achPanel"><div id="achBody"></div></div>
+<!-- 背包 / 合成 / 种植 / 小喵派遣：同一块和纸面板里的四页（与其它面板互斥） -->
+<div class="gs-panel gs-bag hidden" id="bagPanel"><div id="bagBody"></div></div>
 <div class="gs-panel gs-event hidden" id="eventPanel"><div id="eventBody"></div></div>
 <div class="gs-map hidden" id="travelMap">
   <div class="map-card">
@@ -4947,6 +5206,9 @@ function renderScene(){
   renderSpots();
   renderOrbs();
   renderPropZones();                            /* 小屋床/窗/衣橱/门，或户外的邮筒等近物 */
+  renderLiveLayer();                            /* 花盆 / 工作台 / 家具 / 书 / 海鸥 / 精灵 */
+  applyWeatherTime();                           /* 时间光照 + 天气粒子（真实时间驱动） */
+  renderMateState();                            /* 小喵在家 / 出门 / 带着包裹回来 */
   if(sc.id==='path') startCatchTicker();
   S.lastCollect=Date.now();                     /* 进新场景重新计发呆时间 */
   seedMomentLog();                              /* 屏幕边缘补上今天最后两件小事 */
@@ -4963,6 +5225,9 @@ function renderScene(){
   bindMove($('#padLeft'),-1);
   bindMove($('#padRight'),1);
   $('#character').addEventListener('click', harvest);
+  /* 点小喵：在小屋里 = 打开派遣 / 开包裹 */
+  const mateEl=$('#companion');
+  if(mateEl) mateEl.addEventListener('click', ()=>{ if(S.inRoom) mateTap(); });
   /* 长按小人蓄力 / 连点小人：按下就计数，比等 click 快半拍，手感才跟得上 */
   $('#character').addEventListener('pointerdown', e=>{
     if(e.button!==undefined && e.button!==0) return;
@@ -5180,7 +5445,7 @@ function finishCollect(){
   pulsePose('crouch',520); pulsePose('reach',760);      /* 收下时下蹲伸手，0.5s 复原 */
   fxNote('✦');
   const g=gameGet();
-  addMat(g,'star',1);                                    /* 既有的收集 / 解锁 / toast 链路 */
+  collectGain(g,'star',1);                               /* 既有的收集 / 解锁 / toast 链路 + 猫铃铛双倍 */
   gameSet(g);
   addQuestShard(1);                                      /* 主线 +1，顶部槽长一格 */
   updateHUD(true);
@@ -5296,6 +5561,7 @@ function updateHUD(pop){
   if(pop){ const el=$('#hudStar'); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
   renderCommissions(g);
   updateQuestUI();                              /* 主线便签 + 收集槽永远跟着存档走 */
+  updateWeatherChip();                          /* 真实时间 + 当前天气 */
   checkUnlocks();                               /* 任何收集后都重新判定一次解锁 */
 }
 function renderCommissions(g){
@@ -5350,13 +5616,53 @@ function activateSpot(i){
   switch(sp.act){
     case 'bench':    sitAt(sp); break;
     case 'swing':    startSwing(sp); break;
-    case 'sheep':    touchAnimal(sp,'sheep'); fxNote('软乎乎 ✦'); addMat(g,'sakura',1); bump('action:sheep',1,g); gameSet(g); break;
+    case 'sheep': {
+      touchAnimal(sp,'sheep');
+      fxNote('软乎乎 ✦');
+      collectGain(g,'sakura',1);
+      bump('action:sheep',1,g);
+      const lv=g.affection.sheep||0;
+      if(lv>=AFFECTION.sheep.max){
+        sheepGift();                       /* 满 3 级：绕圈 + 掉羊毛球 + 小喵去捡 */
+      } else {
+        const r=affectionUp('sheep',1,g);
+        if(r) say('小喵',`它蹭了蹭你的手心……好感度 ${r.after}/${AFFECTION.sheep.max} ✦`);
+      }
+      gameSet(g);
+      break;
+    }
     case 'purr':     touchAnimal(sp,'cat'); break;
-    case 'catCafe':
+    case 'catCafe': {
       touchAnimal(sp,'cat');
       g.stats.catPats=(g.stats.catPats||0)+1; bump('action:catCafe',1,g);
       if(g.stats.catPats>=5) unlockAchievement('pet_cat',g);
+      /* 包里有小鱼干就先喂饭；喂过再点才是普通摸猫 */
+      if((g.materials.driedFish||0)>0 && (g.affection.cafeCat||0)<AFFECTION.cafeCat.max){
+        g.materials.driedFish-=1;
+        gameSet(g);
+        sceneLater(()=>feedCafeCat(), 700);
+      } else if((g.affection.cafeCat||0)>=AFFECTION.cafeCat.max){
+        say('小喵','它已经把你当成自己人了，铃铛也送过啦 ✦');
+      } else if((g.materials.driedFish||0)<=0){
+        sceneLater(()=>say('小喵','它闻了闻你的口袋……用 5 颗咖啡豆能做一条小鱼干。'), 900);
+      }
       break;
+    }
+    case 'gull':     gullPlay(sp, g); break;
+    case 'pathKey': {
+      if(g.puzzle.pathKey || g.puzzle.pathOpen){
+        say('小喵','钥匙已经在你手里啦，去樱花小径开那扇门吧。');
+        break;
+      }
+      g.puzzle.pathKey=true;
+      addMat(g,'rustyKey',1);
+      gameSet(g);
+      fxStarBurst(); playChime();
+      topToast('长椅下摸到一把「生锈的星星钥匙」✦','unlock');
+      logMoment('在晴天花庭的长椅下，找到一把生锈的星星钥匙');
+      say('小喵','长椅底下有东西——一把生锈的星星钥匙 ✦');
+      break;
+    }
     case 'bear':     blinkBear(); break;
     case 'drawStar': drawStarOnGlass(); break;
     case 'bottleDrag':
@@ -5370,7 +5676,7 @@ function activateSpot(i){
   /* 图书馆：发光书的文字以打字机效果浮现 */
   if(sp.id==='magic'){ typeSvgText('今天你最大'); sayTyped('小喵', sp.firstLine || sp.line); }
   else if(sc.id==='library' && (sp.id==='book'||sp.id==='page')) sayTyped('小喵', sp.line);
-  if(sp.mat && sp.act!=='bottleDrag') addMat(g,sp.mat,1);
+  if(sp.mat && sp.act!=='bottleDrag') collectGain(g,sp.mat,1);
   gameSet(g); updateHUD(); updateCompanion();
   playChime();
 }
@@ -5545,8 +5851,10 @@ function stepMove(dir,dt){
   const mate=$('#companion'); if(mate && !mate.classList.contains('radar')) mate.style.left=(S.charX-8)+'%';
   const trail=$('#companionTrail'); if(trail) trail.style.left=(S.charX-11)+'%';
   const now=performance.now();
+  S.pendingWalk=(S.pendingWalk||0)+Math.abs(dir*MOVE_SPEED*dt);   /* 走路也在养花 */
   if(now-moveFxT>210){                      /* 脚印/花瓣/沙沙声按固定节拍触发，不随帧率波动 */
     moveFxT=now;
+    if(S.pendingWalk>0){ plantWalk(S.pendingWalk); S.pendingWalk=0; }
     const sc=curScene();
     if(sc && sc.id==='sea') fxRipple(S.charX);
     else if(Math.random()<.55) fxPetal(S.charX);
@@ -5583,6 +5891,7 @@ function moveChar(dir){
   if(sitting){ standUp(); say('小喵','站起来啦，我们继续走吧 ✦'); return; }
   if(swingActive){ stopSwing(); return; }
   stepMove(dir,0.21);
+  if(S.pendingWalk>0){ plantWalk(S.pendingWalk); S.pendingWalk=0; }   /* 单步也立刻结算养花 */
   clearTimeout(walkTimer);
   walkTimer=setTimeout(endMove,320);
   const g=gameGet(); g.charX=S.charX; gameSet(g);
@@ -5811,6 +6120,947 @@ function openReport(){
   $('#rpAch').onclick=openAch;
 }
 
+/* ========================================================== 六大深度系统 ==========================================================
+   一、种植（窗台三个花盆）  二、动物好感度  三、小喵旅行与盲盒
+   四、场景轻解谜          五、动态天气与时间  六、背包合成与家具摆放
+   存档字段：inventory / affection / weather / plant_states / puzzle / mate / placed
+   ============================================================================================================================== */
+
+/* ---------------------------------------------------------- 1. 数据表 ---------------------------------------------------------- */
+const SEEDS = {
+  dew:   {id:'dew',    name:'晨露草', seedName:'晨露草种子', tint:'#7FB4DE',
+          stages:['破土','长叶','开花'], yield:'dew',       yieldName:'晨露',
+          note:'蓝花上垂着一滴露，风一吹就凉。'},
+  sakura:{id:'sakura', name:'粉樱苞', seedName:'粉樱苞种子', tint:'#F0A8C0',
+          stages:['小木枝','花苞','开花'], yield:'sakura',    yieldName:'樱花瓣',
+          note:'重瓣的粉，开起来像一小团云。'},
+  star:  {id:'star',   name:'星芒花', seedName:'星芒花种子', tint:'#E5BC69', rare:true,
+          stages:['发光的草','长高','绽放'], yield:'starPetal', yieldName:'星芒花瓣',
+          note:'花心是星形的，光晕会自己呼吸。'}
+};
+const SEED_ORDER = ['dew','sakura','star'];
+const GROW_PER_STAGE = 20, GROW_MAX = 60;      /* 3 个阶段 × 20 点 */
+const GROW_WALK_PER_POINT = 6;                 /* 走路：每 6% 舞台宽度长 1 点（≈ 一阶段走 120%） */
+const GROW_REAL_PER_MIN = 4;                   /* 真实时间：每 4 点 / 分钟 → 一阶段正好 5 分钟 */
+const WATER_CD = 40000, WATER_GAIN = 7;        /* 浇水：+7 点，40 秒可浇一次 */
+
+const AFFECTION = {
+  sheep:  {name:'云朵绵羊', max:3, levelWords:['它还不认识你','它记住你的手了','它会主动蹭过来','它把最软的毛留给你']},
+  cafeCat:{name:'橘猫',     max:5, levelWords:['它只顾着睡','它睁眼看你一下','它把肚子翻给你','它开始跟你走了','它认得出你的脚步','它把你当成自己人']},
+  gull:   {name:'海鸥',     max:5, levelWords:['它歪头看你','它不太躲你了','它愿意靠近','它会跟着你走','它记得你的帽子','它会替你叼东西回来']}
+};
+
+const FURNI = {
+  rugSakura:{id:'rugSakura', name:'樱花小地毯', desc:'铺在床边，樱花瓣落上去像本来就该在那儿。', at:{left:43, bottom:6.5, w:132}},
+  windChime:{id:'windChime', name:'海风风铃',   desc:'挂在窗边，风一过就有很轻的一声。',     at:{left:63.5, bottom:43, w:52}},
+  incense:  {id:'incense',   name:'星蕾香薰',   desc:'每天第一次回小屋，会多 5 颗星碎。',   at:{left:65, bottom:11.5, w:40}}
+};
+const RECIPES = [
+  {id:'rugSakura', name:'樱花小地毯', need:{sakura:5, wool:2},          desc:'一小块会开花的毯子。'},
+  {id:'windChime', name:'海风风铃',   need:{seaGlass:10, star:5},        desc:'把海边的声音挂起来。'},
+  {id:'incense',   name:'星蕾香薰',   need:{starPetal:3, luckyBell:1},  desc:'点上以后，每天多 5 颗星碎。'},
+  {id:'driedFish', name:'小鱼干',     need:{bean:5}, kind:'item', give:'driedFish',
+   desc:'橘猫闻到味道就会翻肚子。'}
+];
+const BENTOS = [
+  {id:'petal', name:'花瓣便当', need:{sakura:3},   desc:'粉粉的，闻起来像春天。'},
+  {id:'sea',   name:'海风便当', need:{seaGlass:2}, desc:'咸咸的，装着海浪的声音。'}
+];
+const MATE_TRIP_MS = 15*60*1000;               /* 真实时间 15 分钟 */
+const POSTCARDS = [
+  '我在海边，今天的风很舒服。',
+  '云端列车晚点了，云朵也晚点了。',
+  '图书馆的灯一直亮着，我借了一小会儿光。',
+  '咖啡馆的橘猫说，它有点想你。'
+];
+const BOOK_TARGET = ['red','blue','green'];    /* 红在蓝左，绿在尽头 */
+const BOOK_NAME = {red:'红书', blue:'蓝书', green:'绿书'};
+const WX_KINDS = {sunny:{name:'晴',icon:'☀'}, rain:{name:'小雨',icon:'☂'}, fog:{name:'起雾',icon:'≋'}};
+const POT_X = [44.5, 51, 57.5];
+
+/* ---------------------------------------------------------- 2. 像素小图（全部内联） ---------------------------------------------------------- */
+const POT_ART = `<svg viewBox="0 0 40 22" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+<path d="M4 3 h32 l-4 17 H8 Z" fill="#C68455"/>
+<path d="M7 4 h26 l-3 16 H10 Z" fill="#CB8C5E"/><path d="M9 6 h4 l2 13 h-4 Z" fill="#E0AF82" opacity=".5"/>
+<rect x="4" y="1" width="32" height="5" rx="1" fill="#B97B50"/><rect x="4" y="1" width="32" height="2" fill="#D89A6C"/>
+<rect x="11" y="13" width="18" height="1.6" fill="#B0764E" opacity=".45"/></svg>`;
+const BENCH_ART = `<svg viewBox="0 0 106 66" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+<ellipse cx="53" cy="63" rx="46" ry="3.6" fill="#8B6B4F" opacity=".2"/>
+<rect x="4" y="26" width="98" height="7" fill="#D9B78C"/><rect x="4" y="26" width="98" height="2" fill="#EDD3B0"/>
+<rect x="10" y="33" width="86" height="22" fill="#C9A47F"/><rect x="10" y="36" width="86" height="2" fill="#B08A63" opacity=".55"/>
+<rect x="14" y="55" width="6" height="9" fill="#A9794F"/><rect x="86" y="55" width="6" height="9" fill="#A9794F"/>
+<rect x="24" y="15" width="18" height="11" fill="#F5E7CE"/><rect x="28" y="11" width="10" height="5" fill="#E7C9A0"/>
+<rect x="27" y="13" width="12" height="2" fill="#C9A47F" opacity=".6"/>
+<circle cx="72" cy="18" r="6" fill="#FFF6E0"/><circle cx="72" cy="18" r="3" fill="#E9C275"/></svg>`;
+const GULL_ART = `<svg viewBox="0 0 46 34" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+<ellipse cx="24" cy="31" rx="13" ry="2.2" fill="#8B9AA0" opacity=".22"/>
+<path d="M16 15 q-8 -7 -12 -3 q6 1 8 6 z" fill="#EEF2F0"/>
+<ellipse cx="25" cy="20" rx="12" ry="8" fill="#FFFDF8"/>
+<circle cx="34" cy="12" r="6.4" fill="#FFFDF8"/><path d="M40 11 l6 2.4 -6 2.2 z" fill="#E9C275"/>
+<circle cx="35" cy="10.6" r="1.1" fill="#5C5348"/>
+<path d="M15 19 q-6 -1 -9 3 q5 -1 8 1 z" fill="#E9ECEA"/>
+<path d="M23 28 v3 M28 28 v3" stroke="#E2B863" stroke-width="2"/></svg>`;
+const SHROOM_ART = `<svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="8" y="9" width="3" height="7" fill="#F3E6D2"/><rect x="7" y="15" width="5" height="2" fill="#E3D2B8"/>
+<path d="M2 9 q7 -9 14 0 z" fill="#E39A9A"/><path d="M3 9 h12 v2 H3 Z" fill="#D08080"/>
+<circle cx="6" cy="6" r="1.2" fill="#FFE9E9"/><circle cx="11" cy="7" r="1" fill="#FFE9E9"/></svg>`;
+const FURNI_ART = {
+  rugSakura: `<svg viewBox="0 0 128 34" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+<ellipse cx="64" cy="17" rx="62" ry="15" fill="#F2D8E1"/><ellipse cx="64" cy="17" rx="52" ry="11" fill="#FCEFF3"/>
+<ellipse cx="64" cy="17" rx="62" ry="15" fill="none" stroke="#E7BCCB" stroke-width="1.6"/>
+<circle cx="42" cy="15" r="2.6" fill="#EFAFC4"/><circle cx="84" cy="19" r="2.6" fill="#EFAFC4"/>
+<circle cx="64" cy="13" r="1.8" fill="#F3C6D6"/><circle cx="56" cy="21" r="1.4" fill="#E9A6BC"/></svg>`,
+  windChime: `<svg viewBox="0 0 56 96" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+<path d="M28 2 v36" stroke="#C9AE8C" stroke-width="1.4"/>
+<circle cx="28" cy="40" r="9" fill="#CFE3E8" opacity=".92" stroke="#A9C4CF"/>
+<rect x="14" y="48" width="28" height="3" rx="1" fill="#D9C6A5"/>
+<path d="M18 51 v24 M28 51 v31 M38 51 v20" stroke="#BFD8DE" stroke-width="3" stroke-linecap="round"/>
+<circle cx="18" cy="78" r="2.6" fill="#E9C275"/><circle cx="38" cy="74" r="2.2" fill="#E9C275"/>
+<circle cx="28" cy="85" r="1.8" fill="#F3DCA8"/></svg>`,
+  incense: `<svg viewBox="0 0 44 48" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+<ellipse cx="22" cy="45" rx="16" ry="2.4" fill="#C9A47F" opacity=".28"/>
+<path d="M12 32 h20 l-3 11 H15 Z" fill="#CB8C5E"/><rect x="10" y="29" width="24" height="4" rx="1" fill="#B97B50"/>
+<path d="M22 29 v-8" stroke="#D9C6A5" stroke-width="1.2"/><circle cx="22" cy="19" r="3" fill="#FFE7AE"/>
+<path d="M20 15 q3 -5 0 -9 M25 14 q3 -5 0 -9" stroke="#EBD6BC" stroke-width="1.2" fill="none" opacity=".8"/></svg>`
+};
+const ITEM_ART = {
+  driedFish: `<svg viewBox="0 0 28 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+<path d="M3 8 q6 -6 13 -4 q6 2 8 4 q-2 2 -8 4 q-7 2 -13 -4 z" fill="#E4B98C"/>
+<path d="M24 8 l4 -4 v8 z" fill="#D9A87A"/><circle cx="8" cy="6.6" r="1.1" fill="#6B5245"/>
+<path d="M11 6 q5 2 8 0" stroke="#C99A6E" stroke-width=".9" fill="none"/></svg>`
+};
+/* 花的像素画：每个阶段只用矩形与一条星形路径，整数格，放大不糊 */
+function plantArtSVG(seed, stage){
+  const PAL = {dew:['#7FB4DE','#C4DFF5','#5C93C4'], sakura:['#F0A8C0','#FBDDE8','#D98AA8'],
+               star:['#E8BE6B','#FCE9B8','#C79A4C']};
+  const c = PAL[seed] || PAL.dew;
+  const stem='#7CA86B', l1='#9BC08A', l2='#84B173', wood='#A9794F';
+  let s='';
+  if(stage<1) return `<svg viewBox="0 0 30 42" xmlns="http://www.w3.org/2000/svg"></svg>`;
+  if(seed==='sakura'){
+    const tkTop = stage>=3 ? 17 : 24;      /* 开花时主干一直伸到花托，避免花悬空 */
+    s+=px(14,tkTop,2,42-tkTop,wood)+px(9,26,5,2,wood)+px(16,30,4,2,wood);
+    if(stage===2) s+=px(13,16,4,7,'#D98AA8')+px(12,15,6,2,c[1]);
+    if(stage>=3){
+      s+=px(8,8,12,9,c[0])+px(10,6,8,3,c[1])+px(12,10,5,4,'#FFF4F9')
+        +px(5,11,3,5,c[1])+px(20,11,3,5,c[1])+px(13,3,4,2,c[2])
+        +px(4,15,3,3,c[2])+px(23,14,3,3,c[2]);
+    }
+  } else {
+    const base = stage>=2 ? 18 : 30;
+    s+=px(14,base,2,42-base,stem);
+    s+=px(7,stage>=2?24:32,7,2,l1)+px(8,stage>=2?22:30,5,2,l2);
+    s+=px(16,stage>=2?20:32,7,2,l2)+px(18,stage>=2?18:30,5,2,l1);
+    if(stage===2 && seed==='star') s+=px(12,15,4,4,c[1]);
+    if(stage>=3){
+      if(seed==='dew'){
+        s+=px(9,10,12,8,c[0])+px(11,7,8,4,c[1])+px(13,11,4,4,'#FFFFFF')
+          +px(7,13,3,4,c[0])+px(22,13,3,4,c[0]);
+        s+=px(20,19,2,4,'#BFDCF4')+px(21,22,1,2,'#D9ECFA');
+      } else {
+        s+=`<circle cx="15" cy="11" r="10" fill="${c[1]}" opacity=".26"/>`
+          +`<path d="M15 3.2 l2.3 5.5 5.9 .5 -4.5 3.9 1.4 5.8 -5.1-3.1 -5.1 3.1 1.4-5.8 -4.5-3.9 5.9-.5 z"
+             fill="${c[1]}" stroke="${c[2]}" stroke-width=".9"/>`
+          +`<circle cx="15" cy="10.6" r="1.5" fill="#FFFDF2"/>`;
+      }
+    }
+  }
+  return `<svg viewBox="0 0 30 42" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">${s}</svg>`;
+}
+
+/* ---------------------------------------------------------- 3. 存档补全（旧档一条都不丢） ---------------------------------------------------------- */
+function playNormalize(g, d){
+  if(!g || typeof g!=='object') return g;
+  d = d || defaultGame();
+  if(!g.inventory || typeof g.inventory!=='object') g.inventory = JSON.parse(JSON.stringify(d.inventory));
+  const inv=g.inventory;
+  if(!inv.seeds || typeof inv.seeds!=='object') inv.seeds = {dew:2, sakura:2, star:1};
+  if(!inv.furniture || typeof inv.furniture!=='object') inv.furniture = {};
+  if(!inv.misc || typeof inv.misc!=='object') inv.misc = {};
+  SEED_ORDER.forEach(k=>{ if(typeof inv.seeds[k]!=='number') inv.seeds[k]=0; });
+  if(!g.affection || typeof g.affection!=='object') g.affection = {sheep:0, cafeCat:0, gull:0};
+  Object.keys(AFFECTION).forEach(k=>{ if(typeof g.affection[k]!=='number') g.affection[k]=0; });
+  if(!g.weather || typeof g.weather!=='object') g.weather = {kind:'', date:'', at:0};
+  if(!Array.isArray(g.plant_states)) g.plant_states = [];
+  while(g.plant_states.length<3) g.plant_states.push({seed:'', grow:0, waterAt:0, tickAt:0});
+  for(let i=0;i<g.plant_states.length;i++){
+    const p=g.plant_states[i];
+    if(!p || typeof p!=='object'){ g.plant_states[i]={seed:'',grow:0,waterAt:0,tickAt:0}; continue; }
+    if(typeof p.seed!=='string') p.seed='';
+    if(typeof p.grow!=='number' || !isFinite(p.grow)) p.grow=0;
+    if(typeof p.waterAt!=='number') p.waterAt=0;
+    if(typeof p.tickAt!=='number') p.tickAt=0;
+  }
+  if(!g.placed || typeof g.placed!=='object') g.placed={};
+  if(!g.got || typeof g.got!=='object') g.got={};
+  if(typeof g.giftDay!=='string') g.giftDay='';
+  if(!g.puzzle || typeof g.puzzle!=='object')
+    g.puzzle={pathKey:false, pathOpen:false, librarySolved:false, books:['blue','green','red']};
+  if(!Array.isArray(g.puzzle.books) || g.puzzle.books.length!==3)
+    g.puzzle.books=['blue','green','red'];
+  if(!g.mate || typeof g.mate!=='object')
+    g.mate={state:'home', departAt:0, returnAt:0, bento:'', spriteUntil:0};
+  if(!['home','away','back'].includes(g.mate.state)) g.mate.state='home';
+  return g;
+}
+
+/* ---------------------------------------------------------- 4. 种植：窗台三个花盆 ---------------------------------------------------------- */
+function plantStageOf(p){ return p && p.seed ? Math.max(0, Math.min(3, Math.floor((p.grow||0)/GROW_PER_STAGE))) : 0; }
+function plantBloom(p){ return !!(p && p.seed) && plantStageOf(p)>=3; }
+function plantName(p){ return p && p.seed && SEEDS[p.seed] ? SEEDS[p.seed].name : '空花盆'; }
+
+function potsHTML(g){
+  return (g.plant_states||[]).slice(0,3).map((p,i)=>{
+    const st=plantStageOf(p), bloom=st>=3, sd=p.seed?SEEDS[p.seed]:null;
+    const tip = !p.seed ? '种点什么 ✦' : (bloom ? '采下来 ✦' : '浇点水 ✦');
+    const label = sd ? `${sd.name} · ${sd.stages[Math.min(2,st)]}` : '空花盆';
+    return `<div class="gs-pot ${bloom?'bloom':''} ${p.seed?'potted':''}" data-pot="${i}" title="${esc(label)}"
+      style="left:${POT_X[i]}%">
+      <span class="pot-star">✦</span>
+      <span class="pot-plant">${p.seed?plantArtSVG(p.seed,st):''}</span>
+      ${POT_ART}
+      <span class="pot-tip">${tip}</span>
+    </div>`;
+  }).join('');
+}
+/* 真实时间生长：每 10 秒结算一次，1 分钟 4 点 → 一个阶段 5 分钟 */
+function plantTick(){
+  const g=gameGet(); let changed=false, advanced=false;
+  const now=Date.now();
+  (g.plant_states||[]).forEach(p=>{
+    if(!p.seed || plantBloom(p)) { p.tickAt=now; return; }
+    if(!p.tickAt){ p.tickAt=now; changed=true; return; }
+    const mins=(now-p.tickAt)/60000;
+    const add=Math.floor(mins*GROW_REAL_PER_MIN);
+    if(add>0){
+      const before=plantStageOf(p);
+      p.grow=Math.min(GROW_MAX,(p.grow||0)+add);
+      p.tickAt=now; changed=true;
+      if(plantStageOf(p)>before) advanced=true;
+    }
+  });
+  if(changed) gameSet(g);
+  if(advanced){ refreshPots(); toast('窗台上的花，悄悄长大了一点 ✦','gain'); }
+  return advanced;
+}
+/* 走路促生长：累计位移，每 6% 换 1 点 */
+let walkAcc=0;
+function plantWalk(dist){
+  if(!dist) return;
+  walkAcc+=dist;
+  const pts=Math.floor(walkAcc/GROW_WALK_PER_POINT);
+  if(pts<=0) return;
+  walkAcc-=pts*GROW_WALK_PER_POINT;
+  const g=gameGet(); let advanced=false;
+  (g.plant_states||[]).forEach(p=>{
+    if(!p.seed || plantBloom(p)) return;
+    const before=plantStageOf(p);
+    p.grow=Math.min(GROW_MAX,(p.grow||0)+pts);
+    if(plantStageOf(p)>before) advanced=true;
+  });
+  gameSet(g);
+  if(advanced){ refreshPots(); toast('多走了几步，花又长高了一点 ✦','gain'); }
+}
+function refreshPots(){
+  if(!S.inRoom) return;
+  const layer=$('#liveLayer'); if(!layer) return;
+  const g=gameGet();
+  const pots=potsHTML(g);
+  $$('#liveLayer .gs-pot').forEach(el=>el.remove());
+  layer.insertAdjacentHTML('afterbegin', pots);
+  bindLiveLayer();
+}
+function potTap(i){
+  const g=gameGet(), p=g.plant_states && g.plant_states[i];
+  if(!p) return;
+  if(sitting) standUp();
+  if(!p.seed){ openBag('plant'); return; }        /* 空盆：先选种子 */
+  if(plantBloom(p)){ harvestPot(i); return; }
+  waterPot(i);
+}
+function waterPot(i){
+  const g=gameGet(), p=g.plant_states[i];
+  if(!p || !p.seed) return;
+  const now=Date.now();
+  if(now-(p.waterAt||0) < WATER_CD){
+    const wait=Math.ceil((WATER_CD-(now-(p.waterAt||0)))/1000);
+    toast(`土还湿着，${wait} 秒后再浇 ✦`,'lock');
+    return;
+  }
+  const before=plantStageOf(p);
+  p.waterAt=now; p.grow=Math.min(GROW_MAX,(p.grow||0)+WATER_GAIN);
+  if(p.grow>0 && !p.tickAt) p.tickAt=now;
+  gameSet(g);
+  fxWater(POT_X[i], 50);
+  fxWater(S.charX, 46);
+  refreshPots();
+  playChime();
+  if(plantStageOf(p)>before){
+    const sd=SEEDS[p.seed];
+    toast(`${sd.name} 喝饱了水，长到了「${sd.stages[plantStageOf(p)-1]}」✦`,'gain');
+    logMoment(`给窗台的${sd.name}浇了水，它又长高了一点`);
+  } else {
+    toast('浇了一点水，土变得潮潮的 ✦');
+  }
+}
+function harvestPot(i){
+  const g=gameGet(), p=g.plant_states[i];
+  if(!p || !plantBloom(p)) return;
+  const sd=SEEDS[p.seed];
+  addMat(g, sd.yield, 1);
+  p.seed=''; p.grow=0; p.waterAt=0; p.tickAt=0;
+  gameSet(g);
+  refreshPots(); updateHUD();
+  fxStarBurst(); playChime();
+  toast(`采下了${sd.yieldName} ✦`,'gain');
+  say('小喵',`${sd.name}开得很好，${sd.yieldName}收进背包啦 ✦`);
+  logMoment(`在窗台采下了${sd.yieldName}（${sd.name}）`);
+  if(S.inRoom) pulsePose('crouch',480);
+}
+function plantSeed(slot, seed){
+  const g=gameGet(), p=g.plant_states[slot];
+  if(!p || !SEEDS[seed]) return;
+  if(p.seed){ toast('这个花盆里已经有花了 ✦','lock'); return; }
+  if(!(g.inventory.seeds[seed]>0)){ toast('这种种子用完了 ✦','lock'); return; }
+  g.inventory.seeds[seed]-=1;
+  p.seed=seed; p.grow=0; p.waterAt=0; p.tickAt=Date.now();
+  gameSet(g);
+  refreshPots(); renderBag();
+  toast(`种下了${SEEDS[seed].seedName} ✦`,'gain');
+  say('小喵','种下去啦，多走走它会长得快一点。');
+  logMoment(`在窗台种下了${SEEDS[seed].name}`);
+}
+
+/* ---------------------------------------------------------- 5. 动物好感度 ---------------------------------------------------------- */
+function affectionUp(key, n, g){
+  const a=AFFECTION[key]; if(!a) return null;
+  const gg=g||gameGet();
+  if(!gg.affection) gg.affection={sheep:0,cafeCat:0,gull:0};
+  const before=gg.affection[key]||0;
+  gg.affection[key]=Math.max(0, Math.min(a.max, before+(n||1)));
+  if(!g) gameSet(gg);
+  return {before, after:gg.affection[key], level:a.levelWords[Math.min(a.levelWords.length-1, gg.affection[key])]};
+}
+/* 绵羊满 3 级：原地绕圈 → 掉一撮羊毛球 → 小喵飞过去叼回来 */
+function sheepGift(){
+  const sc=curScene(), sp=(sc.spots||[]).find(s=>s.id==='sheep');
+  const sheep=$('#gsSheep');
+  if(sheep){ sheep.classList.remove('circling'); void sheep.getBoundingClientRect(); sheep.classList.add('circling');
+    sceneLater(()=>{ const n=$('#gsSheep'); if(n) n.classList.remove('circling'); },1500); }
+  say('小喵','它绕着你转了一圈……哎呀，掉了一撮羊毛！我去捡 ✦');
+  sceneLater(()=>spawnWool(sp), 1200);
+}
+function spawnWool(sp){
+  const layer=$('#fxLayer'); if(!layer || !sp) return;
+  const x=sp.x+2, y=sp.y-5;
+  const wool=document.createElement('i');
+  wool.className='gs-wool'; wool.style.left=x+'%'; wool.style.top=y+'%';
+  layer.appendChild(wool);
+  const m=$('#companion');
+  if(m){ m.classList.add('radar'); m.style.left=x+'%'; m.style.top=y+'%'; }
+  sceneLater(()=>{
+    wool.remove();
+    if(m){ m.classList.remove('radar'); m.style.top=''; m.style.left=(S.charX-8)+'%'; }
+    withGame(g=>{ addMat(g,'wool',1); });
+    toast('羊毛球 +1 · 软软的 ✦','gain');
+    fxNote('☁');
+    logMoment('在樱花小径，绵羊把最软的一撮羊毛送给了你');
+  }, 1800);
+}
+/* 橘猫：喂小鱼干 → 趴下打呼噜 → 满 5 级送幸运猫铃铛 */
+function feedCafeCat(){
+  const cat=$('#gsCatBelly');
+  if(cat){ cat.classList.remove('fed'); void cat.getBoundingClientRect(); cat.classList.add('fed'); }
+  for(let i=0;i<4;i++) sceneLater(()=>fxPurr(26,66), i*260);
+  fxHearts(26,62);
+  const g=gameGet();
+  const r=affectionUp('cafeCat',2,g);
+  let bell=false;
+  if(r && r.after>=AFFECTION.cafeCat.max && !g.got.luckyBell){
+    g.got.luckyBell=true;
+    g.materials.luckyBell=(g.materials.luckyBell||0)+1;
+    g.totals.luckyBell=(g.totals.luckyBell||0)+1;
+    bell=true;
+  }
+  gameSet(g);
+  updateHUD();
+  logMoment('在午夜咖啡馆用小鱼干喂了橘猫，它翻着肚子打呼噜');
+  if(bell){
+    say('小喵','它把脖子上的小铃铛叼下来给你了——说是有好运 ✦');
+    topToast('橘猫送了你「幸运猫铃铛」· 收集有 20% 双倍 ✦','unlock');
+    fxStarBurst(); playChime();
+  } else {
+    say('小喵',`它趴下打起了呼噜……好感度 ${r?r.after:0}/${AFFECTION.cafeCat.max} ✦`);
+    toast('橘猫好感度上涨 ✦','gain');
+  }
+}
+/* 海鸥：飞起来盘旋；好感度高时从屏幕外叼回海玻璃 */
+function gullPlay(sp, gOuter){
+  const el=$('.gs-gull');
+  if(el){
+    el.classList.remove('fly','circle'); void el.offsetWidth;
+    el.classList.add('fly');
+    sceneLater(()=>{ const n=$('.gs-gull'); if(n) n.classList.add('circle'); }, 620);
+    sceneLater(()=>{ const n=$('.gs-gull'); if(n) n.classList.remove('fly','circle'); }, 5000);
+  }
+  const g=gOuter||gameGet();
+  const r=affectionUp('gull',1,g);
+  if(!gOuter) gameSet(g);                  /* 由 activateSpot 调用时，交给它统一落盘 */
+  if(r && r.after>=3 && Math.random()<0.6){
+    sceneLater(()=>{
+      withGame(gg=>{ collectGain(gg,'seaGlass',1); });
+      toast('海鸥从屏幕外叼来一片海玻璃 ✦','gain');
+      say('小喵','它飞得好远，带回来一片被浪磨圆的海玻璃 ✦');
+      logMoment('海边灯塔的海鸥替你叼回一片海玻璃');
+    }, 1500);
+  } else {
+    say('小喵',`它绕着灯塔飞了两圈……好感度 ${r?r.after:0}/${AFFECTION.gull.max} ✦`);
+    logMoment('在海边灯塔逗了逗海鸥，它飞起来盘旋了一圈');
+  }
+}
+
+/* ---------------------------------------------------------- 6. 小喵的独立旅行与盲盒 ---------------------------------------------------------- */
+function mateStateOf(g){ return (g||gameGet()).mate || {state:'home'}; }
+function renderMateState(){
+  const m=$('#companion'); if(!m) return;
+  const g=gameGet(), st=mateStateOf(g).state;
+  m.classList.toggle('away', st==='away');
+  m.classList.toggle('tappable', !!S.inRoom && st!=='away');
+  const old=m.querySelector('.mate-bundle'); if(old) old.remove();
+  if(st==='back') m.insertAdjacentHTML('beforeend','<i class="mate-bundle">!</i>');
+}
+function mateTap(){
+  const g=gameGet(), m=mateStateOf(g);
+  if(m.state==='back'){ mateOpenBundle(); return; }
+  openBag('mate');
+}
+function prepareBento(id){
+  const g=gameGet(), b=BENTOS.find(x=>x.id===id); if(!b) return;
+  if(g.mate.bento===id) return;
+  const miss=Object.entries(b.need).filter(([k,n])=>(g.materials[k]||0)<n);
+  if(miss.length){ toast(`还差 ${miss.map(([k])=>MAT_LABELS[k]).join(' / ')} ✦`,'lock'); return; }
+  Object.entries(b.need).forEach(([k,n])=>{ g.materials[k]-=n; });
+  g.mate.bento=id;
+  gameSet(g);
+  renderBag(); updateHUD();
+  toast(`便当装好了 · ${b.name} ✦`,'gain');
+}
+function mateDepart(){
+  const g=gameGet(), m=g.mate;
+  if(!m || m.state!=='home'){ toast('小喵现在不在家哦 ✦','lock'); return; }
+  if(!m.bento){ toast('先给它做一份便当吧 ✦','lock'); return; }
+  m.state='away'; m.departAt=Date.now(); m.returnAt=Date.now()+MATE_TRIP_MS;
+  gameSet(g);
+  renderMateState(); renderBag();
+  const el=$('#companion');
+  if(el) el.classList.add('away');
+  say('小喵','那我去啦——等我回来 ✦');
+  topToast('小喵带着便当出发了 · 15 分钟后回来 ✦');
+  logMoment('给小喵做了便当，它挥挥手飞走了');
+}
+/* 归来判定：真实时间 15 分钟，或抽完一局星语占卜 */
+function mateMaybeReturn(byFortune){
+  const g=gameGet(), m=g.mate;
+  if(!m || m.state!=='away') return false;
+  if(!byFortune && Date.now() < (m.returnAt||0)) return false;
+  m.state='back';
+  gameSet(g);
+  if(S.inRoom){
+    renderMateState();
+    const el=$('#companion'); if(el) el.classList.remove('away');
+    say('小喵','我回来啦，给你带了东西 ✦');
+  } else {
+    topToast('小喵回来了，在小屋里等你 ✦','unlock');
+  }
+  return true;
+}
+let matePrize=null;
+function mateOpenBundle(){
+  const g=gameGet(), m=g.mate;
+  if(!m || m.state!=='back') return;
+  m.state='home'; m.returnAt=0; m.departAt=0; m.bento='';
+  addMat(g,'star',10);                                  /* 必定 10 颗星碎 */
+  const r=Math.random();
+  let prize;
+  if(r<0.34){
+    g.materials.cloudCandy=(g.materials.cloudCandy||0)+1;
+    g.totals.cloudCandy=(g.totals.cloudCandy||0)+1;
+    prize={kind:'special', title:'云朵棉花糖', text:'它从云端列车那站带回来一小盒棉花糖，捏起来是甜的。'};
+  } else if(r<0.72){
+    const line=rnd(POSTCARDS);
+    g.materials.postcard=(g.materials.postcard||0)+1;
+    g.totals.postcard=(g.totals.postcard||0)+1;
+    prize={kind:'postcard', title:'一张明信片', text:`上面写着：「${line}」`};
+  } else {
+    m.spriteUntil=Date.now()+3600*1000;
+    prize={kind:'sprite', title:'迷路的发光小精灵', text:'它带回来一只小精灵，会在房间里飞一个小时，然后自己回家。'};
+  }
+  gameSet(g);
+  addQuestShard(10);
+  updateHUD(true);
+  matePrize=prize;
+  renderMateState(); renderLiveLayer();
+  playChime();
+  toast('包裹打开了 · 星碎 +10 ✦','unlock');
+  logMoment(prize.kind==='postcard' ? '小喵旅行回来，带了一张明信片' : `小喵旅行回来，带回了${prize.title}`);
+  if(S.inRoom) openBag('mate');
+  if(prize.kind==='sprite' && S.inRoom) say('小喵','它还跟着一个发光的小家伙，说要住一晚 ✦');
+}
+
+/* ---------------------------------------------------------- 7. 场景轻解谜 ---------------------------------------------------------- */
+/* 7.1 樱花小径：上锁的小木门 → 晴天花庭长椅下的生锈星星钥匙 → 树洞 50 星碎 */
+function doorLockedSay(){
+  say('小喵','门锁住了，好像需要一把特别的钥匙。');
+  topToast('小木门锁着 🔒 · 去晴天花庭的长椅下找找 ✦','lock');
+  fxNote('🔒');
+}
+function openTreeHole(){
+  const g=gameGet();
+  if(g.puzzle.pathOpen) return;
+  g.puzzle.pathOpen=true;
+  g.puzzle.pathKey=false;
+  g.materials.rustyKey=Math.max(0,(g.materials.rustyKey||0)-1);   /* 钥匙用掉了 */
+  gameSet(g);
+  doorBusy=true;
+  doorOpen();
+  logMoment('用生锈的星星钥匙，打开了樱花树根下的小木门');
+  say('小喵','钥匙正好……门后面是一个小小的树洞，里面全是星星 ✦');
+  unlockAchievement('tree_secret');
+  for(let i=0;i<16;i++) sceneLater(()=>fxNote('✦'), i*100);
+  fxStarBurst(); playChime();
+  addQuestShard(50);
+  withGame(gg=>{ addMat(gg,'star',50); });
+  sceneLater(()=>{
+    doorClose();
+    topToast('树洞里的 50 颗星碎，全归你了 ✦','unlock');
+    updateHUD(true); renderLiveLayer();
+    sceneLater(()=>{ doorBusy=false; }, 1700);
+  }, 2200);
+}
+/* 7.2 星空图书馆：三本错位的书 → 红在蓝左，绿在尽头 → 古旧的书签 */
+function bookTap(i){
+  const g=gameGet();
+  if(g.puzzle.librarySolved) return;
+  const books=(g.puzzle.books||['blue','green','red']).slice();
+  const j=(i+1)%3;                          /* 点谁，谁就和右边那本换位置（最右回到最左） */
+  [books[i],books[j]]=[books[j],books[i]];
+  g.puzzle.books=books;
+  gameSet(g);
+  renderLiveLayer();
+  const el=$(`.gs-books .bk[data-bk="${i}"]`);
+  if(el){ el.classList.add('moved'); sceneLater(()=>{ if(el.isConnected) el.classList.remove('moved'); },460); }
+  playRustle();
+  say('小喵',`你把${BOOK_NAME[books[i]]}挪到了第 ${i+1} 格。`);
+  if(books.join(',')===BOOK_TARGET.join(',')) solveLibrary();
+}
+function solveLibrary(){
+  const g=gameGet();
+  if(g.puzzle.librarySolved) return;
+  g.puzzle.librarySolved=true;
+  addMat(g,'bookmarkOld',1);
+  gameSet(g);
+  updateHUD();
+  renderLiveLayer();
+  fxStarBurst(); playChime();
+  say('小喵','红在蓝左，绿在尽头……书架「咔」地弹开一格 ✦');
+  topToast('暗格弹开 · 获得「古旧的书签」✦','unlock');
+  logMoment('在星空图书馆把三本书排对，暗格弹出一枚古旧的书签');
+}
+
+/* ---------------------------------------------------------- 8. 动态天气与时间（按浏览器真实时间） ---------------------------------------------------------- */
+function todNow(){
+  const h=new Date().getHours();
+  if(h>=6 && h<17) return {id:'day',  name:'白天', icon:'☀'};
+  if(h>=17 && h<19) return {id:'dusk', name:'黄昏', icon:'◐'};
+  return {id:'night', name:'夜晚', icon:'☾'};
+}
+function isOutdoor(){
+  const sc=curScene();
+  return !!sc && !['room','library','cafe'].includes(sc.id);
+}
+/* 天气三小时变一次；也可用 setWeather() 手动指定（测试与调试用） */
+function rollWeather(force){
+  const g=gameGet();
+  if(!g.weather || typeof g.weather!=='object') g.weather={kind:'',date:'',at:0};
+  const w=g.weather;
+  const stale = force || !w.kind || w.date!==todayStr() || (Date.now()-(w.at||0))>3*3600*1000;
+  if(stale){
+    const r=Math.random();
+    g.weather={kind: r<0.64?'sunny':(r<0.86?'rain':'fog'), date:todayStr(), at:Date.now()};
+    gameSet(g);
+  }
+  return g.weather.kind;
+}
+function setWeather(kind){
+  const g=gameGet();
+  g.weather={kind:['sunny','rain','fog'].includes(kind)?kind:'sunny', date:todayStr(), at:Date.now()};
+  gameSet(g);
+  applyWeatherTime();
+  return g.weather.kind;
+}
+function isRaining(){ return (gameGet().weather||{}).kind==='rain'; }
+function updateWeatherChip(){
+  const el=$('#hudWx'); if(!el) return;
+  const t=todNow(), k=WX_KINDS[(gameGet().weather||{}).kind]||WX_KINDS.sunny;
+  el.textContent=`${t.icon} ${t.name} · ${k.name}`;
+  const d=new Date();
+  el.title=`真实时间 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} · 天气三小时变一次`;
+}
+function applyWeatherTime(){
+  const st=$('#game-stage'); if(!st) return;
+  const tod=$('#todLayer'), wl=$('#wLayer');
+  if(!tod || !wl) return;
+  const t=todNow();
+  const wk=rollWeather();
+  const eff=isOutdoor()?wk:'sunny';        /* 室内不下雨、不起雾，天气只写在状态栏里 */
+  st.classList.remove('tod-day','tod-dusk','tod-night','wx-sunny','wx-rain','wx-fog');
+  st.classList.add('tod-'+t.id, 'wx-'+eff);
+  tod.className='gs-tod tod-'+t.id;
+  let th='';
+  if(t.id==='night' && isOutdoor()){
+    th+='<span class="tod-moon"></span>';
+    for(let i=0;i<22;i++){
+      th+=`<span class="tod-star" style="left:${(4+Math.random()*92).toFixed(1)}%;top:${(3+Math.random()*40).toFixed(1)}%;animation-delay:${(Math.random()*3).toFixed(2)}s"></span>`;
+    }
+    for(let i=0;i<5;i++){
+      th+=`<span class="wx-fly" style="left:${(12+Math.random()*76).toFixed(1)}%;top:${(52+Math.random()*30).toFixed(1)}%;animation-delay:${(Math.random()*6).toFixed(1)}s"></span>`;
+    }
+  }
+  tod.innerHTML=th;
+  const keep=$$('#wLayer .gs-shroom');       /* 已经长出来的菇不因重绘而消失 */
+  wl.className='gs-weather wx-'+eff;
+  let wh='';
+  if(eff==='rain'){
+    for(let i=0;i<54;i++){
+      wh+=`<i class="wx-drop" style="left:${(Math.random()*100).toFixed(2)}%;height:${(10+Math.random()*12).toFixed(0)}px;`
+        +`animation-duration:${(0.8+Math.random()*0.9).toFixed(2)}s;animation-delay:${(Math.random()*2).toFixed(2)}s;`
+        +`opacity:${(0.5+Math.random()*0.4).toFixed(2)}"></i>`;
+    }
+  }
+  if(eff==='fog'){
+    for(let i=0;i<6;i++){
+      wh+=`<span class="wx-wisp" style="left:${(Math.random()*88).toFixed(1)}%;top:${(26+Math.random()*50).toFixed(1)}%;`
+        +`width:${(150+Math.random()*190).toFixed(0)}px;height:${(46+Math.random()*60).toFixed(0)}px;`
+        +`opacity:${(0.18+Math.random()*0.22).toFixed(2)};animation-delay:${(Math.random()*6).toFixed(1)}s"></span>`;
+    }
+  }
+  wl.innerHTML=wh;
+  keep.forEach(s=>wl.appendChild(s));
+  updateWeatherChip();
+}
+let shroomAt=0;
+function spawnShroom(){
+  const wl=$('#wLayer'); if(!wl || !isRaining() || !isOutdoor()) return null;
+  if($$('#wLayer .gs-shroom').length>=3) return null;
+  const el=document.createElement('button');
+  el.type='button'; el.className='gs-shroom'; el.title='雨滴菇';
+  el.style.left=(8+Math.random()*84).toFixed(1)+'%';
+  el.style.top=(76+Math.random()*10).toFixed(1)+'%';
+  el.innerHTML=SHROOM_ART;
+  el.onclick=()=>{
+    if(!el.isConnected) return;
+    el.remove();
+    withGame(g=>{ collectGain(g,'mushroom',1); });
+    updateHUD();
+    say('小喵','下雨天才会长的菇，收好啦 ✦');
+    logMoment('在雨里捡到一朵雨滴菇');
+    playChime();
+  };
+  wl.appendChild(el);
+  return el;
+}
+
+/* ---------------------------------------------------------- 9. 合成 / 家具摆放 / 每日香薰 ---------- */
+function collectGain(g, key, n){
+  addMat(g, key, n);
+  if((g.materials.luckyBell||0)>0 && Math.random()<0.2){
+    g.materials[key]=(g.materials[key]||0)+n;
+    g.totals[key]=(g.totals[key]||0)+n;
+    toast('幸运猫铃铛 · 双倍 ✦','gain');
+    return true;
+  }
+  return false;
+}
+function craftItem(id){
+  const g=gameGet(), r=RECIPES.find(x=>x.id===id); if(!r) return false;
+  const miss=Object.entries(r.need).filter(([k,n])=>(g.materials[k]||0)<n);
+  if(miss.length){ toast(`还差 ${miss.map(([k])=>MAT_LABELS[k]).join(' / ')} ✦`,'lock'); return false; }
+  Object.entries(r.need).forEach(([k,n])=>{ g.materials[k]-=n; });
+  if(r.kind==='item'){
+    g.materials[r.give]=(g.materials[r.give]||0)+1;
+    g.totals[r.give]=(g.totals[r.give]||0)+1;
+  } else {
+    if(!g.inventory.furniture) g.inventory.furniture={};
+    g.inventory.furniture[r.id]=(g.inventory.furniture[r.id]||0)+1;
+  }
+  gameSet(g);
+  updateHUD(); renderBag();
+  playChime();
+  toast(`合成好了 · ${r.name} ✦`,'gain');
+  logMoment(`在小屋的工作台上合成了${r.name}`);
+  return true;
+}
+function placeFurni(id, on){
+  const g=gameGet();
+  if(!FURNI[id]) return;
+  if(on && !((g.inventory.furniture||{})[id]>0)){ toast('背包里没有这件家具 ✦','lock'); return; }
+  g.placed[id]=!!on;
+  gameSet(g);
+  renderLiveLayer(); renderBag();
+  toast(on?`${FURNI[id].name} 摆好了 ✦`:`${FURNI[id].name} 收回背包`);
+  logMoment(on?`在小屋摆好了${FURNI[id].name}`:`把${FURNI[id].name}收进了背包`);
+}
+/* 星蕾香薰：每天第一次进小屋额外 5 颗星碎 */
+function incenseDaily(){
+  const g=gameGet();
+  if(!g.placed.incense) return false;
+  if(g.giftDay===todayStr()) return false;
+  g.giftDay=todayStr();
+  gameSet(g);
+  addMat(g,'star',5);
+  gameSet(g);
+  addQuestShard(5);
+  updateHUD(true);
+  toast('星蕾香薰 · 今天的 5 颗星碎 ✦','unlock');
+  logMoment('点上星蕾香薰，小屋多了一点甜味，也多 5 颗星碎');
+  return true;
+}
+function placedFurniHTML(g){
+  return Object.keys(FURNI).filter(id=>g.placed && g.placed[id]).map(id=>{
+    const f=FURNI[id], a=f.at;
+    const cls = id==='windChime'?'chime':'';
+    return `<div class="gs-furni ${cls}" style="left:${a.left}%;bottom:${a.bottom}%;width:${a.w}px">${FURNI_ART[id]}</div>`;
+  }).join('');
+}
+
+/* ---------------------------------------------------------- 10. 活物层：花盆 / 工作台 / 家具 / 书 / 海鸥 / 小精灵 ---------- */
+function booksHTML(g){
+  const b=(g.puzzle&&g.puzzle.books)||['blue','green','red'];
+  const solved=!!(g.puzzle&&g.puzzle.librarySolved);
+  return `<div class="gs-books ${solved?'solved':''}" title="三本书可以换位置">${
+      b.map((c,i)=>`<div class="bk ${c}" data-bk="${i}"></div>`).join('')}</div>
+    <div class="gs-note-paper">纸条：<br>红在蓝左，<br>绿在尽头。</div>`;
+}
+function renderLiveLayer(){
+  const layer=$('#liveLayer'); if(!layer) return;
+  const sc=curScene(), g=gameGet();
+  let html='';
+  if(sc && sc.id==='room'){
+    html+=potsHTML(g);
+    html+=`<div class="gs-bench" id="gsBench" title="工作台 · 合成家具"><span class="bench-tag">工作台 ✦</span>${BENCH_ART}</div>`;
+    html+=placedFurniHTML(g);
+    const m=g.mate||{};
+    if(m.spriteUntil && m.spriteUntil>Date.now() && m.state!=='away'){
+      html+=`<div class="gs-room-sprite">${SPRITE_SVG}</div>`;
+    }
+  }
+  if(sc && sc.id==='library') html+=booksHTML(g);
+  if(sc && sc.id==='sea') html+=`<div class="gs-gull" title="点一点海鸥">${GULL_ART}</div>`;
+  if(sc && sc.id==='path' && !(g.puzzle&&g.puzzle.pathOpen)){
+    html+=`<div class="gs-door-lock" style="left:85.6%;bottom:30%" title="门锁着">🔒</div>`;
+  }
+  layer.innerHTML=html;
+  layer.classList.toggle('empty', !html);
+  bindLiveLayer();
+}
+function bindLiveLayer(){
+  $$('#liveLayer .gs-pot').forEach(el=>{
+    el.onclick=()=>potTap(+el.dataset.pot);
+  });
+  const bench=$('#gsBench');
+  if(bench) bench.onclick=()=>openBag('craft');
+  $$('#liveLayer .bk').forEach(el=>{
+    el.onclick=e=>{ e.stopPropagation(); bookTap(+el.dataset.bk); };
+  });
+  const gull=$('#liveLayer .gs-gull');
+  if(gull) gull.onclick=()=>{
+    const sc=curScene(), sp=(sc.spots||[]).find(s=>s.id==='gull');
+    gullPlay(sp||{x:22,y:78});
+  };
+}
+
+/* ---------------------------------------------------------- 11. 背包 / 合成 / 种植 / 小喵 面板 ---------- */
+let bagTab='bag';
+const BAG_TABS=[['bag','背包'],['craft','合成'],['plant','种植'],['mate','小喵']];
+function openBag(tab){
+  if(tab) bagTab=tab;
+  clearRugRest();
+  closeSidePanels('bag');
+  const p=$('#bagPanel'); if(!p) return;
+  renderBag();
+  p.classList.remove('hidden');
+}
+function closeBag(){
+  const p=$('#bagPanel'); if(p) p.classList.add('hidden');
+}
+function setBagTab(t){ bagTab=t; renderBag(); }
+function renderBag(){
+  const box=$('#bagBody'); if(!box) return;
+  const g=gameGet();
+  box.innerHTML=`<div class="bg-tabs">${BAG_TABS.map(([id,label])=>
+      `<button class="bg-tab ${bagTab===id?'on':''}" data-tab="${id}">${label}</button>`).join('')}</div>
+    <div class="bg-body" id="bgBody">${bagBodyHTML(g)}</div>`;
+  $$('#bagBody .bg-tab').forEach(b=>b.onclick=()=>setBagTab(b.dataset.tab));
+  bindBagBody();
+}
+function bagBodyHTML(g){
+  if(bagTab==='craft') return craftHTML(g);
+  if(bagTab==='plant') return plantTabHTML(g);
+  if(bagTab==='mate')  return mateHTML(g);
+  return bagHTML(g);
+}
+function bagHTML(g){
+  const seeds=SEED_ORDER.map(k=>
+    `<div class="bg-item ${g.inventory.seeds[k]?'':'empty'}"><b>${g.inventory.seeds[k]||0}</b>
+      <span>${SEEDS[k].seedName}</span></div>`).join('');
+  const rareKeys=['luckyBell','bookmarkOld','rustyKey','cloudCandy','driedFish'];
+  const mats=Object.keys(MAT_LABELS).filter(k=>(g.materials[k]||0)>0)
+    .map(k=>`<div class="bg-item ${rareKeys.includes(k)?'rare':''}"><b>${g.materials[k]}</b>
+      <span>${MAT_LABELS[k]}</span></div>`).join('')
+    || '<div class="bg-empty">口袋还空着，出门走走吧。</div>';
+  const furn=RECIPES.filter(r=>r.kind!=='item').map(r=>{
+    const n=(g.inventory.furniture||{})[r.id]||0;
+    if(!n) return '';
+    const on=!!(g.placed||{})[r.id];
+    return `<div class="craft-row"><span class="cr-ic">${FURNI_ART[r.id]}</span>
+      <div class="cr-tx"><b>${r.name} ×${n}</b><small>${FURNI[r.id].desc}</small></div>
+      <button class="cr-btn" data-place="${r.id}" data-on="${on?'0':'1'}">${on?'收起':'摆放'}</button></div>`;
+  }).join('');
+  const hearts=Object.keys(AFFECTION).map(k=>{
+    const a=AFFECTION[k], lv=g.affection[k]||0;
+    return `<div class="aff-row"><div class="af-tx">${a.name}
+      <small>${a.levelWords[Math.min(a.levelWords.length-1,lv)]}</small></div>
+      <span class="heart-row">${Array.from({length:a.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</span>
+      <em>${lv}/${a.max}</em></div>`;
+  }).join('');
+  return `<div class="bg-sec">✿ 种子</div><div class="bg-grid">${seeds}</div>
+    <div class="bg-sec mt">✦ 材料</div><div class="bg-grid">${mats}</div>
+    <div class="bg-sec mt">❁ 做好的家具</div>${furn||'<div class="bg-empty">工作台上还空着，去合成一件吧。</div>'}
+    <div class="bg-sec mt">♡ 好感度</div>${hearts}
+    <div class="bg-note" style="margin-top:12px">种子种在窗台花盆里 · 走路或等待都会长大 · 浇水能催一催。</div>`;
+}
+function craftHTML(g){
+  const rows=RECIPES.map(r=>{
+    const need=Object.entries(r.need).map(([k,n])=>{
+      const have=g.materials[k]||0;
+      return `<em style="${have>=n?'':'opacity:.55'}">${MAT_LABELS[k]||k} ${Math.min(have,n)}/${n}</em>`;
+    }).join(' + ');
+    const ok=Object.entries(r.need).every(([k,n])=>(g.materials[k]||0)>=n);
+    const icon=r.kind==='item'?(ITEM_ART[r.id]||''):FURNI_ART[r.id];
+    return `<div class="craft-row"><span class="cr-ic">${icon}</span>
+      <div class="cr-tx"><b>${r.name}</b><small>${need}</small><small>${r.desc}</small></div>
+      <button class="cr-btn" data-craft="${r.id}" ${ok?'':'disabled'}>合成</button></div>`;
+  }).join('');
+  return `<div class="bg-sec">✦ 合成清单</div>${rows}
+    <div class="bg-note">合成好的家具在「背包」里点「摆放」，就会真的出现在小屋里。<br>
+    小鱼干用来喂午夜咖啡馆的橘猫。</div>`;
+}
+function plantTabHTML(g){
+  const pots=(g.plant_states||[]).slice(0,3).map((p,i)=>{
+    const sd=p.seed?SEEDS[p.seed]:null;
+    const st=plantStageOf(p);
+    const pct=Math.round(Math.min(GROW_MAX,(p.grow||0))/GROW_MAX*100);
+    if(!sd){
+      const btns=SEED_ORDER.map(k=>
+        `<button class="bg-plant-btn" data-seed="${k}" data-slot="${i}" ${g.inventory.seeds[k]?'':'disabled'}>`
+        +`${SEEDS[k].name} ${g.inventory.seeds[k]||0}</button>`).join('');
+      return `<div class="plant-row"><span class="pr-pot">${POT_ART}</span>
+        <div class="pr-tx"><b>花盆 ${i+1} · 空着</b><small>选一颗种子种下去</small>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${btns}</div></div></div>`;
+    }
+    const label = st>=3 ? '开花了 · 可以采' : `${sd.stages[Math.min(2,st)]} · 还差 ${Math.max(0,GROW_MAX-(p.grow||0))} 点`;
+    return `<div class="plant-row"><span class="pr-pot">${plantArtSVG(p.seed,st)}</span>
+      <div class="pr-tx"><b>花盆 ${i+1} · ${sd.name}</b><small>${label}</small>
+      <div class="pr-bar"><i style="width:${pct}%"></i></div></div>
+      ${st>=3?`<button class="bg-plant-btn" data-harvest="${i}">收获</button>`:''}</div>`;
+  }).join('');
+  return `<div class="bg-sec">✿ 窗台花盆</div>${pots}
+    <div class="bg-note">一个阶段 = 走 20 步，或等 5 分钟；浇一次水加 7 点（40 秒一次）。<br>
+    开花后花盆上会浮一颗 ✦，点一下就能收。稀有种子偶尔会从光点里掉出来。</div>`;
+}
+function mateHTML(g){
+  const m=g.mate||{state:'home'};
+  const cat=`<div class="bg-hero"><span class="bh-cat">${PX_MATE_SVG}</span>
+    <div class="bh-tx"><b>小喵 · ${m.state==='away'?'出门了':(m.state==='back'?'回来了':'在家')}</b>
+    ${m.state==='away'
+      ? `它带着便当飞走了，还要 ${Math.max(0,Math.ceil(((m.returnAt||0)-Date.now())/60000))} 分钟回来。`
+      : (m.state==='back' ? '它头顶顶着一个包裹，一直在门口等你。'
+        : '它跟在你身后，随时可以出发。')}</div></div>`;
+  if(m.state==='away'){
+    return cat+`<div class="bg-note">去院子里走走，或者抽一局星语占卜，它就会早点回来。</div>`;
+  }
+  if(m.state==='back'){
+    const p=matePrize;
+    return cat+`<button class="gm-btn" id="mateOpen" style="width:100%;margin-top:4px">打开包裹 ✦</button>`
+      +(p?`<div class="bg-note" style="margin-top:10px"><b>${p.title}</b><br>${p.text}</div>`
+          :`<div class="bg-note" style="margin-top:10px">包裹里一定有 10 颗星碎，还有一件随机的东西。</div>`);
+  }
+  const bentos=BENTOS.map(b=>{
+    const need=Object.entries(b.need)
+      .map(([k,n])=>`${MAT_LABELS[k]} ${Math.min(g.materials[k]||0,n)}/${n}`).join(' + ');
+    const ok=Object.entries(b.need).every(([k,n])=>(g.materials[k]||0)>=n);
+    const cur=m.bento===b.id;
+    return `<div class="craft-row"><div class="cr-tx"><b>${b.name}${cur?' · 已装好':''}</b>
+      <small>${need}</small><small>${b.desc}</small></div>
+      <button class="cr-btn" data-bento="${b.id}" ${(ok||cur)?'':'disabled'}>${cur?'换掉':'做便当'}</button></div>`;
+  }).join('');
+  return cat+`<div class="bg-sec">✿ 给它做份便当</div>${bentos}
+    <button class="gm-btn" id="mateGo" style="width:100%;margin-top:4px" ${m.bento?'':'disabled'}>让小喵出发 ✦</button>
+    <div class="bg-note" style="margin-top:10px">它会飞 15 分钟（或你抽一局占卜），回来一定带 10 颗星碎，还有一件随机的礼物。</div>`;
+}
+function bindBagBody(){
+  $$('#bagBody [data-craft]').forEach(b=>b.onclick=()=>craftItem(b.dataset.craft));
+  $$('#bagBody [data-seed]').forEach(b=>b.onclick=()=>plantSeed(+b.dataset.slot, b.dataset.seed));
+  $$('#bagBody [data-harvest]').forEach(b=>b.onclick=()=>harvestPot(+b.dataset.harvest));
+  $$('#bagBody [data-place]').forEach(b=>b.onclick=()=>placeFurni(b.dataset.place, b.dataset.on==='1'));
+  $$('#bagBody [data-bento]').forEach(b=>b.onclick=()=>prepareBento(b.dataset.bento));
+  const go=$('#mateGo'); if(go) go.onclick=mateDepart;
+  const op=$('#mateOpen'); if(op) op.onclick=mateOpenBundle;
+}
+
+/* ---------------------------------------------------------- 12. 粒子：水滴 / 羊毛 / 小喵的呼吸 ---------- */
+function fxWater(x, y){
+  const fx=$('#fxLayer'); if(!fx) return;
+  for(let i=0;i<7;i++){
+    const d=document.createElement('i');
+    d.className='gs-drop';
+    d.style.left=(x+(Math.random()*4-2)).toFixed(1)+'%';
+    d.style.top=(y+(Math.random()*4-2)).toFixed(1)+'%';
+    d.style.animationDelay=(i*0.07).toFixed(2)+'s';
+    fx.appendChild(d);
+    sceneLater(()=>d.remove(),1500);
+  }
+}
+
+/* ---------------------------------------------------------- 13. 系统节拍：生长 / 归来 / 天气 / 蘑菇 ---------------------------------------------------------- */
+let playTimer=null;
+function startPlayTicker(){
+  if(playTimer) clearInterval(playTimer);
+  playTimer=setInterval(()=>{
+    if(S.screen!=='game') return;
+    plantTick();
+    mateMaybeReturn(false);
+    if(isRaining() && isOutdoor() && Date.now()-(shroomAt||0)>60000){
+      shroomAt=Date.now();
+      if(spawnShroom()) toast('雨里冒出了一朵雨滴菇 ✦','gain');
+    }
+    updateWeatherChip();
+  }, 10000);
+  /* 天气每 10 分钟重绘一次（同一时段内不会有变化，但 DOM 重建后要对齐） */
+  shroomAt=0;
+}
+/* 首次进小屋补一次香薰 */
+function playOnEnter(){
+  playNormalize(gameGet());
+  rollWeather();
+  mateMaybeReturn(false);
+  startPlayTicker();
+  incenseDaily();
+  applyWeatherTime();
+  renderLiveLayer();
+  renderMateState();
+}
+
 /* ---------------------------------------------------------- 初始化 ---------------------------------------------------------- */
 function onEnterGame(){
   if(!S.gameInited){ initGame(); S.gameInited=true; }
@@ -5823,6 +7073,7 @@ function onEnterGame(){
   $('#gameBack').textContent = S.gameFrom==='blog' ? '← 返回博客' : '← 返回书桌';
   renderScene();
   updateAchButton();
+  playOnEnter();                    /* 天气 / 种植节拍 / 小喵归来 / 香薰每日赠送 */
   say('小喵','先换好衣服，再推开门出发吧 ✦');
 }
 function initGame(){
@@ -5830,6 +7081,7 @@ function initGame(){
   renderSceneTabs();
   $('#btnExplore').onclick=explore;
   $('#btnWardrobe').onclick=openWardrobe;
+  $('#btnBag').onclick=()=>openBag('bag');
   $('#btnAch').onclick=openAch;
   $('#btnReport').onclick=openReport;
   $('#btnSound').onclick=()=>{ withGame(g=>{ g.sound=!g.sound; }); updateHUD(); };
