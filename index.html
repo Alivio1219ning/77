@@ -1067,23 +1067,79 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   background:rgba(255,252,245,.62);backdrop-filter:blur(4px);
   font-family:var(--serif);font-size:9.5px;letter-spacing:.09em;color:#8B7C6B}
 
-/* ---------- 4.2 小屋动作：跳上床躺下 / Zzz / 屏幕微暗 / 趴窗台 ---------- */
+/* ---------- 4.2 小屋睡眠：跳上床 → 侧卧屈膝露腿 → 呼吸 / Zzz / 屏幕微暗 ---------- */
+/* 起跳：站立立绘走一段带后仰的抛物线，落地后把画面交给独立的「睡姿层」 */
 .gs-char.jump-bed .gs-char-float{animation:gsBedJump .66s cubic-bezier(.2,.8,.3,1)}
-@keyframes gsBedJump{0%{transform:translateY(0)}
-  34%{transform:translateY(-44px)}62%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+@keyframes gsBedJump{0%{transform:translateY(0) rotate(0deg)}
+  32%{transform:translateY(-46px) rotate(-6deg)}
+  58%{transform:translateY(-18px) rotate(-15deg)}
+  100%{transform:translateY(-4px) rotate(-21deg)}}
 .gs-char.in-bed .gs-char-float{animation:none}
-.gs-char.in-bed .gs-char-pose{
-  transform:translateY(calc(-1 * var(--bed-rise,88px))) rotate(76deg) scale(.9);
-  transform-origin:50% 82%}
-.gs-char.in-bed .px-avatar{animation:none;translate:0 0;rotate:0deg;scale:1 1;
-  clip-path:inset(0 0 12% 0)}
-.gs-char.in-bed .gs-zzz{display:block;top:-62%;right:-26px;left:auto}
-/* 躺在床上：一颗独立、恒可见的 Zzz 气泡（不依赖动画首帧） */
-.room-zzz{position:absolute;left:30%;top:45%;z-index:36;pointer-events:none;
+.gs-char.in-bed .gs-char-pose{transform:none}
+/* 站立立绘淡出、睡姿层淡入：交叉过渡，不再把整张图硬转 76° 又裁掉双腿 */
+#gameAvatar{transition:opacity .3s ease}
+.gs-char.in-bed #gameAvatar{opacity:0}
+.gs-char.waking-up #gameAvatar{animation:bpWakeUp .4s cubic-bezier(.2,.8,.3,1)}
+@keyframes bpWakeUp{0%{transform:translateY(11px) scale(.95)}
+  62%{transform:translateY(-3px) scale(1.03)}100%{transform:translateY(0) scale(1)}}
+
+/* 睡姿层：头靠枕保持正向 + 格子被盖身 + 两条会屈膝晃脚的像素腿 */
+.bed-pose{position:absolute;left:50%;bottom:calc(var(--bed-rise,88px) - 6px);
+  width:250px;height:126px;margin-left:-45px;z-index:2;pointer-events:none;
+  opacity:0;visibility:hidden;transform-origin:50% 100%;
+  transition:opacity .3s ease,visibility 0s linear .3s}
+.gs-char.in-bed .bed-pose{opacity:1;visibility:visible;transition-delay:0s;
+  animation:bpSettle .82s cubic-bezier(.2,.8,.3,1)}
+@keyframes bpSettle{
+  0%{transform:translateY(-32px) rotate(-14deg) scale(.9)}
+  40%{transform:translateY(5px) rotate(-2deg) scale(1.02)}
+  66%{transform:translateY(-4px) rotate(1deg) scale(.99)}
+  84%{transform:translateY(2px) rotate(0deg) scale(1.005)}
+  100%{transform:translateY(0) rotate(0deg) scale(1)}}
+/* 主体：完整立绘斜躺 72°，一个像素都不裁 —— 原图的双腿与鞋子整段保留 */
+.bp-head{position:absolute;left:56px;bottom:-46px;width:120px;height:170px;
+  z-index:2;transform-origin:50% 50%;transform:rotate(72deg);
+  animation:bpLieBreathe 3.4s ease-in-out infinite alternate}
+.bp-head img{position:absolute;left:0;top:0;width:120px;height:auto;display:block;
+  image-rendering:pixelated;image-rendering:crisp-edges;
+  filter:drop-shadow(0 3px 4px rgba(90,65,60,.22))}
+@keyframes bpLieBreathe{from{transform:rotate(70deg) translateY(0)}
+  to{transform:rotate(73deg) translateY(-2px)}}
+/* 被子：粉格子水彩 + 柔和起伏，只盖住肚子，头与脚都露在外面 */
+.bp-quilt{position:absolute;left:88px;bottom:2px;width:78px;height:44px;z-index:3;
+  border-radius:18px 20px 10px 12px;border:1px solid rgba(214,174,178,.5);
+  background:
+    radial-gradient(ellipse at 28% 16%,rgba(255,255,255,.82),transparent 62%),
+    repeating-linear-gradient(0deg,rgba(211,158,166,.20) 0 2px,transparent 2px 13px),
+    repeating-linear-gradient(90deg,rgba(211,158,166,.20) 0 2px,transparent 2px 15px),
+    linear-gradient(168deg,#FFF8F2 0%,#F4DFE1 58%,#E8CBD2 100%);
+  box-shadow:inset 0 7px 12px rgba(255,255,255,.8),inset 0 -8px 12px rgba(188,138,150,.26),
+              0 7px 14px rgba(90,60,55,.16);
+  transform-origin:50% 100%;animation:bpQuilt 3.4s ease-in-out infinite alternate}
+.bp-quilt::after{content:'';position:absolute;right:9px;top:6px;width:34px;height:12px;
+  border-radius:8px 12px 3px 8px;transform:rotate(-9deg);opacity:.78;
+  background:linear-gradient(160deg,rgba(255,255,255,.95),rgba(255,238,243,.2))}
+@keyframes bpQuilt{from{transform:scaleY(.985) translateY(1px)}
+  to{transform:scaleY(1.035) translateY(-1px)}}
+/* 脚端：一整条连续的像素腿（膝盖折起 + 小皮鞋），贴着被脚缓缓晃，不再用分离方块拼 */
+.bp-legs{position:absolute;left:-62px;top:86px;width:96px;height:50px;z-index:4;
+  transform-box:fill-box;transform-origin:90% 70%;
+  animation:bpLegSway 3.1s ease-in-out infinite alternate}
+@keyframes bpLegSway{from{transform:rotate(-3deg) translateY(0)}
+  to{transform:rotate(4deg) translateY(-2px)}}
+.bp-leg{shape-rendering:crispEdges}
+.bp-leg rect:not(.bp-shoe){stroke-linejoin:miter}
+.bp-leg.b{opacity:.92}
+.bp-shoe{fill:#2B2530}
+/* Zzz 紧跟头顶，不挡视野（恒可见，不依赖动画首帧） */
+.room-zzz{position:absolute;right:2px;top:-46px;z-index:4;pointer-events:none;
   font-family:var(--serif);font-size:21px;letter-spacing:.14em;color:#8A7458;
   text-shadow:2px 0 0 rgba(255,253,247,.92),0 2px 0 rgba(255,253,247,.92),0 0 10px rgba(255,240,205,.9);
   animation:roomZzz 2.6s ease-in-out infinite alternate}
-@keyframes roomZzz{from{transform:translateY(0);opacity:.78}to{transform:translateY(-10px);opacity:1}}
+@keyframes roomZzz{from{transform:translateY(0);opacity:.8}to{transform:translateY(-10px);opacity:1}}
+/* 小喵蜷在床尾打盹 */
+.gs-mate.on-bed{bottom:37% !important;left:19% !important;
+  transform:scale(.82) rotate(-9deg);opacity:.88}
 /* 屋子微微暗下来（暖白墙压暗一层，不改变立绘配色） */
 #game-stage.room-night .gs-art,#game-stage.room-night .gs-deco{filter:brightness(.88) saturate(.9)}
 #game-stage.room-night{box-shadow:inset 0 0 130px rgba(72,52,40,.30),0 14px 40px rgba(115,98,84,.16)}
@@ -2152,8 +2208,12 @@ function syncFacing(){
   const c=charEl(); if(c && c.classList.contains('walking')) av.classList.add('walking');
 }
 function refreshGameAvatar(){
+  const outfit = gameGet().outfit||'cotton';
   const box = $('#gameAvatar');
-  if(box){ box.innerHTML = avatarHTML(gameGet().outfit||'cotton'); syncFacing(); }
+  if(box){ box.innerHTML = avatarHTML(outfit); syncFacing(); }
+  /* 睡姿头部同样跟随换装，但只用柔光，不做任何色相旋转 */
+  const head = $('#bedPose .bp-head img');
+  if(head){ head.src = AVATAR_DATA; head.className = 'px-avatar '+(outfit==='moon'?'moon':''); }
 }
 
 /* ---------------------------------------------------------- 水彩 SVG 绘制工具 ---------------------------------------------------------- */
@@ -2973,6 +3033,7 @@ function roomBed(){
     sceneLater(()=>{
       const q=charEl(); if(!q || !S.inRoom) return;
       q.classList.remove('jump-bed'); q.classList.add('in-bed');
+      const mate=$('#companion'); if(mate) mate.classList.add('on-bed');
       S.roomRest=true;
       const v=$('#gsVignette'); if(v) v.classList.add('room-dim');
       const st=$('#game-stage'); if(st) st.classList.add('room-night');
@@ -2986,7 +3047,16 @@ function roomBed(){
 }
 function wakeFromBed(auto){
   S.roomRest=false;
-  const c=charEl(); if(c) c.classList.remove('in-bed','jump-bed');
+  const c=charEl();
+  if(c){
+    const asleep=c.classList.contains('in-bed');
+    c.classList.remove('in-bed','jump-bed');
+    if(asleep && !auto){
+      c.classList.add('waking-up');
+      sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove('waking-up'); }, 420);
+    }
+  }
+  const mate=$('#companion'); if(mate) mate.classList.remove('on-bed');
   const v=$('#gsVignette'); if(v) v.classList.remove('room-dim');
   const st=$('#game-stage'); if(st) st.classList.remove('room-night');
   const zz=$('#roomZzz'); if(zz) zz.classList.add('hidden');
@@ -3212,11 +3282,10 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div id="orbsLayer"></div>
 <div class="gs-mate-trail" id="companionTrail">${PX_MATE_SVG}</div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
-<div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
+<div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div><div class="bed-pose" id="bedPose" aria-hidden="true"><div class="bp-head"><img class="px-avatar" src="${AVATAR_DATA}" alt=""></div><div class="bp-quilt"></div><svg class="bp-legs" viewBox="0 0 96 50" aria-hidden="true"><g class="bp-leg a"><rect x="18" y="10" width="72" height="13" rx="6" fill="#F8EBD6" stroke="#E5A2B4" stroke-width="1.4"/><rect class="bp-shoe" x="3" y="8" width="18" height="17" rx="3"/></g><g class="bp-leg b" transform="translate(9,20)"><rect x="18" y="10" width="72" height="13" rx="6" fill="#F1D9BC" stroke="#E5A2B4" stroke-width="1.4"/><rect class="bp-shoe" x="3" y="8" width="18" height="17" rx="3"/></g></svg><div class="room-zzz hidden" id="roomZzz">Zzz</div></div></div></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
 <div class="gs-char-hint">轻点小人 · 收起身边的星星光点</div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
 <div class="gs-room-hint hidden" id="roomHint">A / D 慢慢走 · 走到最右边推开门 ✦</div>
-<div class="room-zzz hidden" id="roomZzz">Zzz</div>
 <div class="gs-pad left" id="padLeft"><span class="pad-tip">‹</span></div>
 <div class="gs-pad right" id="padRight"><span class="pad-tip">›</span></div>
 <div class="gs-home hidden" id="homeGate" title="回温馨小屋">
