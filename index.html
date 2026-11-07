@@ -656,8 +656,9 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 
 /* ---------------- 主线追踪：左上角半透明和纸便签（导航栏下方） ---------------- */
 .gm-shell{position:relative}
+.gm-shell.ach-open .quest-card{opacity:0;transform:translateX(-8px);pointer-events:none}
 .quest-card{position:absolute;left:29px;top:58px;z-index:62;width:226px;padding:9px 12px 10px;
-  transform:rotate(-.7deg);transform-origin:12% 0;
+  transform:rotate(-.7deg);transform-origin:12% 0;transition:opacity .34s ease,transform .34s ease;
   border:1px solid rgba(217,198,165,.72);border-radius:2px;
   background:linear-gradient(158deg,rgba(255,253,246,.86),rgba(251,244,233,.66));
   box-shadow:0 4px 15px rgba(120,105,90,.13),inset 0 0 0 1px rgba(255,255,255,.55);
@@ -1012,9 +1013,15 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .mat-cell{padding:8px 4px;text-align:center;border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.4)}
 .mat-cell b{display:block;font-family:var(--hand);font-size:20px;font-weight:400;color:#A48C68}
 .mat-cell span{font-size:10px;color:var(--ink-faint)}
-.ach-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-.ach-chip{padding:4px 9px;border:1px solid var(--line);border-radius:2px;font-size:10.5px;color:#9C8A70;background:rgba(255,255,255,.42)}
-.ach-chip.locked{opacity:.34;filter:grayscale(1)}
+ /* 旅行报告里的入口：成就搬到独立图鉴后，这里只留一行「去翻一翻」 */
+.ach-jump{display:flex;align-items:center;gap:8px;width:100%;margin-top:12px;padding:8px 10px;
+  border:1px solid rgba(217,198,165,.55);border-radius:3px;background:rgba(255,252,244,.5);
+  font-family:var(--serif);cursor:pointer;text-align:left;color:inherit;
+  transition:border-color .3s ease,background .3s ease}
+.ach-jump span{font-size:10.5px;letter-spacing:.1em;color:#9A8767}
+.ach-jump b{margin-left:auto;font-family:var(--hand);font-size:15px;font-weight:400;color:#B08E56}
+.ach-jump em{font-style:normal;font-size:9px;letter-spacing:.06em;color:#B7A78E}
+.ach-jump:hover{border-color:rgba(212,174,104,.82);background:rgba(255,248,232,.72)}
 /* 旅行报告里的「探索瞬间」：手账边注，一行一件小事 */
 .ex-meter{display:flex;align-items:center;gap:7px;margin:0 0 11px}
 .ex-meter b{font-family:var(--serif);font-size:9px;letter-spacing:.16em;color:#B29C7C;font-weight:400}
@@ -1503,6 +1510,97 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 #wardrobePanel .gm-outfit{padding:8px;margin-bottom:8px}
 #wardrobePanel .gm-outfit .wi-preview{width:46px;height:46px}
 #wardrobePanel .gm-outfit .wi-preview .px-avatar{width:46px}
+
+/* ---------- 3.6.1 星蕾图鉴：独立成就面板（顶部按钮 + 蕾丝弹窗 + 星章网格） ---------- */
+.ach-btn{position:relative}
+.ach-dot{position:absolute;right:4px;top:4px;width:4px;height:4px;border-radius:50%;
+  background:#E2B863;box-shadow:0 0 7px 2px rgba(226,184,99,.6);opacity:0;transform:scale(.4);
+  transition:opacity .35s ease,transform .35s ease;pointer-events:none}
+.ach-dot.on{opacity:1;transform:scale(1);animation:achDot 2.4s ease-in-out infinite}
+@keyframes achDot{0%,100%{opacity:.45}50%{opacity:1;box-shadow:0 0 10px 3px rgba(232,196,128,.75)}}
+
+.gs-ach{left:50%;top:50%;transform:translate(-50%,-50%);width:min(624px,93vw);
+  height:min(648px,86%);padding:0;display:flex;flex-direction:column;overflow:hidden;
+  background:linear-gradient(158deg,rgba(255,253,248,.95),rgba(250,241,229,.92));
+  border-color:rgba(212,188,150,.9);
+  box-shadow:0 22px 60px rgba(92,72,56,.22),inset 0 0 0 1px rgba(255,255,255,.5);
+  animation:gsAchIn .42s cubic-bezier(.2,.8,.3,1)}
+@keyframes gsAchIn{from{opacity:0;transform:translate(-50%,-46%) scale(.985)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.gs-ach::before{inset:7px;border-style:dashed;border-color:rgba(217,198,165,.52);border-radius:8px}
+#achBody{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.ac-head{flex:none;position:relative;padding:17px 22px 13px;border-bottom:1px solid rgba(217,198,165,.36);
+  background:radial-gradient(ellipse at 8% -30%,rgba(255,247,224,.95),transparent 70%)}
+.ac-eyebrow{font-family:var(--serif);font-size:8.5px;letter-spacing:.34em;color:#BBA583}
+.ac-title{font-family:var(--hand);font-size:27px;letter-spacing:.07em;color:#8A765F;margin:3px 0 0;font-weight:400}
+.ac-title em{font-style:normal;color:#B79A66}
+.ac-sub{font-family:var(--serif);font-size:9.5px;letter-spacing:.05em;color:#AEA08D;margin-top:4px}
+.ac-prog{position:absolute;right:22px;top:17px;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.ac-prog b{font-family:var(--hand);font-size:22px;font-weight:400;color:#B08E56;letter-spacing:.02em;line-height:1}
+.ac-prog b i{font-style:normal;font-size:12px;color:#C3B093;letter-spacing:0}
+.ac-prog .ac-bar{width:92px;height:2px;background:rgba(203,184,152,.38);overflow:hidden}
+.ac-prog .ac-bar i{display:block;height:100%;background:linear-gradient(90deg,#F2E3BC,#D6B980);
+  transition:width .9s cubic-bezier(.3,.8,.3,1)}
+.ac-grid{flex:1 1 auto;min-height:0;overflow:auto;display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;padding:14px 22px 16px;align-content:start}
+.ac-grid{-webkit-mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 16px),transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 16px),transparent 100%)}
+.ac-grid::-webkit-scrollbar{width:5px}
+.ac-grid::-webkit-scrollbar-thumb{background:rgba(217,198,165,.55);border-radius:3px}
+.ac-grid::-webkit-scrollbar-track{background:transparent}
+.ac-card{position:relative;display:flex;gap:9px;align-items:flex-start;padding:10px 11px;
+  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.32);
+  transition:border-color .4s ease,background .4s ease,box-shadow .4s ease}
+.ac-sig{flex:none;width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:rgba(240,232,216,.66);color:#B7A588;border:1px solid var(--line)}
+.ac-sig svg{width:13px;height:13px;display:block}
+.ac-txt{min-width:0;display:flex;flex-direction:column;gap:2px;padding-top:1px}
+.ac-txt b{font-family:var(--serif);font-weight:400;font-size:11.5px;letter-spacing:.06em;color:#8B7F70}
+.ac-txt span{font-family:var(--serif);font-size:9.5px;line-height:1.62;color:#B3A695;letter-spacing:.02em}
+.ac-card.on{border-color:rgba(212,174,104,.82);
+  background:linear-gradient(152deg,rgba(255,252,243,.96),rgba(253,243,223,.7));
+  box-shadow:inset 0 0 0 1px rgba(255,248,226,.85),0 3px 12px rgba(196,164,108,.12)}
+.ac-card.on .ac-sig{background:radial-gradient(circle at 50% 40%,#FFF8E2,#F1DEAC 66%,#E4CA92);
+  color:#A9853F;border-color:rgba(212,174,104,.9);box-shadow:0 0 11px rgba(232,200,130,.62)}
+.ac-card.on .ac-sig svg{animation:achStarIn .62s cubic-bezier(.2,.9,.3,1);
+  filter:drop-shadow(0 0 2px rgba(255,248,220,.95))}
+@keyframes achStarIn{0%{transform:scale(.4) rotate(-40deg);opacity:0}
+  62%{transform:scale(1.2) rotate(6deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+.ac-card.on .ac-txt b{color:#7C6647}
+.ac-card.on .ac-txt span{color:#97836A}
+.ac-card.locked{opacity:.74;filter:saturate(.32)}
+.ac-card.locked .ac-sig{color:#ABA49C;background:rgba(238,234,228,.62)}
+.ac-card.locked .ac-txt b{color:#9B948B}
+.ac-card.locked .ac-txt span{color:#B7B0A8;letter-spacing:.16em}
+.ac-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 22px 14px;border-top:1px solid rgba(217,198,165,.3);background:rgba(255,252,246,.55)}
+.ac-foot .tiny{margin:0}
+.ac-foot .ac-count{font-family:var(--serif);font-size:9px;letter-spacing:.12em;color:#B09C7E}
+@media (max-width:560px){
+  .ac-grid{grid-template-columns:1fr}
+  .ac-title{font-size:23px}
+  .ac-sub{display:none}
+}
+/* 成就解锁 Toast：星章 + 名称 + 赠语，2.8 秒后自己飘走 */
+.ach-pop{pointer-events:none;margin-top:46px;display:flex;align-items:center;gap:9px;padding:7px 14px 7px 9px;
+  border:1px solid rgba(212,176,110,.72);border-radius:3px;
+  background:linear-gradient(150deg,rgba(255,252,242,.95),rgba(252,241,220,.9));
+  box-shadow:0 8px 24px rgba(150,120,70,.16),inset 0 0 0 1px rgba(255,255,255,.6);
+  animation:achToastIn .5s cubic-bezier(.2,.8,.3,1) both}
+.ach-pop.out{animation:achToastOut .55s ease forwards}
+.ach-pop .at-sig{flex:none;width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:radial-gradient(circle at 50% 40%,#FFF9E6,#EFD9A2);
+  color:#A9853F;box-shadow:0 0 9px rgba(230,198,128,.55)}
+.ach-pop .at-sig svg{width:12px;height:12px;display:block}
+.ach-pop .at-tx{min-width:0}
+.ach-pop b{display:block;font-family:var(--serif);font-weight:400;font-size:8.5px;
+  letter-spacing:.22em;color:#B79C74}
+.ach-pop em{display:block;font-style:normal;font-family:var(--serif);font-size:12.5px;
+  letter-spacing:.04em;color:#7E6A4F;margin-top:1px}
+.ach-pop small{display:block;font-family:var(--serif);font-size:9.5px;letter-spacing:.02em;
+  color:#A8967C;margin-top:1px}
+@keyframes achToastIn{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:none}}
+@keyframes achToastOut{to{opacity:0;transform:translateY(-7px)}}
 /* 交互小游戏面板保留（需要按钮），但同样轻量化，不再是一整块不透明白板 */
 .gs-event{background:linear-gradient(160deg,rgba(255,253,247,.76),rgba(247,238,228,.64));
   backdrop-filter:blur(10px);width:min(340px,84vw);padding:18px}
@@ -2053,6 +2151,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
         <i class="hq-spark" aria-hidden="true"></i>
       </button>
       <button class="gm-btn" id="btnWardrobe">✧ 衣橱</button>
+      <button class="gm-btn ach-btn" id="btnAch" title="星蕾图鉴 · 翻看所有星章">✦ 成就<i class="ach-dot" id="achDot"></i></button>
       <button class="gm-btn" id="btnExplore">✦ 探索一次（1 小脚步）</button>
       <button class="gm-btn" id="btnReport">✎ 旅行报告</button>
       <button class="gm-btn" id="btnSound">♪ 声音 开</button>
@@ -2168,16 +2267,46 @@ function topToast(msg, kind=''){
 }
 function toast(msg){ topToast(msg); }
 function gainToast(amount, key){ topToast('+'+amount+' '+(MAT_LABELS[key]||key),'gain'); }
+/* ---------------------------------------------------------- 星蕾图鉴：解锁与状态 ----------------------------------------------------------
+   唯一真相是 game_save.unlockedAchievements；旧字段 achievements 指向同一份数组，老代码照旧能读。 */
+function achList(g){
+  const s = g || gameGet();
+  return (s && (s.unlockedAchievements || s.achievements)) || [];
+}
+function achHas(id, g){ return achList(g).includes(id); }
 function showAchievement(key){
-  const a = (typeof ACHIEVEMENTS !== 'undefined') ? ACHIEVEMENTS.find(x=>x.id===key) : null;
-  if(!a) return;
-  topToast('✦ '+a.title,'unlock');
+  const a=ACH_BY_ID[key]; if(!a) return;
+  const layer=$('#toastLayer'); if(!layer) return;
+  const el=document.createElement('div');
+  el.className='ach-pop';
+  el.innerHTML=`<span class="at-sig">${PX_STAR}</span>
+    <span class="at-tx"><b>解锁成就 ✦</b><em>${esc(a.name)}</em><small>${esc(a.desc)}</small></span>`;
+  layer.appendChild(el);
+  const all=layer.querySelectorAll('.ach-pop');
+  if(all.length>2) all[0].remove();                 /* 最多两条，绝不满屏 */
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),620); }, 2800);
 }
 function unlockAchievement(key, g){
+  const a=ACH_BY_ID[key]; if(!a) return false;      /* 只认图鉴里的 14 枚 */
   const s = g || gameGet();
-  if(!s.achievements) s.achievements = [];
-  if(s.achievements.includes(key)) return false;
-  s.achievements.push(key); gameSet(s); showAchievement(key); return true;
+  if(!Array.isArray(s.unlockedAchievements)){
+    const old=Array.isArray(s.achievements)?s.achievements:[];
+    s.unlockedAchievements=[...new Set(old.map(k=>ACH_ALIAS[k]||k))];   /* 旧档迁移 */
+  }
+  if(s.unlockedAchievements.includes(key)) return false;
+  s.unlockedAchievements.push(key);
+  s.achievements=s.unlockedAchievements;            /* 兼容旧字段：同一份，不重复存 */
+  gameSet(s);
+  showAchievement(key);
+  refreshAchPanel();                                /* 面板开着就立刻点亮那一格 */
+  updateAchButton();
+  return true;
+}
+/* 顶部「✦ 成就」按钮：有新星章没翻过时，右上角亮一颗小光点 */
+function updateAchButton(){
+  const g=gameGet(), n=achList(g).length, seen=g.achSeen||0;
+  const dot=$('#achDot'); if(dot) dot.classList.toggle('on', n>seen);
+  const b=$('#btnAch'); if(b) b.title=`星蕾图鉴 · 已点亮 ${n} / ${ACHIEVEMENTS.length}`;
 }
 /* 图片压缩：最大宽度 800px、质量 0.7、Base64（JPEG） */
 function compressImage(file, maxW=800, quality=0.7){
@@ -2210,7 +2339,7 @@ const S = { screen:'gate', gameFrom:'desk', authed:false, gateOpening:false,
 function hashName(){ const h = location.hash.replace('#',''); return SCREENS.includes(h) ? h : null; }
 function go(name, opts={}){
   if(!SCREENS.includes(name)) name='desk';
-  if(name!=='game'){ stopRadarLoop(); cancelCollect(); closeStarChart(); }
+  if(name!=='game'){ stopRadarLoop(); cancelCollect(); closeStarChart(); closeSidePanels(); }
   const state = { screen:name, from:opts.from||S.gameFrom };
   if(opts.replace) history.replaceState(state,'','#'+name); else history.pushState(state,'','#'+name);
   renderRoute(name, state);
@@ -3028,23 +3157,36 @@ const MAT_LABELS = {
   feather:'发光羽毛', postcard:'旧明信片', note:'便签', shell:'贝壳',
   bookmark:'书签', fruit:'风铃果实'
 };
+/* ---------------------------------------------------------- 星蕾图鉴：14 枚星章 ----------------------------------------------------------
+   数据即唯一真相：成就面板、解锁 Toast、旅行报告全部从这里取名字与赠语。
+   解锁状态存在 game_save.unlockedAchievements（旧存档的 achievements 会自动迁移）。 */
 const ACHIEVEMENTS = [
-  {id:'firstPath',   title:'初次启程',     text:'你出门了。今天风不大。'},
-  {id:'firstGarden', title:'抬头看看',     text:'有些好看的东西，只需要抬头。'},
-  {id:'dressed',     title:'今天穿得隆重', text:'今天穿得隆重一点，因为今天是你。'},
-  {id:'star30',      title:'星星收集者',   text:'你捡起了三十颗小星星。'},
-  {id:'ribbon20',    title:'丝带收藏家',   text:'风一吹，丝带就笑了。'},
-  {id:'lace20',      title:'蕾丝猎人',     text:'柔软的东西，值得被收好。'},
-  {id:'cat5',        title:'圆滚滚的朋友', text:'它打了个呼噜，说很高兴认识你。'},
-  {id:'wind1min',    title:'听见风',       text:'风很温柔，你今天也没有急着去干嘛。'},
-  {id:'report10',    title:'手账常客',     text:'你常回来看看，小屋就一直在。'},
-  {id:'bear',        title:'同行的乘客',   text:'一路没说几句，但一直在。'},
-  {id:'sakuraCat',   title:'路过的小猫',   text:'它没说话，但让你摸了。'},
-  {id:'bottleLetter',title:'灯塔的信',     text:'有人把话留在门缝里，等你来读。'},
-  {id:'wish',        title:'许愿一次',     text:'你许了一个愿，水没有笑你。'},
-  {id:'note',        title:'午夜便签',     text:'有人提前写好了：今天你最大。'},
-  {id:'starmap',     title:'星图点亮',     text:'三十颗星碎，拼成你的生日星图。'}
+  {id:'first_path',    name:'初次启程',     desc:'你出门了。今天风不大。'},
+  {id:'first_garden',  name:'抬头看看',     desc:'有些好看的东西，只需要抬头。'},
+  {id:'wear_yuebai',   name:'今天穿得隆重', desc:'今天穿得隆重一点，因为今天是你。'},
+  {id:'star_30',       name:'星星收集者',   desc:'你捡起了三十颗小星星。'},
+  {id:'ribbon_20',     name:'丝带收藏家',   desc:'风一吹，丝带就笑了。'},
+  {id:'lace_20',       name:'蕾丝猎人',     desc:'柔软的东西，值得被收好。'},
+  {id:'pet_cat',       name:'圆滚滚的朋友', desc:'它打了个呼噜，说很高兴认识你。'},
+  {id:'sit_bench',     name:'听见风',       desc:'风很温柔，你今天也没有急着去干嘛。'},
+  {id:'read_report',   name:'手账常客',     desc:'你常回来看看，小屋就一直在。'},
+  {id:'find_bear',     name:'同行的乘客',   desc:'一路没说几句，但一直在。'},
+  {id:'find_cat_chair',name:'路过的小猫',   desc:'它没说话，但让你摸了。'},
+  {id:'find_bottle',   name:'灯塔的信',     desc:'有人把话留在门缝里，等你来读。'},
+  {id:'wish_fountain', name:'许愿一次',     desc:'你许了一个愿，水没有笑你。'},
+  {id:'find_note',     name:'午夜便签',     desc:'有人提前写好了：今天你最大。'}
 ];
+/* 旧版 id → 新版 id：老存档里的成就一条都不会丢 */
+const ACH_ALIAS = {
+  firstPath:'first_path', firstGarden:'first_garden', dressed:'wear_yuebai',
+  star30:'star_30', ribbon20:'ribbon_20', lace20:'lace_20', cat5:'pet_cat',
+  wind1min:'sit_bench', report10:'read_report', bear:'find_bear',
+  sakuraCat:'find_cat_chair', bottleLetter:'find_bottle', wish:'wish_fountain',
+  note:'find_note', starmap:'star_30'
+};
+const ACH_BY_ID = Object.fromEntries(ACHIEVEMENTS.map(a=>[a.id,a]));
+const PX_STAR = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 1.6l2.35 6.4 6.4 2.35-6.4 2.35L12 19.1l-2.35-6.4L3.25 10.35l6.4-2.35z" fill="currentColor"/><circle cx="12" cy="10.35" r="1.15" fill="#FFFDF4" opacity=".9"/></svg>`;
+const PX_LOCK = `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.6 6.7V5.1a2.4 2.4 0 014.8 0v1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="3.9" y="6.6" width="8.2" height="6" rx="1.1" fill="currentColor" opacity=".82"/><circle cx="8" cy="9.6" r=".9" fill="#FFFDF4"/></svg>`;
 const OUTFITS = [
   {id:'cotton', name:'初始棉麻裙', desc:'最舒服的一件，风一吹就轻轻晃。'},
   {id:'moon',   name:'生日限定【星蕾月白】', desc:'一层柔和月光光晕 · 原画配色保持不变'}
@@ -3673,7 +3815,7 @@ const SCENES = [
   spots:[
    {id:'bench',   label:'坐长椅发呆',   x:80,y:72, act:'bench',   line:'坐下来了。风从花瀑那边过来，什么都不用想。'},
    {id:'swing',   label:'荡起木秋千',   x:24,y:53, act:'swing',   line:'秋千荡起来，花瓣落了一身。', mat:'flowerBud'},
-   {id:'mailbox', label:'旧邮筒',       x:9, y:64, act:'collect', hidden:true, ach:'wish', mat:'postcard',
+   {id:'mailbox', label:'旧邮筒',       x:9, y:64, act:'collect', hidden:true, ach:'wish_fountain', mat:'postcard',
     nearLine:'今天没有来信哦。',
     line:'邮筒里躺着一张没有寄出的明信片。', firstLine:'你把一个小愿望塞进旧邮筒，水没有笑你。'},
    {id:'dew',     label:'接住晨露',     x:42,y:70, act:'collect', mat:'dew', line:'叶尖上滚下来一颗晨露，凉凉的。'},
@@ -3686,7 +3828,7 @@ const SCENES = [
   orbs:[{x:20,y:60},{x:52,y:55},{x:83,y:67}],
   spots:[
    {id:'sheep',  label:'摸摸云朵绵羊', x:34,y:68, act:'sheep',   mat:'sakura', line:'它软得像一朵会走路的云，蹭了蹭你的手。'},
-   {id:'cat',    label:'树根旁的小猫', x:76,y:76, act:'purr',    hidden:true, ach:'sakuraCat', mat:'lace',
+   {id:'cat',    label:'树根旁的小猫', x:76,y:76, act:'purr',    hidden:true, ach:'find_cat_chair', mat:'lace',
     line:'呼噜……呼噜……它翻了个身，又睡了。', firstLine:'它没说话，但让你摸了。'},
    {id:'door',   label:'小木门',       x:85,y:70, act:'doorDream', mat:'star', nearLine:'里面会不会住着精灵？',
     line:'门缝里漏出一点光，好像有谁在里面呼吸。'},
@@ -3700,7 +3842,7 @@ const SCENES = [
   orbs:[{x:16,y:62},{x:50,y:54},{x:86,y:68}],
   spots:[
    {id:'dock',   label:'坐栈道晃脚',   x:14,y:70, act:'bench',   line:'脚尖点着水面，晃着晃着就忘了时间。'},
-   {id:'bottle', label:'捞起漂流瓶',   x:67,y:60, act:'bottleDrag', hidden:true, ach:'bottleLetter', mat:'postcard',
+   {id:'bottle', label:'捞起漂流瓶',   x:67,y:60, act:'bottleDrag', hidden:true, ach:'find_bottle', mat:'postcard',
     line:'瓶塞拔开，里面是一张被海水泡软的旧明信片。', firstLine:'有人把话留在门缝里，等你来读。'},
    {id:'glass',  label:'捡一片海玻璃', x:92,y:76, act:'collect', mat:'seaGlass', line:'被浪磨圆的一小片绿，握在手里很凉。'},
    {id:'shell',  label:'沙滩贝壳',     x:82,y:80, act:'collect', mat:'shell', line:'贝壳里还留着一点海的声音。'},
@@ -3726,7 +3868,7 @@ const SCENES = [
   orbs:[{x:18,y:62},{x:48,y:56},{x:80,y:68}],
   spots:[
    {id:'window',label:'趴窗边看云',   x:48,y:56, act:'bench',   line:'把下巴搁在窗沿上，云一团一团地飘过去。'},
-   {id:'bear',  label:'行李架小熊',   x:83,y:26, act:'bear',    hidden:true, ach:'bear', mat:'star',
+   {id:'bear',  label:'行李架小熊',   x:83,y:26, act:'bear',    hidden:true, ach:'find_bear', mat:'star',
     line:'它悄悄眨了一下眼，又装回玩偶了。', firstLine:'一路没说几句，但一直在。'},
    {id:'ticket',label:'桌板旧车票',   x:50,y:66, act:'collect', mat:'ticket', line:'票根上的站名已经晕开了。'},
    {id:'letter',label:'窗帘缝里的信', x:73,y:44, act:'collect', mat:'postcard', line:'谁把一封信卡在了窗帘缝里。'},
@@ -3740,7 +3882,7 @@ const SCENES = [
   spots:[
    {id:'cat',   label:'摸摸橘猫',     x:24,y:64, act:'catCafe', mat:'bean', line:'呼噜、呼噜。它的尾巴扫过你的手腕。'},
    {id:'glass', label:'在玻璃上画星', x:83,y:48, act:'drawStar', mat:'star', line:'雾气上多了一颗歪歪扭扭的小星星。'},
-   {id:'note',  label:'吧台便签',     x:54,y:64, act:'collect', hidden:true, ach:'note', mat:'note',
+   {id:'note',  label:'吧台便签',     x:54,y:64, act:'collect', hidden:true, ach:'find_note', mat:'note',
     line:'便签上写着：今天你最大。', firstLine:'有人提前写好了：今天你最大。'},
    {id:'bean',  label:'散落的咖啡豆', x:40,y:72, act:'collect', mat:'bean', line:'捡到几颗烘得刚刚好的咖啡豆。'},
    {id:'evt',   label:'窗边有响声',   x:70,y:38, act:'event',   line:'窗外的风铃果实被吹得叮当响。'}
@@ -3753,7 +3895,9 @@ const SCENES = [
    初始只开【晴天花庭】【樱花小径】；其余按收集进度依次开启，判定完全由存档推导。 */
 function starCount(g){ return Math.max((g.totals&&g.totals.star)||0, (g.materials&&g.materials.star)||0); }
 function unlockedScenes(g){
-  const star=starCount(g), pc=(g.stats&&g.stats.pathCollects)||0;
+  const save=g||gameGet();
+  if(save && save.unlockAll) return SCENES.map(s=>s.id);   /* 已手动全开：六处风景随便逛 */
+  const star=starCount(save), pc=(save.stats&&save.stats.pathCollects)||0;
   const open=['garden','path'];                       /* 初始两处 */
   if(star>=20) open.push('sea');                      /* 收集满 20 颗星碎 → 海边灯塔 */
   if(pc>=3)   open.push('library');                  /* 樱花小径完成 3 次收集 → 星空图书馆 */
@@ -3782,7 +3926,7 @@ function checkUnlocks(g){
   if(fresh.length){
     save.unlockedSeen=save.unlockedSeen.concat(fresh);
     gameSet(save);
-    fresh.forEach(id=>{
+    if(!save.unlockAll) fresh.forEach(id=>{          /* 全开模式不再刷四条解锁提示 */
       const sc=SCENES.find(x=>x.id===id);
       if(sc) topToast('✦ 解锁了「'+sc.name+'」','unlock');
     });
@@ -3889,12 +4033,14 @@ function lockReason(id){ return (id==='sea'||id==='train') ? '星碎不足' : '�
 
 function openTravelMap(){
   if(!S.inRoom) return;
-  closeWardrobe(); closeEvent();
+  closeSidePanels();
   const m=$('#travelMap'); if(!m) return;
   renderSceneTabs();
   m.classList.remove('hidden','closing');
   S.mapOpen=true;
-  const tip=$('#mapTip'); if(tip) tip.textContent='锁着的地方，去前面的风景多走走就会亮起来 ✦';
+  const tip=$('#mapTip'); if(tip) tip.textContent = gameGet().unlockAll
+    ? '六处风景都为你开着 · 想去哪儿就去哪儿 ✦'
+    : '锁着的地方，去前面的风景多走走就会亮起来 ✦';
 }
 function closeTravelMap(){
   const m=$('#travelMap'); if(m){ m.classList.add('hidden'); m.classList.remove('closing'); }
@@ -3912,7 +4058,7 @@ function mapPickScene(i){
 function enterRoom(){
   S.inRoom=true; S.mapOpen=false; S.roomRest=false; S.mateOnWindow=false; S.charX=46;
   withGame(g=>{ g.inRoom=true; g.charX=46; });
-  closeWardrobe(); closeEvent(); closeTravelMap(); stopBench();
+  closeWardrobe(); closeAch(); closeEvent(); closeTravelMap(); stopBench();
   renderScene();
   say('小喵','到家啦，先歇一会儿吧 ✦');
 }
@@ -4230,6 +4376,60 @@ function closeWardrobe(){
   const veil=$('#wardrobeVeil'); if(veil) veil.classList.add('hidden');
   const shell=$('#screen-game .gm-shell'); if(shell) shell.classList.remove('wardrobe-open');
 }
+function closeReport(){ const p=$('#reportPanel'); if(p) p.classList.add('hidden'); }
+function closeAch(){
+  const p=$('#achPanel'); if(p) p.classList.add('hidden');
+  const sh=$('#screen-game .gm-shell'); if(sh) sh.classList.remove('ach-open');
+}
+/* 衣橱 / 旅行报告 / 星蕾图鉴 三块面板互斥：一次只翻开一本 */
+function closeSidePanels(except){
+  if(except!=='wardrobe') closeWardrobe();
+  if(except!=='report') closeReport();
+  if(except!=='ach') closeAch();
+  if(except!=='event'){ const e=$('#eventPanel'); if(e) e.classList.add('hidden'); }
+}
+/* ---------------------------------------------------------- 星蕾图鉴：面板渲染 ---------------------------------------------------------- */
+function renderAchPanel(){
+  const box=$('#achBody'); if(!box) return;
+  const g=gameGet(), list=achList(g);
+  const done=ACHIEVEMENTS.filter(a=>list.includes(a.id)).length;
+  const pct=Math.round(done/ACHIEVEMENTS.length*100);
+  box.innerHTML=`<div class="ac-head">
+      <div class="ac-eyebrow">STAR BUD · COLLECTION</div>
+      <h3 class="ac-title">星蕾图鉴 <em>·</em> 成就</h3>
+      <div class="ac-sub">每一枚星章，都是你认真走过的日子</div>
+      <div class="ac-prog">
+        <b>${done}<i> / ${ACHIEVEMENTS.length}</i></b>
+        <span class="ac-bar"><i style="width:${pct}%"></i></span>
+      </div>
+    </div>
+    <div class="ac-grid">${ACHIEVEMENTS.map(a=>{
+      const on=list.includes(a.id);
+      return `<div class="ac-card ${on?'on':'locked'}" data-ach="${a.id}">
+        <span class="ac-sig">${on?PX_STAR:PX_LOCK}</span>
+        <span class="ac-txt"><b>${on?esc(a.name):'未解锁'}</b><span>${on?esc(a.desc):'？？？'}</span></span>
+      </div>`;
+    }).join('')}</div>
+    <div class="ac-foot">
+      <span class="ac-count">已点亮 ${done} 枚 · 还差 ${ACHIEVEMENTS.length-done} 枚</span>
+      <button class="gm-btn" id="achClose">合上图鉴</button>
+    </div>`;
+  const c=$('#achClose'); if(c) c.onclick=closeAch;
+}
+function refreshAchPanel(){
+  const p=$('#achPanel');
+  if(p && !p.classList.contains('hidden')) renderAchPanel();
+}
+function openAch(){
+  clearRugRest();
+  closeSidePanels('ach');
+  const p=$('#achPanel'); if(!p) return;
+  renderAchPanel();
+  p.classList.remove('hidden');
+  const sh=$('#screen-game .gm-shell'); if(sh) sh.classList.add('ach-open');
+  withGame(g=>{ g.achSeen=achList(g).length; });   /* 翻过一遍，小圆点熄掉 */
+  updateAchButton();
+}
 function glintAvatar(){
   const box=$('#gameAvatar'); if(box){
     const old=box.querySelector('.px-glint'); if(old) old.remove();
@@ -4293,8 +4493,11 @@ function defaultGame(){
   const materials={}; Object.keys(MAT_LABELS).forEach(k=>materials[k]=0);
   return {
     profile:{name:'77', sign:'慢慢来，好汤都是慢火熬的。'},
-    outfit:'cotton', materials, totals:{}, achievements:[], discoveries:{}, visited:[],
+    outfit:'cotton', materials, totals:{}, achievements:[], unlockedAchievements:[],
+    discoveries:{}, visited:[],
     unlockedSeen:['garden','path'], inRoom:true,
+    achSeen:0,                             /* 成就面板上次翻到的数量，用来点亮「有新星章」的小圆点 */
+    unlockAll:true,                        /* 六处场景全部打开：想先看看后面几处做得怎么样 */
     stats:{catPats:0, benchSeconds:0, reportViews:0, explored:0, discoveries:0, pathCollects:0},
     steps:{date:todayStr(), left:6, cap:12},
     commissions:null, current:0, charX:46, sound:true,
@@ -4308,7 +4511,7 @@ function gameGet(){
   let g=DB.read(KEYS.game,null);
   if(!g || typeof g!=='object'){ g=defaultGame(); DB.write(KEYS.game,g); return g; }
   const d=defaultGame();
-  for(const k of Object.keys(d)) if(g[k]===undefined) g[k]=d[k];
+  for(const k of Object.keys(d)) if(k!=='unlockedAchievements' && g[k]===undefined) g[k]=d[k];
   for(const k of Object.keys(d.materials)) if(g.materials[k]===undefined) g.materials[k]=0;
   for(const k of Object.keys(d.stats)) if(g.stats[k]===undefined) g.stats[k]=0;
   if(!g.totals) g.totals={};
@@ -4316,6 +4519,12 @@ function gameGet(){
   if(!g.quest || typeof g.quest!=='object') g.quest={...d.quest};
   for(const k of Object.keys(d.quest)) if(g.quest[k]===undefined) g.quest[k]=d.quest[k];
   if(!Array.isArray(g.journal)) g.journal=[];
+  /* 成就迁移：旧存档只有 achievements（旧 id），转成 unlockedAchievements（新 id） */
+  if(!Array.isArray(g.unlockedAchievements)){
+    const old=Array.isArray(g.achievements)?g.achievements:[];
+    g.unlockedAchievements=[...new Set(old.map(k=>ACH_ALIAS[k]||k))];
+  }
+  g.achievements=g.unlockedAchievements;   /* 两个字段指向同一份，旧代码照旧能读 */
   return g;
 }
 const gameSet = g => DB.write(KEYS.game,g);
@@ -4361,9 +4570,9 @@ function addMat(g,key,n=1){
   /* 在【樱花小径】里每完成一次收集就记一笔，用于解锁【星空图书馆】 */
   if(curScene() && curScene().id==='path')
     g.stats.pathCollects=(g.stats.pathCollects||0)+1;
-  if(g.totals.star>=30) unlockAchievement('star30',g);
-  if(g.totals.ribbon>=20) unlockAchievement('ribbon20',g);
-  if(g.totals.lace>=20) unlockAchievement('lace20',g);
+  if(g.totals.star>=30) unlockAchievement('star_30',g);
+  if(g.totals.ribbon>=20) unlockAchievement('ribbon_20',g);
+  if(g.totals.lace>=20) unlockAchievement('lace_20',g);
   bump('collect:'+key,n,g);
   gainToast(n,key);                 /* "+1 樱花瓣"：顶部极小香槟金 Toast */
   checkUnlocks(g);                  /* 星碎 / 小径收集 达标即刻解锁 */
@@ -4468,7 +4677,7 @@ function questComplete(){
   gameSet(g);
   refreshGameAvatar(); syncFacing();
   if(typeof refreshProfile==='function') refreshProfile();
-  unlockAchievement('starmap',g);
+  unlockAchievement('star_30',g);   /* 星图点亮 = 第 30 颗星 */
   logMoment('星蕾星图点亮了，三十颗星碎拼成一朵花');
   buildFinale();
   const f=$('#questFinale'); if(f) f.classList.remove('hidden');
@@ -4543,6 +4752,7 @@ function starMapSVG(lit){
   return svg;
 }
 function openStarChart(){
+  closeSidePanels();
   const panel=$('#starChart'); if(!panel) return;
   const g=gameGet(), shards=Math.max(0,Math.min(QUEST_TOTAL,(g.quest&&g.quest.shards)||0));
   const wrap=$('#scMapWrap'); if(wrap) wrap.innerHTML=starMapSVG(shards);
@@ -4624,6 +4834,8 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-dialog hidden" id="gameDialog"></div>
 <div class="gs-panel gs-side hidden" id="wardrobePanel"><div id="wardrobeBody"></div></div>
 <div class="gs-panel gs-side hidden" id="reportPanel"><div id="reportBody"></div></div>
+<!-- 星蕾图鉴：独立成就面板（与衣橱、旅行报告互斥） -->
+<div class="gs-panel gs-ach hidden" id="achPanel"><div id="achBody"></div></div>
 <div class="gs-panel gs-event hidden" id="eventPanel"><div id="eventBody"></div></div>
 <div class="gs-map hidden" id="travelMap">
   <div class="map-card">
@@ -4767,8 +4979,8 @@ function renderScene(){
   const g=gameGet();
   if(!g.visited.includes(sc.id)){
     g.visited.push(sc.id); gameSet(g);
-    if(sc.id==='garden') unlockAchievement('firstGarden',g);
-    if(sc.id==='path')   unlockAchievement('firstPath',g);
+    if(sc.id==='garden') unlockAchievement('first_garden',g);
+    if(sc.id==='path')   unlockAchievement('first_path',g);
   }
   const g2=gameGet(); bump('visit:'+sc.id,1,g2); gameSet(g2);
   updateHUD();
@@ -5069,7 +5281,7 @@ function switchScene(i, force=false){
     topToast('这里还没解锁哦，去前面的地方多走走吧。','lock');
     return;
   }
-  closeWardrobe(); stopBench(); closeEvent(); closeTravelMap();
+  closeWardrobe(); closeAch(); stopBench(); closeEvent(); closeTravelMap();
   clearWindowPose(); wakeFromBed(true);
   S.inRoom=false; S.gameScene=i; S.charX=16;      /* 户外出生在最左侧，回家小门就在身旁 */
   withGame(g=>{ g.current=i; g.charX=16; g.inRoom=false; });
@@ -5143,7 +5355,7 @@ function activateSpot(i){
     case 'catCafe':
       touchAnimal(sp,'cat');
       g.stats.catPats=(g.stats.catPats||0)+1; bump('action:catCafe',1,g);
-      if(g.stats.catPats>=5) unlockAchievement('cat5',g);
+      if(g.stats.catPats>=5) unlockAchievement('pet_cat',g);
       break;
     case 'bear':     blinkBear(); break;
     case 'drawStar': drawStarOnGlass(); break;
@@ -5448,7 +5660,7 @@ function startBench(){
   const g=gameGet(); let sec=g.stats.benchSeconds||0;
   benchTimer=setInterval(()=>{
     const s=gameGet(); sec=(s.stats.benchSeconds||0)+1; s.stats.benchSeconds=sec; gameSet(s);
-    if(sec>=60){ clearBenchTimer(); unlockAchievement('wind1min'); }
+    if(sec>=60){ clearBenchTimer(); unlockAchievement('sit_bench'); }
   },1000);
 }
 function stopBench(){ clearBenchTimer(); standUp(); }
@@ -5524,12 +5736,12 @@ function closeEvent(){
   const a=$('#gsArt'); if(a) a.classList.remove('bottle-drag');
 }
 
-/* ---------------------------------------------------------- 衣橱 / 旅行报告 ---------------------------------------------------------- */
+/* ---------------------------------------------------------- 衣橱 / 旅行报告 / 星蕾图鉴 ---------------------------------------------------------- */
 function openWardrobe(){
   if(!S.inRoom){ topToast('要回小屋才能换衣服哦 ✦','lock'); return; }
   clearRugRest(); if(sitting) standUp();            /* 从地毯放空里站起来再换衣服 */
-  const g=gameGet(), p=$('#wardrobePanel'), r=$('#reportPanel'), e=$('#eventPanel');
-  if(r) r.classList.add('hidden'); if(e) e.classList.add('hidden');
+  const g=gameGet(), p=$('#wardrobePanel');
+  closeSidePanels('wardrobe');
   p.classList.remove('hidden');
   const veil=$('#wardrobeVeil'); if(veil) veil.classList.remove('hidden');
   const shell=$('#screen-game .gm-shell'); if(shell) shell.classList.add('wardrobe-open');
@@ -5538,7 +5750,6 @@ function openWardrobe(){
     ${OUTFITS.map(o=>`<div class="gm-outfit ${g.outfit===o.id?'on':''}" data-outfit="${o.id}">
       <div class="wi-preview">${avatarHTML(o.id)}</div>
       <div class="wi-txt"><b>${esc(o.name)}</b><small>${esc(o.desc)}</small></div></div>`).join('')}
-    <div class="tiny" style="margin-top:12px">当前成就 ${g.achievements.length} / ${ACHIEVEMENTS.length}</div>
     <button class="gm-btn" id="wdClose" style="margin-top:12px">收起衣橱</button>`;
   $$('#wardrobeBody [data-outfit]').forEach(el=>el.onclick=()=>setOutfit(el.dataset.outfit));
   $('#wdClose').onclick=closeWardrobe;
@@ -5552,7 +5763,7 @@ function setOutfit(id){
   glintAvatar();                                     /* 换装高光扫过立绘 */
   S.pendingProfileGlow = true;                          /* 回到博客时补一段淡入柔光 */
   if(charEl()){ pulsePose('spin',900); fxStarBurst(); }  /* 原地转圈 + 碎星掉落 */
-  if(id==='moon') unlockAchievement('dressed',g);
+  if(id==='moon') unlockAchievement('wear_yuebai',g);
   bump('outfit',1,g); gameSet(g);
   toast(`换上了「${OUTFITS.find(o=>o.id===id).name}」✦`);
   openWardrobe();
@@ -5565,12 +5776,12 @@ function exploreScore(g){
   return Math.max(0, Math.min(100, Math.round(visited*6 + disc*8 + jr*4)));
 }
 function openReport(){
-  const p=$('#reportPanel'), w=$('#wardrobePanel'), e=$('#eventPanel');
-  closeWardrobe(); if(e) e.classList.add('hidden');
+  const p=$('#reportPanel');
+  closeSidePanels('report');
   p.classList.remove('hidden');
   const g=gameGet();
   g.stats.reportViews=(g.stats.reportViews||0)+1; gameSet(g);
-  if(g.stats.reportViews>=10) unlockAchievement('report10',g);
+  if(g.stats.reportViews>=10) unlockAchievement('read_report',g);
   bump('report',1,g); gameSet(g); updateHUD();
   const g2=gameGet();
   const mats=Object.entries(g2.materials).filter(([,v])=>v>0);
@@ -5589,10 +5800,15 @@ function openReport(){
       <div class="jr-quest">✦ 星蕾星图 ${Math.min(30,q.shards||0)} / 30 ${q.done?'· 已点亮':'· 还差 '+Math.max(0,30-(q.shards||0))+' 颗'}</div>
     </div>
     <div class="mat-grid">${mats.length?mats.map(([k,v])=>`<div class="mat-cell"><b>${v}</b><span>${MAT_LABELS[k]||k}</span></div>`).join(''):'<div class="tiny">口袋还空空的，慢慢捡就好。</div>'}</div>
-    <div class="ach-list">${ACHIEVEMENTS.map(a=>`<span class="ach-chip ${g2.achievements.includes(a.id)?'':'locked'}" title="${esc(a.text)}">${g2.achievements.includes(a.id)?'✦':'✧'} ${esc(a.title)}</span>`).join('')}</div>
-    <div class="tiny" style="margin-top:12px">去过的风景：${g2.visited.map(id=>(id==='room'?ROOM:SCENES.find(s=>s.id===id))?.name).filter(Boolean).join(' · ')||'还没出门'}</div>
+    <button class="ach-jump" id="rpAch">
+      <span>✦ 星蕾图鉴</span>
+      <b>${achList(g2).filter(id=>ACH_BY_ID[id]).length} / ${ACHIEVEMENTS.length}</b>
+      <em>去翻一翻 ›</em>
+    </button>
+    <div class="tiny" style="margin-top:10px">去过的风景：${g2.visited.map(id=>(id==='room'?ROOM:SCENES.find(s=>s.id===id))?.name).filter(Boolean).join(' · ')||'还没出门'}</div>
     <button class="gm-btn" id="rpClose" style="margin-top:14px">合上报告</button>`;
   $('#rpClose').onclick=()=>p.classList.add('hidden');
+  $('#rpAch').onclick=openAch;
 }
 
 /* ---------------------------------------------------------- 初始化 ---------------------------------------------------------- */
@@ -5606,6 +5822,7 @@ function onEnterGame(){
   withGame(sv=>{ sv.inRoom=true; sv.charX=46; });
   $('#gameBack').textContent = S.gameFrom==='blog' ? '← 返回博客' : '← 返回书桌';
   renderScene();
+  updateAchButton();
   say('小喵','先换好衣服，再推开门出发吧 ✦');
 }
 function initGame(){
@@ -5613,6 +5830,7 @@ function initGame(){
   renderSceneTabs();
   $('#btnExplore').onclick=explore;
   $('#btnWardrobe').onclick=openWardrobe;
+  $('#btnAch').onclick=openAch;
   $('#btnReport').onclick=openReport;
   $('#btnSound').onclick=()=>{ withGame(g=>{ g.sound=!g.sound; }); updateHUD(); };
   $('#hudQuest').onclick=openStarChart;
