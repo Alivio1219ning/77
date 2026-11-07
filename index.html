@@ -709,7 +709,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs--path{background:linear-gradient(180deg,#F8E4EA,#FDF1EA 62%,#E9E4D6)}
 .gs--sea{background:linear-gradient(180deg,#D3E1E8,#EEF1EA 44%,#A9C4CF)}
 .gs--library{background:linear-gradient(180deg,#2B3557,#44507A 58%,#6B5B60)}
-.gs--train{background:linear-gradient(180deg,#E4D8E9,#F2E9F1 46%,#D8C7B7)}
+.gs--station{background:linear-gradient(180deg,#C6A2E4,#E2C1EB 44%,#F8E4EF)}
 .gs--cafe{background:linear-gradient(180deg,#3A2E2C,#6B4E40 58%,#8C6A50)}
 .gs-art{position:absolute;inset:0;z-index:1;animation:gsSceneIn .85s ease}
 .gs-art>svg{display:block;width:100%;height:100%}
@@ -937,6 +937,9 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   background:rgba(253,251,247,.74);backdrop-filter:blur(5px);white-space:nowrap;opacity:0;transition:.4s}
 .gs-spot:hover .sp-name,.gs-spot.show .sp-name{opacity:1}
 .gs-spot.hidden-spot .sp-dot{width:5px;height:5px;opacity:.6}
+/* 隐藏互动：不主动报名字，靠近 / 悬停才悄悄显出来 */
+.gs-spot.hidden-spot .sp-name{opacity:0;transform:translateY(2px)}
+.gs-spot.hidden-spot:hover .sp-name,.gs-spot.hidden-spot.near .sp-name{opacity:1;transform:none}
 .gs-spot.done{opacity:.34;filter:grayscale(.6)}
 .gs--library .sp-name,.gs--cafe .sp-name{color:#F6EEE1;background:rgba(48,44,58,.58);border-color:rgba(255,240,210,.4)}
 .gs--library .gs-char-hint,.gs--cafe .gs-char-hint{color:#EFE6D8}
@@ -1293,7 +1296,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
    二、六大场景的「活物」反馈（全部挂在单场景 SVG 内部，切场景随 DOM 一起销毁）
    ========================================================================================== */
 /* 1 晴天花庭：秋千摆动带动小人 */
-#gsSwing{transform-box:view-box;transform-origin:23.9% 45.2%}
+#gsSwing{transform-box:fill-box;transform-origin:50% 2%}
 .gs-art.swinging #gsSwing{animation:gsSwingRock 1.5s ease-in-out infinite alternate}
 @keyframes gsSwingRock{from{transform:rotate(-15deg)}to{transform:rotate(15deg)}}
 /* 2 樱花小径：小猫伸懒腰 / 绵羊果冻弹动 */
@@ -1320,13 +1323,10 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 @keyframes gsBookFloat{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-10px) rotate(2deg)}}
 #gsMagicText{opacity:0;transition:opacity .45s}
 #gsMagicText.on{opacity:1}
-/* 5 云端列车：小熊点头 / 窗帘微风吹动 */
-#gsBear{transform-box:view-box;transform-origin:83% 40%}
+/* 5 云端车站 / 列车车厢：行李架小熊点头（origin 对准它在画面里的位置） */
+#gsBear{transform-box:view-box;transform-origin:64.3% 19%}
 #gsBear.nod{animation:gsBearNod .55s ease}
-@keyframes gsBearNod{0%{transform:scaleY(1)}45%{transform:scaleY(.88) translateY(7px)}100%{transform:scaleY(1)}}
-#gsCurtainL{transform-box:view-box;transform-origin:25% 12%;animation:gsCurtain 4.2s ease-in-out infinite alternate}
-#gsCurtainR{transform-box:view-box;transform-origin:77% 12%;animation:gsCurtain 4.2s ease-in-out -2.1s infinite alternate reverse}
-@keyframes gsCurtain{from{transform:skewX(-2deg) translateX(0)}to{transform:skewX(3.2deg) translateX(5px)}}
+@keyframes gsBearNod{0%{transform:scaleY(1)}45%{transform:scaleY(.9) translateY(5px)}100%{transform:scaleY(1)}}
 /* 6 午夜咖啡馆：橘猫肚皮呼吸 */
 #gsCatBelly{transform-box:view-box;transform-origin:23.8% 66%;animation:gsBelly 2.6s ease-in-out infinite alternate}
 @keyframes gsBelly{from{transform:scaleY(1)}to{transform:scaleY(1.16)}}
@@ -2141,6 +2141,249 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   text-shadow:0 1px 3px rgba(40,26,18,.6);font-size:9px;letter-spacing:.08em}
 .gs--cafe .gs-collect .cc-bar{background:rgba(255,240,208,.18);border-color:rgba(255,236,200,.32)}
 .gs--cafe .sp-name{background:rgba(58,38,26,.32);border-color:rgba(255,232,190,.26)}
+
+/* ==========================================================================
+   3.9 云端车站 / 列车车厢（双层场景 · 路人 · 购票 · 窗外天气）
+   ========================================================================== */
+.gs--station{background:linear-gradient(180deg,#C6A2E4,#E2C1EB 44%,#F8E4EF)}
+.gs--carriage{background:linear-gradient(180deg,#2A1A12,#3A2517 62%,#241610)}
+
+/* ---------- 车站：天空星光 ---------- */
+.st-sky{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.st-star{position:absolute;width:2px;height:2px;border-radius:50%;background:#FFFDF4;
+  box-shadow:0 0 5px rgba(255,247,222,.95),0 0 11px rgba(255,228,246,.7);
+  animation:stTwinkle 3.4s ease-in-out infinite}
+.st-star.big{width:3px;height:3px;box-shadow:0 0 7px rgba(255,248,228,1),0 0 16px rgba(255,224,246,.8)}
+.st-star.big::before,.st-star.big::after{content:"";position:absolute;left:50%;top:50%;
+  background:linear-gradient(90deg,rgba(255,250,232,0),rgba(255,250,232,.85),rgba(255,250,232,0))}
+.st-star.big::before{width:13px;height:1px;margin:-.5px 0 0 -6.5px}
+.st-star.big::after{width:1px;height:13px;margin:-6.5px 0 0 -.5px;
+  background:linear-gradient(180deg,rgba(255,250,232,0),rgba(255,250,232,.85),rgba(255,250,232,0))}
+@keyframes stTwinkle{0%,100%{opacity:.22;transform:scale(.65)}50%{opacity:1;transform:scale(1.2)}}
+
+/* ---------- 车站：飘浮云带 ---------- */
+.st-mist{position:absolute;left:-40%;width:180%;height:26%;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse at 28% 62%,rgba(255,255,255,.92),rgba(255,255,255,0) 62%),
+             radial-gradient(ellipse at 58% 44%,rgba(255,240,252,.78),rgba(255,240,252,0) 60%),
+             radial-gradient(ellipse at 86% 70%,rgba(255,255,255,.7),rgba(255,255,255,0) 58%);
+  filter:blur(15px);opacity:.5;animation:stMist 76s linear infinite}
+.st-mist.b{top:6%;animation-duration:108s;animation-direction:reverse;opacity:.38}
+.st-mist.c{bottom:0;height:34%;animation-duration:94s;opacity:.55}
+@keyframes stMist{from{transform:translateX(0)}to{transform:translateX(24%)}}
+
+/* ---------- 车站：车门内透出的暖光 ---------- */
+.st-doorlight{position:absolute;z-index:3;pointer-events:none;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 56%,rgba(255,240,200,.9),rgba(255,224,168,.30) 44%,rgba(255,224,168,0) 72%);
+  filter:blur(4px);animation:stDoorBreath 4.6s ease-in-out infinite alternate}
+@keyframes stDoorBreath{from{opacity:.5}to{opacity:.95}}
+
+/* ---------- 车站：随机路人 / 小动物 ---------- */
+.st-walkers{position:absolute;inset:0;z-index:26;pointer-events:none;overflow:hidden}
+.st-walker{position:absolute;bottom:11%;width:max-content;opacity:0;
+  transition-property:left,opacity;transition-duration:6s,.8s;
+  transition-timing-function:linear,ease;will-change:left,opacity}
+.st-walker.show{opacity:1}
+.st-walker.gone{opacity:0}
+.st-walker .wk-bob{display:block;height:100%;animation:stStep .54s steps(2,end) infinite}
+.st-walker.rest .wk-bob{animation:none}
+.st-walker .wk-flip{display:block;height:100%}
+.st-walker.face-left .wk-flip{transform:scaleX(-1)}
+.st-walker .wk-flip>svg{display:block;height:100%;width:auto;shape-rendering:crispEdges;
+  filter:drop-shadow(0 5px 6px rgba(122,92,150,.16))}
+@keyframes stStep{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+
+/* ---------- 车厢：窗外（窗洞在 1200×500 里是 316,138 → 804,294） ---------- */
+.car-view{position:absolute;left:26.33%;top:27.6%;width:40.67%;height:31.2%;z-index:3;
+  overflow:hidden;border-radius:3px;pointer-events:none;
+  --cl:#FFFFFF; --cl2:#E8F1FA; --sea:#FFFFFF;
+  box-shadow:inset 0 0 9px rgba(30,16,10,.34)}
+.car-sky{position:absolute;inset:0;transition:background 1.6s ease}
+.car-view.wx-sunny{--cl:#FFFFFF;--cl2:#F0E8FA;--sea:#FFFFFF;
+  background:none}
+.car-view.wx-cloudy{--cl:#E2E8F0;--cl2:#C6CEDC;--sea:#D2D9E4}
+.car-view.wx-rainy{--cl:#9AA6B6;--cl2:#7C889B;--sea:#8B97A9}
+.car-view.wx-hail{--cl:#8E99AC;--cl2:#727E92;--sea:#7E8A9E}
+.car-view.wx-sunny .car-sky{background:linear-gradient(180deg,#7FB9E8,#A8D2F0 44%,#DCEBF8 76%,#FBE4F0)}
+.car-view.wx-cloudy .car-sky{background:linear-gradient(180deg,#7F8CA4,#A8B3C5 46%,#CAD1DC 80%,#DEE2E9)}
+.car-view.wx-rainy .car-sky{background:linear-gradient(180deg,#4B5971,#6C7A91 46%,#8A96A9 80%,#9AA4B4)}
+.car-view.wx-hail .car-sky{background:linear-gradient(180deg,#3D4A63,#5F6D85 46%,#7A869A 80%,#8C97A9)}
+
+/* 晴天的太阳光晕 / 高空薄云 */
+.car-sun{position:absolute;left:72%;top:2%;width:44%;height:78%;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,rgba(255,250,226,.95),rgba(255,243,208,.5) 24%,
+    rgba(255,238,214,0) 60%);opacity:0;transition:opacity 1.6s ease}
+.car-view.wx-sunny .car-sun{opacity:.72}
+.car-veil{position:absolute;inset:0;pointer-events:none;transition:background 1.6s ease}
+.car-view.wx-cloudy .car-veil{background:linear-gradient(180deg,rgba(160,172,192,.46),rgba(190,198,212,.30))}
+.car-view.wx-rainy .car-veil{background:linear-gradient(180deg,rgba(52,64,84,.52),rgba(78,92,112,.34))}
+.car-view.wx-hail .car-veil{background:linear-gradient(180deg,rgba(44,56,76,.56),rgba(70,84,104,.38))}
+
+/* 双层流云：每组 4 个椭圆叠成一朵积云 */
+.car-clouds{position:absolute;top:0;left:0;width:200%;height:100%;animation:carDrift 26s linear infinite}
+.car-clouds.far{animation-duration:48s;opacity:.62;filter:blur(.6px)}
+.car-clouds i{position:absolute;display:block;border-radius:50%;background:var(--cl);filter:blur(.7px)}
+.car-clouds i.base{background:var(--cl2);filter:blur(2px)}
+@keyframes carDrift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* 窗外最下沿的云海：慢慢滚动，像列车贴着云顶飞 */
+.car-sea{position:absolute;left:0;bottom:0;width:200%;height:38%;animation:carDrift 62s linear infinite}
+.car-sea i{position:absolute;display:block;border-radius:50%;background:var(--sea);filter:blur(2px);
+  transition:background 1.6s ease}
+.car-shower{position:absolute;inset:0}
+.car-shower i{position:absolute;display:block}
+.car-view.wx-rainy .car-shower i.rain{top:-14%;width:1.3px;height:13px;border-radius:1px;
+  background:linear-gradient(180deg,rgba(228,240,255,0),rgba(230,242,255,.92));
+  animation:carRainFall linear infinite}
+@keyframes carRainFall{from{transform:translateY(0)}to{transform:translateY(330px)}}
+.car-view .car-shower i.bead{width:4px;height:5px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.95),rgba(200,224,248,.45));
+  box-shadow:0 5px 7px -4px rgba(170,200,232,.7);animation:carBead linear infinite}
+@keyframes carBead{0%{transform:translateY(0);opacity:0}10%{opacity:.85}
+  70%{opacity:.75}100%{transform:translateY(120px);opacity:0}}
+.car-view.wx-hail .car-shower i.hail{top:-8%;width:4px;height:4px;border-radius:1px;
+  background:#F4FAFF;box-shadow:0 0 5px rgba(255,255,255,.85);
+  animation:carHailFall linear infinite}
+@keyframes carHailFall{from{transform:translateY(0) rotate(0)}to{transform:translateY(320px) rotate(140deg)}}
+.car-glass{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(116deg,rgba(255,255,255,.30) 0 16%,rgba(255,255,255,0) 32% 60%,
+    rgba(255,255,255,.15) 72% 80%,rgba(255,255,255,0) 88%)}
+/* 窗中横木 + 黄铜搭扣：把整块玻璃分成上下两扇 */
+.car-muntin{position:absolute;left:-2px;right:-2px;top:52%;height:7px;margin-top:-3.5px;
+  background:linear-gradient(180deg,#9A7148,#6B4526 46%,#3A2418);
+  box-shadow:0 3px 6px rgba(18,10,4,.42),inset 0 1px 0 rgba(214,176,128,.55)}
+.car-muntin::after{content:"";position:absolute;left:50%;top:50%;width:15px;height:6px;
+  margin:-3px 0 0 -7.5px;border-radius:2px;
+  background:linear-gradient(180deg,#F0D394,#B48E4A);box-shadow:0 1px 2px rgba(20,12,4,.4)}
+
+/* ---------- 车厢：桌上咖啡热气 ---------- */
+.car-steam{position:absolute;z-index:27;pointer-events:none;width:30px;height:44px;margin-left:-15px}
+.car-steam i{position:absolute;bottom:0;left:50%;width:7px;height:7px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.92),rgba(255,255,255,0) 70%);
+  animation:steamRise 3.2s ease-in infinite}
+.car-steam.burst i{animation-duration:1.6s}
+@keyframes steamRise{0%{transform:translate(-50%,0) scale(.45);opacity:0}
+  18%{opacity:.8}100%{transform:translate(-50%,-48px) scale(1.9);opacity:0}}
+
+/* ---------- 车厢：座椅前沿（物理遮挡坐下的角色） ---------- */
+.gs-fg{position:absolute;inset:0;z-index:32;pointer-events:none;opacity:0;transition:opacity .24s ease}
+.gs--carriage.seated .gs-fg{opacity:1}
+.gs-fg>svg{display:block;width:100%;height:100%}
+
+/* ==========================================================================
+   3.10 晴天花庭：满屏花海 · 持续落花 · 草地光斑
+   ========================================================================== */
+.gs--garden{background:linear-gradient(180deg,#A2D5F2,#CFE9F8 44%,#EAF7F2 72%,#FDF4E2)}
+
+/* 右上角阳光：一整团金色光晕，缓慢呼吸 */
+.gd-sun{position:absolute;right:-8%;top:-18%;width:58%;height:78%;z-index:3;pointer-events:none;
+  background:radial-gradient(circle at 62% 38%,rgba(255,249,214,.95),rgba(255,232,164,.42) 30%,
+    rgba(255,226,150,0) 66%);
+  animation:gdSunBreath 9s ease-in-out infinite alternate}
+@keyframes gdSunBreath{from{opacity:.7;transform:scale(.97) translateY(0)}
+  to{opacity:1;transform:scale(1.04) translateY(-1%)}}
+/* 整屏的一层暖光，让颜色都亮起来 */
+.gd-bask{position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:linear-gradient(212deg,rgba(255,238,182,.26),rgba(255,246,214,.08) 34%,rgba(255,255,255,0) 60%)}
+
+/* 草地上缓缓移动的阳光光斑 */
+.gd-spots{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.gd-spots i{position:absolute;border-radius:50%;filter:blur(8px);
+  background:radial-gradient(ellipse at 50% 48%,rgba(255,248,202,.9),rgba(255,242,178,.26) 54%,
+    rgba(255,238,168,0) 78%);
+  animation:gdDrift 16s ease-in-out infinite alternate}
+@keyframes gdDrift{from{transform:translate(-16px,3px) scale(.92);opacity:.42}
+  to{transform:translate(18px,-7px) scale(1.1);opacity:.9}}
+
+/* 持续落花：外层管下落，内层管左右摇摆 */
+.gd-petas{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden}
+.gd-petas .gp{position:absolute;top:-8%;animation:gpFall linear infinite}
+.gd-petas .gp b{display:block;width:100%;height:100%;
+  background:linear-gradient(148deg,#FFFFFF,#FFEAF2 44%,#F9C6D9);
+  border-radius:64% 8% 60% 10%;box-shadow:0 1px 2px rgba(206,146,172,.26);
+  animation:gpSway ease-in-out infinite alternate}
+.gd-petas .gp.deep b{background:linear-gradient(148deg,#FFE4EF,#F7B9D0);opacity:.9}
+@keyframes gpFall{from{top:-8%}to{top:104%}}
+@keyframes gpSway{from{transform:translateX(-10px) rotate(-26deg)}
+  to{transform:translateX(12px) rotate(30deg)}}
+
+/* 中景花海：极缓的呼吸，像风从花上吹过 */
+.gs-art .gs-wave{transform-box:fill-box;transform-origin:50% 100%;
+  animation:gsWave 11s ease-in-out infinite}
+@keyframes gsWave{0%,100%{transform:scaleY(1) skewX(0)}50%{transform:scaleY(1.035) skewX(-1deg)}}
+/* 顶部花瀑：轻轻晃 */
+.gs-art .gd-canopy{transform-box:fill-box;transform-origin:50% 0;
+  animation:gdCanopy 13s ease-in-out infinite}
+@keyframes gdCanopy{0%,100%{transform:rotate(0) scaleY(1)}50%{transform:rotate(.5deg) scaleY(1.02)}}
+
+/* 花庭里的操作提示：去掉白框，只留一行极淡的耳语 */
+.gs--garden .gs-collect .cc-text{padding:0;border:0;background:none;box-shadow:none;
+  color:#7C6551;font-size:9px;letter-spacing:.16em;
+  text-shadow:0 1px 4px rgba(255,255,255,.95),0 0 9px rgba(255,248,230,.9)}
+.gs--garden .gs-collect .cc-bar{width:46px;height:2px;border:0;background:rgba(255,255,255,.55);
+  box-shadow:0 1px 2px rgba(150,170,120,.28)}
+.gs--garden .gs-collect .cc-bar i{background:#F0C878}
+.gs--garden .gs-near-hint{background:none;border:0;box-shadow:none;color:#7E6650;font-size:9px;
+  letter-spacing:.16em;text-shadow:0 1px 4px rgba(255,255,255,.95);bottom:6.5%}
+
+/* 主线卡：极淡磨砂，退进背景里 */
+.quest-card{width:206px;padding:7px 10px 8px;
+  background:linear-gradient(158deg,rgba(255,255,255,.46),rgba(255,251,244,.20));
+  border-color:rgba(255,255,255,.58);
+  box-shadow:0 3px 14px rgba(108,98,84,.05),inset 0 0 0 1px rgba(255,255,255,.4);
+  backdrop-filter:blur(8px) saturate(1.05);-webkit-backdrop-filter:blur(8px) saturate(1.05)}
+.quest-card .qc-tag{opacity:.5}
+.quest-card .qc-text{color:#8B8172;font-size:11px;opacity:.92}
+.quest-card .qc-num,.quest-card .qc-meta{opacity:.55}
+.quest-card:hover{opacity:1;background:linear-gradient(158deg,rgba(255,255,255,.72),rgba(255,251,244,.44))}
+.quest-card .qc-bar{opacity:.6}
+
+/* 家门口：花庭里是藤蔓花拱门，其它场景是嵌墙木门 */
+.gs-home{left:1.4%;bottom:8.6%;width:9.4%;height:38%}
+.gs-home .hg-vine,.gs-home .hg-wood{display:none;width:100%;height:86%;overflow:visible}
+.gs-home.vine .hg-vine{display:block}
+.gs-home:not(.vine) .hg-wood{display:block}
+.gs-home .hg-vine>svg,.gs-home .hg-wood>svg{display:block;width:100%;height:100%}
+.gs-home .vine-leaf{transform-box:fill-box;transform-origin:50% 50%;
+  animation:vineSway 6.5s ease-in-out infinite alternate}
+@keyframes vineSway{from{transform:rotate(-2.6deg)}to{transform:rotate(2.4deg)}}
+.gs-home .door-glow{opacity:0;transition:opacity .65s ease}
+.gs-home .door-lamp{opacity:.55;transition:opacity .6s ease}
+.gs-home.near .door-lamp,.gs-home:hover .door-lamp{opacity:1;animation:knobGlow 2.4s ease-in-out infinite}
+
+/* ---------- 上车 / 下车：白云过场 ---------- */
+.gs-board-fx{position:fixed;inset:0;z-index:120;pointer-events:none;opacity:0}
+.gs-board-fx.on{opacity:1}
+.gs-board-fx i{position:absolute;left:50%;top:50%;width:62vmax;height:62vmax;margin:-31vmax;
+  border-radius:50%;transform:scale(.16);opacity:0;
+  background:radial-gradient(circle,rgba(255,255,255,.98) 0%,rgba(255,247,236,.94) 34%,
+    rgba(248,230,246,.62) 62%,rgba(248,230,246,0) 82%)}
+.gs-board-fx.on i{animation:boardCloud 1.2s cubic-bezier(.42,0,.28,1) forwards}
+@keyframes boardCloud{0%{transform:scale(.16);opacity:0}26%{opacity:1}
+  100%{transform:scale(1.55);opacity:0}}
+
+/* ---------- 列车员对话框 ---------- */
+.gs-ticket{left:50%;top:50%;transform:translate(-50%,-50%);width:min(392px,88vw);
+  text-align:center;animation:gsPanelIn .4s ease}
+.gs-ticket .tk-avatar{width:64px;height:88px;margin:0 auto 10px;
+  filter:drop-shadow(0 6px 9px rgba(110,88,70,.24))}
+.gs-ticket .tk-avatar svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
+.gs-ticket h3{font-family:var(--hand);font-weight:400;font-size:23px;margin:0 0 6px;color:#7C6A55;
+  letter-spacing:.04em}
+.gs-ticket .tk-say{font-size:12.5px;line-height:2;color:#6E655C;margin:0 0 6px}
+.gs-ticket .tk-price{display:inline-flex;align-items:center;gap:6px;margin:8px 0 14px;
+  font-family:var(--serif);font-size:13px;color:#9A7A46;letter-spacing:.06em}
+.gs-ticket .tk-price b{font-size:19px;font-weight:400;color:#C39237}
+.gs-ticket .tk-wallet{font-size:11px;color:#8D8175;letter-spacing:.08em;margin:0 0 14px}
+.gs-ticket .tk-btns{display:flex;gap:10px;justify-content:center}
+.gs-ticket .tk-btn{flex:1;padding:10px 6px;border:1px solid rgba(196,170,132,.9);border-radius:3px;
+  background:rgba(255,255,255,.46);font-family:var(--serif);font-size:12.5px;letter-spacing:.14em;
+  color:#7A6752;cursor:pointer;transition:.28s}
+.gs-ticket .tk-btn:hover{background:rgba(255,246,226,.95);border-color:#C39237;color:#A87A2E}
+.gs-ticket .tk-btn.ghost{color:#998D80;border-color:rgba(196,170,132,.55);background:transparent}
+.gs-ticket .tk-btn:disabled{opacity:.42;cursor:not-allowed;background:rgba(240,234,224,.5)}
+.gs-ticket .tk-btn.main{border-color:#C9A25C;background:linear-gradient(180deg,rgba(255,246,224,.95),rgba(248,232,198,.9));
+  color:#8A6428;box-shadow:0 4px 12px rgba(190,150,90,.18)}
+.gs-ticket .tk-tip{margin-top:11px;font-size:10.5px;color:#A2968A;letter-spacing:.08em;line-height:1.8}
 </style>
 </head>
 <body>
@@ -3183,7 +3426,7 @@ function renderUpdates(g){
 /* 标签云：这一页的常用词，纯装饰，鼠标移上去会暖一点 */
 const BLOG_TAGS = [
   {t:'手帐',c:'b'},{t:'树洞',c:'b'},{t:'星碎',c:''},{t:'小喵',c:''},
-  {t:'晴天花庭',c:''},{t:'樱花小径',c:''},{t:'海边灯塔',c:'s'},{t:'云端列车',c:'s'},
+  {t:'晴天花庭',c:''},{t:'樱花小径',c:''},{t:'海边灯塔',c:'s'},{t:'云端车站',c:'s'},
   {t:'旧书页',c:'s'},{t:'生日',c:'b'},{t:'慢下来',c:''},{t:'像素小屋',c:'s'}
 ];
 function renderTags(){
@@ -3483,7 +3726,7 @@ function initBlog(){
    ============================================================================================================================== */
 const MAT_LABELS = {
   flowerBud:'花苞', dew:'晨露', sakura:'樱花瓣', seaGlass:'海玻璃', page:'旧书页',
-  ticket:'旧车票', bean:'咖啡豆', star:'星碎', ribbon:'丝带', lace:'蕾丝',
+  ticket:'云端车票', bean:'咖啡豆', star:'星碎', ribbon:'丝带', lace:'蕾丝',
   feather:'发光羽毛', postcard:'旧明信片', note:'便签', shell:'贝壳',
   bookmark:'书签', fruit:'风铃果实',
   /* 六大系统新增材料 */
@@ -3576,52 +3819,216 @@ function artWrap(defs, body){
   ${defs}</defs>${body}</svg>`;
 }
 
-/* ---------------------------------------------------------- 场景 1：晴天花庭（生机、明快） ---------------------------------------------------------- */
+/* ---------------------------------------------------------- 场景 1：晴天花庭（阳光 · 花海 · 落花） ---------------------------------------------------------- */
 function artGarden(){
   const R=prand(1701);
+  /* 一簇樱花：五瓣小白圆 + 花心，seed 固定保证每次渲染一模一样 */
+  const cluster=(cx,cy,r,seed,op)=>{
+    const r2=prand(seed||((cx*13+cy*7)|0)||1); let s='';
+    const n=5+((r2()*3)|0);
+    for(let i=0;i<n;i++){
+      const a=(i/n)*Math.PI*2+r2()*.62, d=r*.44;
+      s+=`<circle cx="${(cx+Math.cos(a)*d).toFixed(1)}" cy="${(cy+Math.sin(a)*d*.8).toFixed(1)}"
+        r="${(r*(.44+r2()*.24)).toFixed(1)}" fill="${['#FFFFFF','#FFEAF2','#FBD3E2','#F8C2D6'][(r2()*4)|0]}"/>`;
+    }
+    s+=`<circle cx="${cx}" cy="${cy}" r="${(r*.3).toFixed(1)}" fill="#FFFFFF" opacity=".85"/>`;
+    return `<g opacity="${op||1}">${s}<circle cx="${cx}" cy="${cy}" r="${(r*.16).toFixed(1)}"
+      fill="#F5D6A4" opacity=".8"/></g>`;
+  };
+  /* 一丛花：几簇樱花堆在一起，边上带两片叶子 */
+  const bush=(cx,cy,r,seed,op)=>{
+    const r2=prand(seed||1); let s='';
+    s+=`<path d="M${cx-r} ${cy+r*.5} q${r*.5} ${-r*1.5} ${r*1.9} ${-r*.5} q${r*1.2} ${-r*.5} ${r*1.1} ${r*.6}
+      q${r*.2} ${r*.7} ${-r*2.2} ${r*.5} Z" fill="${r2()<.5?'#8CBE72':'#9ECB80'}" opacity=".55"/>`;
+    for(let i=0;i<4;i++) s+=cluster(cx+(r2()-.5)*r*1.7, cy+(r2()-.5)*r*.9, r*(.55+r2()*.5), (seed+i*17)|0, op||1);
+    return s;
+  };
+
+  /* ---------- 天空与光 ---------- */
   let clouds='';
-  for(let i=0;i<7;i++) clouds+=`<ellipse cx="${(70+R()*1080)|0}" cy="${(26+R()*150)|0}" rx="${(90+R()*150)|0}" ry="${(18+R()*26)|0}" fill="#FFFFFF" opacity="${(.20+R()*.24).toFixed(2)}" filter="url(#gs-soft)"/>`;
-  let sunspots='';
-  for(let i=0;i<10;i++) sunspots+=`<ellipse cx="${(40+R()*1120)|0}" cy="${(392+R()*84)|0}" rx="${(24+R()*42)|0}" ry="${(6+R()*9)|0}" fill="#FFF2C2" opacity="${(.22+R()*.24).toFixed(2)}" filter="url(#gs-soft)"/>`;
-  let petals='';
-  for(let i=0;i<76;i++){
-    const c=R()<.45?'#F7E1E1':(R()<.66?'#FFFFFF':'#F1C6D0'), s=3+((R()*4)|0);
-    petals+=px(28+R()*320,272+R()*96,s,s,c,`opacity="${(.5+R()*.5).toFixed(2)}"`);
+  for(let i=0;i<8;i++) clouds+=`<ellipse cx="${(40+R()*1100)|0}" cy="${(16+R()*126)|0}"
+    rx="${(80+R()*150)|0}" ry="${(14+R()*22)|0}" fill="#FFFFFF"
+    opacity="${(.34+R()*.30).toFixed(2)}" filter="url(#gs-soft)"/>`;
+  /* 从太阳斜射下来的几道光 */
+  let shafts='';
+  [[0,.10,300],[1,.16,420],[2,.09,180]].forEach(([i,o,w],k)=>{
+    shafts+=`<path d="M${1010+k*10} 40 L${1010-w} 470 L${1010-w*1.9} 470 L${1010-30} 40 Z"
+      fill="url(#g1ray)" opacity="${o.toFixed(2)}"/>`;
+  });
+
+  /* ---------- 中景花海 ---------- */
+  const mounds=`<path d="M0 356 q70 -32 146 -10 q66 -38 152 -8 q62 -28 146 -4 q74 -32 158 -6
+      q66 -26 146 -2 q74 -28 156 -4 q70 -22 146 0 q66 -14 150 6 L1200 500 L0 500 Z" fill="#CFEDB2"/>
+    <path d="M0 378 q84 -24 172 -4 q74 -28 160 -2 q84 -24 172 0 q78 -22 168 2 q84 -20 174 4
+      q72 -14 158 12 L1200 500 L0 500 Z" fill="#BCE196"/>`;
+  let bloom='';
+  for(let i=0;i<26;i++){
+    const x=6+R()*1188, y=316+R()*54;
+    bloom+=bush(x,y,10+R()*12,(i*41+7)|0,.82+R()*.18);
   }
+  /* 高一点的碎花枝，打破地平线 */
+  let sprigs='';
+  for(let i=0;i<16;i++){
+    const x=10+R()*1180, base=340+R()*30, h=26+R()*40;
+    sprigs+=`<path d="M${x} ${base} q${(R()-.5)*10} ${-h*.6} ${(R()-.5)*16} ${-h}"
+      stroke="#7CB35E" stroke-width="2" fill="none" opacity=".8"/>`
+      +cluster(x+(R()-.5)*14, base-h, 6+R()*5, (i*29+3)|0,.9);
+  }
+
+  /* ---------- 草地 ---------- */
+  const grass=`<path d="${jagged(0,372,1200,500,12,6,31)}" fill="url(#g1grass)"/>
+    <path d="${jagged(0,404,1200,500,9,5,37)}" fill="url(#g1grass2)" opacity=".92"/>`;
+  let stripes='';
+  for(let i=0;i<5;i++) stripes+=`<path d="M${-40+i*260} 500 L${90+i*260} 380" stroke="#FFFFFF"
+    stroke-width="26" opacity=".07"/>`;
   let tufts='';
-  for(let i=0;i<46;i++){ const x=(R()*1190)|0, y=(390+R()*96)|0;
-    tufts+=px(x,y,2,5,'#B9CEAE','opacity=".55"')+px(x+3,y-2,2,4,'#CFDCBF','opacity=".5"'); }
-  let flowers='';
-  for(let i=0;i<34;i++) flowers+=px(R()*1190,398+R()*88,3,3,R()<.5?'#FFFFFF':'#F6D7DA',`opacity="${(.45+R()*.5).toFixed(2)}"`);
-  /* 白色像素铁艺长椅 */
-  let bench='<ellipse cx="966" cy="424" rx="146" ry="10" fill="#94AC89" opacity=".22"/>';
-  for(let i=0;i<3;i++) bench+=px(852,344+i*11,232,5,'#FFFDF8');
-  bench+=px(848,334,240,5,'#F4EFE5');
-  bench+='<path d="M852 338 q-16 -12 0 -20 M1084 338 q16 -12 0 -20" stroke="#FFFDF8" stroke-width="5" fill="none"/>';
-  bench+=px(846,386,244,9,'#FFFDF8')+px(846,395,244,4,'#E2DBCF')+px(862,395,9,26,'#F6F2EA')+px(1062,395,9,26,'#F6F2EA');
-  /* 白矮墙 + 波浪花瀑 */
-  let wall=px(22,272,332,148,'url(#g1wall)')+px(22,266,332,9,'#FFFDF8');
-  for(let r=0;r<4;r++) wall+=px(22,296+r*32,332,2,'#E7D9D2','opacity=".65"');
-  wall+='<path d="M28 270 C88 300 118 248 180 282 C242 318 282 258 354 286 L354 338 C292 366 250 318 190 350 C130 380 88 332 28 360 Z" fill="url(#g1petal)" opacity=".92"/>';
-  /* 秋千 */
-  const swing='<g id="gsSwing"><path d="M262 226 L262 344 M312 226 L312 344" stroke="#C9AE8C" stroke-width="3" opacity=".9"/>'
-    +px(250,342,74,7,'#D6B995')+px(250,349,74,3,'#B08E6E')+'</g>';
-  /* 隐藏物：旧邮筒 */
-  const mailbox=px(94,322,26,34,'#C58C83')+px(94,317,26,6,'#AC736C')+px(100,330,14,3,'#8C5C58')
-    +px(119,324,3,13,'#D9C6A5')+px(94,356,26,3,'#9E6B65');
+  for(let i=0;i<64;i++){
+    const x=R()*1194, y=384+R()*108;
+    tufts+=`<path d="M${x|0} ${y|0} q2 -7 4 -9 M${(x+4)|0} ${y|0} q-1 -6 1 -10" stroke="#6FA551"
+      stroke-width="1.6" fill="none" opacity="${(.35+R()*.4).toFixed(2)}"/>`;
+  }
+  /* 草地上厚厚的落花 */
+  let carpet='';
+  for(let i=0;i<8;i++) carpet+=`<ellipse cx="${(R()*1200)|0}" cy="${(400+R()*84)|0}"
+    rx="${(40+R()*70)|0}" ry="${(7+R()*9)|0}" fill="#FBE0EA" opacity="${(.30+R()*.28).toFixed(2)}"
+    filter="url(#gs-soft)"/>`;
+  for(let i=0;i<170;i++){
+    const x=R()*1200, y=392+R()*106, s=2+((R()*4)|0);
+    carpet+=px(x,y,s,s*.72,['#FFFFFF','#FFF0F6','#FBD9E6','#F8C9DA'][(R()*4)|0],
+      `opacity="${(.35+R()*.55).toFixed(2)}" transform="rotate(${(R()*70-35)|0} ${x|0} ${y|0})"`);
+  }
+  /* 阳光落在草地上的光斑 */
+  let sunspots='';
+  for(let i=0;i<9;i++) sunspots+=`<ellipse cx="${(40+R()*1120)|0}" cy="${(392+R()*86)|0}"
+    rx="${(26+R()*44)|0}" ry="${(7+R()*9)|0}" fill="#FFF6CC"
+    opacity="${(.26+R()*.26).toFixed(2)}" filter="url(#gs-soft)"/>`;
+
+  /* ---------- 白色铁艺长椅（花丛里） ---------- */
+  let bench='<ellipse cx="960" cy="398" rx="140" ry="10" fill="#4E7C3B" opacity=".24"/>';
+  bench+=`<path d="M848 356 h224" stroke="#E7E0D2" stroke-width="3"/>`;
+  for(let i=0;i<3;i++) bench+=px(852,308+i*13,216,6,'#FFFDF8');
+  bench+=px(846,302,6,54,'#FBF7EF')+px(1068,302,6,54,'#FBF7EF');
+  bench+=`<path d="M846 304 q-14 -3 -14 -14" stroke="#FFFDF8" stroke-width="5" fill="none"
+    stroke-linecap="round"/><path d="M1074 304 q14 -3 14 -14" stroke="#FFFDF8" stroke-width="5"
+    fill="none" stroke-linecap="round"/>`;
+  bench+=px(844,356,232,8,'#FFFDF8')+px(844,364,232,4,'#E4DCCD');
+  bench+=px(858,368,7,26,'#F4EFE4')+px(1055,368,7,26,'#F4EFE4')
+    +`<path d="M858 394 h14 M1048 394 h14" stroke="#EDE6D8" stroke-width="3"/>`;
+  for(let i=0;i<5;i++) bench+=cluster(856+i*54,300+(i%2)*4,7,(i*23+5)|0,.9);
+
+  /* ---------- 木秋千（绳子藏进花瀑里） ---------- */
+  const swing=`<g id="gsSwing">
+    <path d="M268 74 L266 340 M306 74 L308 340" stroke="#C9AE8C" stroke-width="3.4" opacity=".95"/>
+    <path d="M262 338 h50" stroke="#B9976F" stroke-width="2" opacity=".55"/>
+    <rect x="254" y="340" width="66" height="8" rx="2" fill="#E4CBA8"/>
+    <rect x="254" y="348" width="66" height="3.5" rx="1" fill="#B99B78"/>
+  </g>`;
+
+  /* ---------- 藏在右侧花丛深处的旧邮筒 ---------- */
+  const mailbox=`<g>
+    <ellipse cx="1108" cy="382" rx="26" ry="4.5" fill="#4E7C3B" opacity=".26"/>
+    <path d="M1090 380 v-40 q0 -14 16 -14 q16 0 16 14 v40 Z" fill="#D2908A"/>
+    <path d="M1090 340 q0 -14 16 -14 q16 0 16 14 Z" fill="#C07C77"/>
+    <path d="M1090 340 h32" stroke="#E8B4AE" stroke-width="2" opacity=".8"/>
+    <rect x="1098" y="346" width="16" height="2.6" rx="1.2" fill="#8E5854" opacity=".8"/>
+    <rect x="1119" y="352" width="3" height="11" rx="1.5" fill="#E3CFAE"/>
+    <path d="M1086 382 h40" stroke="#9E6B65" stroke-width="3"/>
+    <path d="M1084 384 q24 8 46 0" stroke="#7FAE63" stroke-width="3" fill="none" opacity=".7"/>
+  </g>`;
+
+  /* ---------- 顶部花瀑（仰视感）：先叶后花，左右垂落 ---------- */
+  const hang=(x0,w,h,seed)=>{
+    const r2=prand(seed); let s='';
+    /* 远景虚化的粉团，先把轮廓糊掉 */
+    for(let i=0;i<6;i++){
+      s+=`<ellipse cx="${(x0+r2()*w)|0}" cy="${(r2()*h*.8)|0}" rx="${(w*.13+r2()*w*.09)|0}"
+        ry="${(h*.15+r2()*h*.09)|0}" fill="#F9D3E2" opacity=".55" filter="url(#gs-soft)"/>`;
+    }
+    /* 叶子：小而多变、深浅不一，只做衬底 */
+    for(let i=0;i<18;i++){
+      const rx=w*(.045+r2()*.07), ry=rx*(.48+r2()*.3);
+      s+=`<ellipse cx="${(x0+r2()*w)|0}" cy="${(r2()*h)|0}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}"
+        fill="${['#5F9448','#6FA357','#7FB264','#8CBE72'][(r2()*4)|0]}" opacity="${(.5+r2()*.44).toFixed(2)}"/>`;
+    }
+    /* 花团压满叶子：多而小，彼此咬合 */
+    for(let i=0;i<38;i++){
+      const cx=x0+r2()*w, cy=r2()*h*(.5+r2()*.5);
+      s+=cluster(cx,cy,6+r2()*8,(seed+i*53)|0,.86+r2()*.14);
+    }
+    /* 底缘花边 + 垂下的藤 */
+    for(let i=0;i<7;i++){
+      const cx=x0+r2()*w, y0=h*(.6+r2()*.42), len=16+r2()*46, sway=(r2()-.5)*20;
+      s+=`<path d="M${cx|0} ${y0|0} q${sway|0} ${(len*.55)|0} ${(sway*.4)|0} ${len|0}"
+        stroke="#7FAE63" stroke-width="2" fill="none" opacity=".85"/>`
+        +cluster(cx+sway*.4, y0+len, 6+r2()*6, (seed+i*91+7)|0,.95);
+    }
+    return s;
+  };
+  let cascade=`<g class="gd-canopy">`
+    +hang(-60,300,150,11)
+    +hang(200,200,96,61)                       /* 秋千头顶的横枝 */
+    +hang(300,240,112,19)
+    +hang(560,320,138,29)
+    +hang(880,400,176,41)
+    /* 右边缘一整条垂下来 */
+    +hang(1150,120,240,53)
+    +`</g>`;
+  /* 花瀑下沿再压一层近景花，遮挡得更"入画" */
+  let nearBloom='';
+  for(let i=0;i<18;i++){
+    const x=20+R()*1160, y=R()*120;
+    nearBloom+=cluster(x,y,10+R()*14,(i*67+13)|0,.95);
+  }
+
+  /* ---------- 空中飘着的花瓣 ---------- */
+  let airPetals='';
+  for(let i=0;i<26;i++){
+    const x=R()*1200, y=120+R()*270, s=3+((R()*4)|0);
+    airPetals+=`<ellipse cx="${x|0}" cy="${y|0}" rx="${s}" ry="${(s*.6)|0}"
+      fill="${R()<.5?'#FFFFFF':'#FBD5E3'}" opacity="${(.45+R()*.45).toFixed(2)}"
+      transform="rotate(${(R()*80-40)|0} ${x|0} ${y|0})"/>`;
+  }
+
   const defs=`
-  <linearGradient id="g1sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D6E4EC"/><stop offset="46%" stop-color="#E9F0F1"/><stop offset="100%" stop-color="#FBE6E4"/></linearGradient>
-  <radialGradient id="g1sun"><stop offset="0" stop-color="#FFF6D6" stop-opacity=".95"/><stop offset="100%" stop-color="#FFF6D6" stop-opacity="0"/></radialGradient>
-  <linearGradient id="g1grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2EBDC"/><stop offset="100%" stop-color="#C7D9BC"/></linearGradient>
-  <linearGradient id="g1grass2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D6E5CC"/><stop offset="100%" stop-color="#B9CFAD"/></linearGradient>
-  <linearGradient id="g1wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFDF9"/><stop offset="100%" stop-color="#EFE2DC"/></linearGradient>
-  <linearGradient id="g1petal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F9E3E6"/><stop offset="100%" stop-color="#F2CBD5" stop-opacity=".72"/></linearGradient>`;
+  <linearGradient id="g1sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#A2D5F2"/><stop offset="38%" stop-color="#C3E4F7"/>
+    <stop offset="66%" stop-color="#E4F3FA"/><stop offset="100%" stop-color="#FDF5E8"/></linearGradient>
+  <radialGradient id="g1sun"><stop offset="0" stop-color="#FFF8D8" stop-opacity=".98"/>
+    <stop offset="42%" stop-color="#FFEFB4" stop-opacity=".45"/>
+    <stop offset="100%" stop-color="#FFE6A0" stop-opacity="0"/></radialGradient>
+  <linearGradient id="g1ray" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFF8DA" stop-opacity=".85"/>
+    <stop offset="100%" stop-color="#FFF4CC" stop-opacity="0"/></linearGradient>
+  <linearGradient id="g1warm" x1="1" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFE9A8" stop-opacity=".42"/>
+    <stop offset="46%" stop-color="#FFEFC6" stop-opacity=".14"/>
+    <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+  <linearGradient id="g1grass" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#BCE597"/><stop offset="50%" stop-color="#A2D77C"/>
+    <stop offset="100%" stop-color="#7CBE5A"/></linearGradient>
+  <linearGradient id="g1grass2" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#CDEBA9"/><stop offset="100%" stop-color="#93CE6D"/></linearGradient>
+  <radialGradient id="g1haze"><stop offset="0" stop-color="#FFF6E4" stop-opacity=".9"/>
+    <stop offset="100%" stop-color="#FFF6E4" stop-opacity="0"/></radialGradient>`;
+
   const body=`<rect width="1200" height="500" fill="url(#g1sky)"/>
-  <circle cx="970" cy="76" r="150" fill="url(#g1sun)"/><g class="gs-clouds">${clouds}</g>
-  <path d="M0 328 Q170 280 350 320 T720 310 T1200 292 L1200 500 L0 500 Z" fill="#E6EFE0" opacity=".6" filter="url(#gs-soft)"/>
-  <path d="${jagged(0,382,1200,500,14,7,31)}" fill="url(#g1grass)"/>
-  <path d="${jagged(0,414,1200,500,10,6,37)}" fill="url(#g1grass2)" opacity=".9"/>
-  ${sunspots}${tufts}${flowers}${wall}${petals}${mailbox}${swing}${bench}`;
+  <circle cx="1024" cy="34" r="300" fill="url(#g1sun)"/>
+  <circle cx="1024" cy="34" r="58" fill="#FFFBE9" opacity=".9" filter="url(#gs-soft)"/>
+  <g class="gs-clouds">${clouds}</g>
+  ${shafts}
+  <rect width="1200" height="500" fill="url(#g1warm)"/>
+  <path d="M0 344 Q200 306 430 330 T880 322 T1200 306 L1200 500 L0 500 Z"
+    fill="#E8F6D8" opacity=".5" filter="url(#gs-soft)"/>
+  <g class="gs-wave">${mounds}${bloom}${sprigs}</g>
+  ${grass}${stripes}${tufts}
+  ${sunspots}${carpet}
+  ${swing}
+  ${mailbox}
+  ${bench}
+  ${bush(806,352,20,71,.95)}${bush(1086,356,20,73,.95)}${bush(1148,346,18,79,.9)}
+  ${airPetals}
+  ${cascade}
+  ${nearBloom}`;
   return artWrap(defs,body);
 }
 
@@ -3851,54 +4258,379 @@ function artLibrary(){
   return artWrap(defs,body);
 }
 
-/* ---------------------------------------------------------- 场景 5：云端列车（漂浮、轻盈） ---------------------------------------------------------- */
-function artTrain(){
-  const R=prand(5517);
-  let grain='';
-  for(let i=0;i<30;i++) grain+=px(i*40,0,2,500,'#A98B6E',`opacity="${(.05+R()*.09).toFixed(2)}"`);
-  let clouds='';
-  for(let i=0;i<16;i++) clouds+=`<ellipse cx="${(380+R()*460)|0}" cy="${(180+R()*130)|0}" rx="${(50+R()*90)|0}" ry="${(14+R()*24)|0}" fill="#FFFFFF" opacity="${(.35+R()*.4).toFixed(2)}" filter="url(#gs-soft)"/>`;
-  /* 巨大的复古像素车窗（圆角顶） */
-  const winPath='M372 306 L372 146 Q372 76 442 76 L778 76 Q848 76 848 146 L848 306 Z';
-  let windowFrame='<clipPath id="g5clip"><path d="'+winPath+'"/></clipPath>'
-    +'<path d="'+winPath+'" fill="url(#g5sky)"/>'
-    +'<g clip-path="url(#g5clip)"><rect x="372" y="76" width="476" height="230" fill="url(#g5sky)"/>'
-    +'<circle cx="740" cy="126" r="30" fill="#FFF6E6" opacity=".75"/><g class="gs-clouds">'+clouds+'</g>'
-    +'<path d="M372 268 Q500 240 620 266 T848 258 L848 306 L372 306 Z" fill="#E4D7EA" opacity=".6"/></g>'
-    +'<path d="'+winPath+'" fill="none" stroke="#B18E6D" stroke-width="14"/>'
-    +'<path d="'+winPath+'" fill="none" stroke="#EBD6BC" stroke-width="3"/>'
-    +px(606,76,10,230,'#B18E6D')+px(372,190,476,8,'#B18E6D');
-  /* 窗帘 + 缝隙里的信 */
-  let curtains='<g id="gsCurtainL"><path d="M300 60 Q350 100 336 170 Q322 250 344 330 L280 330 Q300 220 286 60 Z" fill="url(#g5curtain)" opacity=".92"/></g>'
-    +'<g id="gsCurtainR"><path d="M920 60 Q870 100 884 170 Q898 250 876 330 L940 330 Q920 220 934 60 Z" fill="url(#g5curtain)" opacity=".92"/></g>'
-    +px(862,196,26,18,'#FFFDF4')+px(862,196,26,2,'#D9C6A5')+'<path d="M862 196 l13 9 l13 -9" stroke="#D9C6A5" stroke-width="2" fill="none"/>';
-  /* 车顶星星灯串 */
-  let lights='<path d="M0 52 Q300 96 600 52 T1200 52" stroke="#C9AE8C" stroke-width="2" fill="none" opacity=".8"/>';
-  for(let i=0;i<11;i++){
-    const x=60+i*108, y=58+Math.sin(i*0.9)*14;
-    lights+=`<g filter="url(#gs-glow)">`+px(x,y,6,6,'#FFF0BE')+px(x-3,y+3,12,2,'#FFF0BE')+px(x+3,y-3,2,12,'#FFF0BE')+`</g>`;
+/* ---------------------------------------------------------- 场景 5：云端车站（梦幻 · 童话） ----------------------------------------------------------
+   · 天空：粉紫渐变 + 星光（SVG 静态十字星 + CSS 闪烁星）
+   · 站台：半透明粉白云朵铺成，边缘蓬松
+   · 站台边缘：复古白色铁艺路灯、木质长椅、铁艺站牌
+   · 站台中央：穿复古制服的列车员；右侧是敞开的列车车门（暖光从里面漏出来）
+   · 路人 / 小动物：stationDecoHTML() + startWalkerLoop() 驱动，从两侧走进走出 */
+function ironLamp(x, baseY, h){
+  const c='#FCF7EE', s='#E9DECD', topY=baseY-h;
+  let g=`<ellipse cx="${x}" cy="${baseY-2}" rx="24" ry="5" fill="#C9A6CE" opacity=".34"/>`;
+  g+=px(x-15,baseY-9,30,9,s)+px(x-11,baseY-17,22,9,c)+px(x-4,baseY-17,8,h-17,c);
+  g+=px(x-1,baseY-19,2,h-19,'#FFFFFF','opacity=".85"');
+  g+=`<path d="M${x} ${topY+44} V${topY+16}" stroke="${c}" stroke-width="5" fill="none"/>`;
+  g+=`<path d="M${x-27} ${topY+17} Q${x} ${topY-6} ${x+27} ${topY+17}" stroke="${c}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+  [-27,27].forEach(dx=>{
+    const lx=x+dx, ly=topY+21;
+    g+=`<path d="M${lx} ${ly} v7" stroke="${c}" stroke-width="3"/>`;
+    g+=`<circle cx="${lx}" cy="${ly+26}" r="19" fill="url(#g7lamp)"/>`;
+    g+=`<path d="M${lx-12} ${ly+20} q12 -15 24 0 Z" fill="#FEFAF3"/>`;
+    g+=`<path d="M${lx-12} ${ly+20} q12 -15 24 0" stroke="${s}" stroke-width="1.2" fill="none"/>`;
+    g+=px(lx-3,ly+14,6,7,'#FFF7DC')+`<circle cx="${lx}" cy="${ly+18}" r="2.6" fill="#FFFBE8"/>`;
+  });
+  return g;
+}
+/* 站台上的木质长椅（白色铁艺扶手） */
+function woodBench(x0, y0, w){
+  let g=`<ellipse cx="${x0+w/2}" cy="${y0+50}" rx="${w/2+16}" ry="7" fill="#B98FD2" opacity=".16"/>`;
+  g+=px(x0+6,y0-42,w-12,7,'#C08B5B')+px(x0+6,y0-32,w-12,7,'#CE9764');
+  g+=px(x0+6,y0-42,w-12,2,'#DFA97A')+px(x0+6,y0-32,w-12,2,'#E2B183');
+  g+=px(x0,y0,w,11,'#D8A16C')+px(x0,y0,w,3.5,'#EFBE8C')+px(x0,y0+11,w,5,'#A9743F');
+  g+=px(x0-5,y0-46,5,60,'#E9DECD')+px(x0-5,y0-46,1.5,60,'#FBF6EC')
+    +px(x0+w,y0-46,5,60,'#E9DECD')+px(x0+w+3.5,y0-46,1.5,60,'#FBF6EC');
+  g+=`<path d="M${x0-2.5} ${y0-46} q-11 1 -11 13 q0 9 8 9" stroke="#FBF6EC" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  g+=`<path d="M${x0+w+2.5} ${y0-46} q11 1 11 13 q0 9 -8 9" stroke="#FBF6EC" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  g+=px(x0+2,y0+16,6,28,'#E9DECD')+px(x0+w-8,y0+16,6,28,'#E9DECD');
+  g+=`<ellipse cx="${x0+5}" cy="${y0+45}" rx="9" ry="3" fill="#D9C4D8" opacity=".4"/>`;
+  g+=`<ellipse cx="${x0+w-5}" cy="${y0+45}" rx="9" ry="3" fill="#D9C4D8" opacity=".4"/>`;
+  return g;
+}
+/* 站台中央的列车员：深蓝复古制服、金纽扣、八角帽、手里捏着票夹 */
+function stationClerk(cx, footY){
+  const x=cx, y=footY;
+  let g=`<ellipse cx="${x}" cy="${y-2}" rx="18" ry="4.5" fill="#A87FC8" opacity=".22"/>`;
+  g+=px(x-9,y-20,7,20,'#33405C')+px(x+2,y-20,7,20,'#33405C');
+  g+=px(x-12,y-4,10,4,'#2A2330')+px(x+1,y-4,10,4,'#2A2330');
+  g+=px(x-13,y-50,26,31,'#3B4A6B');
+  g+=px(x-13,y-50,26,2.5,'#2E3A55');
+  g+=px(x-1,y-44,3,3,'#E8C77E')+px(x-1,y-36,3,3,'#E8C77E')+px(x-1,y-28,3,3,'#E8C77E');
+  g+=`<path d="M${x-7} ${y-50} L${x} ${y-42} L${x+7} ${y-50} Z" fill="#FBF6EC"/>`;
+  g+=`<path d="M${x-2} ${y-43} l4 0 l2 11 l-4 4 l-4 -4 Z" fill="#8C3B47"/>`;
+  g+=px(x-17,y-51,6,4,'#C79A4E')+px(x+11,y-51,6,4,'#C79A4E');
+  g+=px(x-18,y-48,5,20,'#33405C')+px(x+13,y-48,5,20,'#33405C');
+  g+=px(x-19,y-29,6,6,'#F0CDA8');
+  g+=px(x+12,y-31,9,8,'#5C4030')+px(x+12,y-31,9,1.5,'#8A6A4E')+px(x+15,y-26,3,2,'#D8B77A');
+  g+=px(x-8,y-66,16,16,'#F3D3B0');
+  g+=px(x-9,y-64,2,8,'#6B5546')+px(x+7,y-64,2,8,'#6B5546');
+  g+=px(x-4,y-60,2,2,'#4A3A34')+px(x+3,y-60,2,2,'#4A3A34');
+  g+=px(x-1,y-53,4,1,'#C08E72');
+  g+=px(x-11,y-72,22,7,'#2E3A55')+px(x-13,y-66,26,3,'#3B4A6B');
+  g+=px(x-11,y-72,22,2,'#45567A');
+  g+=`<circle cx="${x}" cy="${y-69}" r="3" fill="#E8C77E"/>`;
+  return g;
+}
+function artStation(){
+  const R=prand(8821);
+
+  /* ---------- 天空：星 + 远处云海 ---------- */
+  let stars='';
+  for(let i=0;i<16;i++){
+    const x=(30+R()*1140)|0, y=(14+R()*190)|0, s=R()<.3?3:2;
+    stars+=`<g opacity="${(.26+R()*.48).toFixed(2)}">`
+      +px(x,y,s,s,'#FFFDF4')+px(x-2,y+(s>>1),s+4,1,'#FFFDF4')+px(x+(s>>1),y-2,1,s+4,'#FFFDF4')+`</g>`;
   }
-  /* 行李架 + 会眨眼的小熊 */
-  let rack=px(850,72,320,7,'#B18E6D')+px(850,79,320,3,'#8B6B4F');
-  const bear='<g id="gsBear"><circle cx="1000" cy="126" r="28" fill="#C9A47F"/>'
-    +'<circle cx="978" cy="104" r="11" fill="#B9916C"/><circle cx="1022" cy="104" r="11" fill="#B9916C"/>'
-    +'<ellipse cx="1000" cy="176" rx="30" ry="26" fill="#D6B592"/>'
-    +'<circle cx="1000" cy="132" r="18" fill="#EBD3B4"/>'
-    +'<g id="gs-bear-eyes">'+px(990,124,4,4,'#4A3A34')+px(1008,124,4,4,'#4A3A34')+'</g>'
-    +px(998,134,4,3,'#8B6B4F')+'</g>';
-  /* 窗边小桌板 + 旧车票 */
-  const table=px(470,322,290,10,'#D8B896')+px(470,332,290,4,'#A98461')+px(492,336,7,44,'#B18E6D')+px(730,336,7,44,'#B18E6D')
-    +px(556,306,58,16,'#FBF1DC')+px(556,306,58,2,'#D9C6A5')+px(600,306,3,16,'#D9C6A5');
+  let farClouds='';
+  for(let i=0;i<22;i++){
+    farClouds+=`<ellipse cx="${(10+R()*1190)|0}" cy="${(226+R()*112)|0}" rx="${(70+R()*140)|0}" ry="${(14+R()*24)|0}"
+      fill="#FFFFFF" opacity="${(.13+R()*.27).toFixed(2)}" filter="url(#gs-soft)"/>`;
+  }
+
+  /* ---------- 站台：粉白云朵 ---------- */
+  const deckBase=`<path d="M0 406 Q300 392 600 402 T1200 398 L1200 500 L0 500 Z" fill="url(#g7deck)"/>`;
+  let puffBack='';
+  for(let i=0;i<20;i++){
+    const x=-40+i*66+(R()*26-13);
+    puffBack+=`<ellipse cx="${x|0}" cy="${(400+R()*20)|0}" rx="${(56+R()*32)|0}" ry="${(24+R()*14)|0}"
+      fill="#F0D6EB" opacity="${(.5+R()*.3).toFixed(2)}"/>`;
+  }
+  let puffFront='';
+  for(let i=0;i<31;i++){
+    const x=-30+i*41+(R()*20-10), y=398+(R()*12-6), r=21+R()*21;
+    puffFront+=`<ellipse cx="${x|0}" cy="${y|0}" rx="${r|0}" ry="${(r*.62)|0}"
+      fill="${R()<.34?'#FFF1F9':'#FFFDFE'}"/>`;
+  }
+  let puffToe='';                                  /* 只盖脚踝的薄云：人站在云里，而不是被云吞掉 */
+  for(let i=0;i<26;i++){
+    const x=-20+i*48+(R()*24-12), y=459+(R()*11), r=18+R()*16;
+    puffToe+=`<ellipse cx="${x|0}" cy="${y|0}" rx="${r|0}" ry="${(r*.36)|0}" fill="#FFFBFE" opacity=".94"/>`;
+  }
+  let puffDeep='';
+  for(let i=0;i<16;i++){
+    puffDeep+=`<ellipse cx="${(i*80+R()*40)|0}" cy="${(474+R()*28)|0}" rx="${(58+R()*50)|0}" ry="${(18+R()*14)|0}"
+      fill="#E6C8E2" opacity="${(.18+R()*.26).toFixed(2)}"/>`;
+  }
+  const walkway=`<path d="M0 398 Q300 386 600 395 T1200 391 L1200 418 Q900 426 600 418 T0 424 Z"
+      fill="#FFFCFF" opacity=".72"/>`
+    +`<path d="M0 400 Q300 388 600 397 T1200 393" stroke="#EFD6EA" stroke-width="2.5" fill="none" opacity=".8"/>`
+    +`<path d="M0 416 Q300 424 600 416 T1200 414" stroke="#E2C4DE" stroke-width="2" fill="none" opacity=".5"/>`;
+  let deckStars='';
+  for(let i=0;i<14;i++){
+    deckStars+=`<circle cx="${(30+R()*1140)|0}" cy="${(422+R()*64)|0}" r="1.5" fill="#FFFFFF"
+      opacity="${(.28+R()*.38).toFixed(2)}"/>`;
+  }
+
+  /* ---------- 站牌 ---------- */
+  const signBoard=
+    px(243,206,6,192,'#FBF6EC')+px(238,196,16,12,'#FBF6EC')
+    +`<rect x="186" y="150" width="120" height="48" rx="3" fill="#FBF6EC" stroke="#E4D8C6" stroke-width="1.5"/>`
+    +`<rect x="192" y="156" width="108" height="36" rx="2" fill="none" stroke="#EADFCE" stroke-width="1"/>`
+    +`<text x="246" y="174" text-anchor="middle" font-family="'Songti SC','Noto Serif SC',serif" font-size="15"
+        fill="#8C76AE" letter-spacing="3">云端站</text>`
+    +`<text x="246" y="187" text-anchor="middle" font-family="monospace" font-size="6.4"
+        fill="#BCACD0" letter-spacing="2">CLOUD STATION</text>`
+    +px(216,199,6,6,'#E9DECD')+px(270,199,6,6,'#E9DECD')
+    +px(240,396,12,6,'#E9DECD');
+
+  /* ---------- 右侧：停靠的列车 + 敞开的车门 ---------- */
+  const carBody=
+    px(872,106,328,290,'#F4E9DA')
+    +px(872,106,328,9,'#DCC8AF')
+    +px(872,190,328,5,'#C9A25C','opacity=".42"')
+    +px(872,316,328,5,'#C9A25C','opacity=".3"')
+    +px(872,388,328,8,'#CDB79B')
+    +px(884,124,26,52,'#8FA6BC','opacity=".55"')+px(884,124,26,3,'#6F8498','opacity=".5"')
+    +px(884,126,3,48,'#FFFFFF','opacity=".45"')
+    +px(944,180,182,208,'#33241C')
+    +px(950,186,170,202,'#553C2E')
+    +`<ellipse cx="1035" cy="304" rx="90" ry="84" fill="url(#g7door)"/>`
+    +px(952,344,166,44,'#5E3E26','opacity=".55"')
+    +px(952,340,166,4,'#C9A25C','opacity=".38"')
+    +`<rect x="1008" y="196" width="62" height="9" rx="4" fill="#FFEFC8" opacity=".5"/>`
+    +px(984,292,46,54,'#3E5A4A','opacity=".45"')
+    +px(984,288,46,5,'#5C7E68','opacity=".4"')
+    +px(936,172,8,216,'#C9A25C')+px(1126,172,8,216,'#C9A25C')
+    +px(936,164,198,9,'#D8B77A')
+    +px(1136,180,40,208,'#7A5233')+px(1138,182,36,204,'#8E6440')
+    +`<rect x="1146" y="204" width="22" height="48" rx="2" fill="#C9B6A0" opacity=".5"/>`
+    +px(1148,266,16,3,'#C9A25C')+`<circle cx="1156" cy="300" r="4" fill="#E8C77E"/>`
+    +px(930,388,214,10,'#B99264')+px(930,388,214,3,'#D9B183');
+
   const defs=`
-  <linearGradient id="g5wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFDFC9"/><stop offset="60%" stop-color="#E0C9AC"/><stop offset="100%" stop-color="#C6A483"/></linearGradient>
-  <linearGradient id="g5sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D8CCE8"/><stop offset="60%" stop-color="#EDE4F1"/><stop offset="100%" stop-color="#F6EEF3"/></linearGradient>
-  <linearGradient id="g5curtain" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F2E2D0"/><stop offset="100%" stop-color="#D9BC9E"/></linearGradient>`;
-  const body=`<rect width="1200" height="500" fill="url(#g5wood)"/>${grain}
-  <rect x="0" y="0" width="1200" height="34" fill="#C6A483" opacity=".8"/>
-  <rect x="0" y="392" width="1200" height="108" fill="#B8936F" opacity=".55"/>
-  <path d="M0 400 L1200 400" stroke="#9C7B5C" stroke-width="3" opacity=".5"/>
-  ${windowFrame}${curtains}${lights}${rack}${bear}${table}`;
+  <linearGradient id="g7sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#B98EDC"/><stop offset="34%" stop-color="#D3AEE6"/>
+    <stop offset="66%" stop-color="#EFCDE8"/><stop offset="100%" stop-color="#FBE7F1"/></linearGradient>
+  <radialGradient id="g7lamp"><stop offset="0" stop-color="#FFF6D2" stop-opacity=".95"/>
+    <stop offset="45%" stop-color="#FFEDBE" stop-opacity=".42"/>
+    <stop offset="100%" stop-color="#FFE6AE" stop-opacity="0"/></radialGradient>
+  <linearGradient id="g7deck" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FEF8FD"/><stop offset="46%" stop-color="#F9EAF6"/>
+    <stop offset="100%" stop-color="#EFD9EE"/></linearGradient>
+  <radialGradient id="g7door"><stop offset="0" stop-color="#FFECBE" stop-opacity=".85"/>
+    <stop offset="52%" stop-color="#FFDCA0" stop-opacity=".34"/>
+    <stop offset="100%" stop-color="#FFD79A" stop-opacity="0"/></radialGradient>`;
+
+  const clerk=`<g transform="translate(624 452) scale(1.2) translate(-624 -452)">${stationClerk(624,452)}</g>`;
+  const body=`<rect width="1200" height="500" fill="url(#g7sky)"/>
+  ${stars}${farClouds}${deckBase}${puffBack}${puffFront}${walkway}${deckStars}
+  ${signBoard}${ironLamp(96,452,258)}${ironLamp(792,442,206)}
+  ${woodBench(352,352,170)}
+  ${clerk}
+  ${carBody}
+  ${puffToe}${puffDeep}`;
   return artWrap(defs,body);
+}
+
+/* ---------------------------------------------------------- 场景 6：列车车厢（行驶中 · 沉浸） ----------------------------------------------------------
+   · 拱形复古车顶 + 墨绿丝绒座椅 + 深木窗框
+   · 窗边小桌板：一杯冒热气的咖啡
+   · 窗外：向左匀速移动的双层云海，每 30 秒切换晴 / 阴 / 雨 / 冰雹（CSS 层 carView）
+   · 座椅前沿画在 #fgLayer（z-index 32），坐下时挡住角色的腿 */
+/* 座椅的「坐垫 + 扶手 + 木基座」：基座层与前景遮挡层共用同一段路径，保证严丝合缝 */
+function seatFrontSvg(){
+  let s='';
+  /* 坐垫：上表面略亮，前脸略暗 */
+  s+=`<path d="M846 348 q154 -8 308 0 l-2 17 q-152 -8 -304 0 Z" fill="#3E6852"/>`
+    +`<path d="M846 348 q154 -8 308 0" stroke="#63967D" stroke-width="3.5" fill="none"/>`
+    +`<path d="M850 365 q150 -8 300 0 l-6 25 q-144 -9 -288 0 Z" fill="#345741"/>`
+    +`<path d="M850 365 q150 -8 300 0" stroke="#274232" stroke-width="2" fill="none" opacity=".55"/>`
+    +`<path d="M862 379 q140 -8 280 0" stroke="#2C4A38" stroke-width="2" fill="none" opacity=".3"/>`
+  /* 木基座 + 四只短脚 */
+    +`<path d="M856 390 h288 v14 q-144 9 -288 0 Z" fill="#482C1B"/>`
+    +`<path d="M856 390 h288" stroke="#7A5233" stroke-width="2.5"/>`
+    +`<path d="M862 404 v14 M880 406 v13 M1128 406 v13 M1146 404 v14" stroke="#3A2418"
+      stroke-width="9" stroke-linecap="round"/>`;
+  /* 扶手：木框 + 绒面圆枕（画在坐垫之上，才不会被坐垫吃掉一半） */
+  [806,1144].forEach(ax=>{
+    s+=`<rect x="${ax}" y="342" width="50" height="62" rx="10" fill="#5A3A24"/>`
+      +`<rect x="${ax}" y="342" width="50" height="62" rx="10" fill="none" stroke="#3A2418"
+        stroke-width="2" opacity=".5"/>`
+      +`<path d="M${ax+7} 358 V394" stroke="#7A5233" stroke-width="2" opacity=".4"/>`
+      +`<ellipse cx="${ax+25}" cy="343" rx="29" ry="12" fill="#3E6852"/>`
+      +`<ellipse cx="${ax+21}" cy="338" rx="17" ry="5.5" fill="#609178" opacity=".5"/>`
+      +`<path d="M${ax+5} 351 q20 -9 40 0" stroke="#274232" stroke-width="1.6" fill="none"
+        opacity=".38"/>`;
+  });
+  return s;
+}
+
+function artCarriage(){
+  const R=prand(7733);
+
+  /* ---------- 拱形车顶 ---------- */
+  const roof=`<path d="M0 0 H1200 V104 Q600 10 0 104 Z" fill="url(#g8roof)"/>`
+    +`<path d="M0 104 Q600 10 1200 104" stroke="#C9A25C" stroke-width="2.5" fill="none" opacity=".45"/>`
+    +px(0,118,1200,7,'#1E120A','opacity=".5"');
+  let pendants='';
+  [320,880].forEach(x=>{
+    const y=66;
+    pendants+=`<path d="M${x} ${y-20} v22" stroke="#8A6430" stroke-width="2"/>`
+      +`<circle cx="${x}" cy="${y+30}" r="27" fill="url(#g8lamp)"/>`
+      +`<path d="M${x-16} ${y+12} q16 -13 32 0 l-5 14 q-11 -8 -22 0 Z" fill="#D8B77A"/>`
+      +`<path d="M${x-16} ${y+12} q16 -13 32 0" stroke="#F4E0B4" stroke-width="1.6" fill="none"/>`
+      +px(x-3,y+16,6,6,'#FFF6D8')+`<circle cx="${x}" cy="${y+22}" r="3" fill="#FFFBEA"/>`;
+  });
+
+  /* ---------- 车壁：墨绿丝绒 ---------- */
+  let velvet='';
+  for(let i=0;i<31;i++){
+    const x=i*40+((i%2)?7:0);
+    velvet+=`<path d="M${x} 122 V310" stroke="#3E6354" stroke-width="15"
+      opacity="${(.09+((i*7)%5)*.025).toFixed(3)}"/>`;
+  }
+  const wall=px(0,104,1200,300,'url(#g8velvet)')+velvet;
+
+  /* ---------- 深木护墙板 ---------- */
+  let panels='';
+  for(let i=0;i<8;i++){
+    const x=26+i*148;
+    panels+=`<rect x="${x}" y="330" width="124" height="48" rx="3" fill="#5A3A24" opacity=".42"/>`
+      +`<rect x="${x}" y="330" width="124" height="48" rx="3" fill="none" stroke="#33200F" stroke-width="2.5" opacity=".5"/>`;
+  }
+  const wainscot=px(0,308,1200,84,'#4A2E1C')+px(0,308,1200,5,'#7A5233')
+    +px(0,386,1200,7,'#2A170D')+px(0,390,1200,1.5,'#8A6242','opacity=".55"')+panels;
+
+  /* ---------- 地板 ---------- */
+  let planks='';
+  for(let i=0;i<9;i++) planks+=`<path d="M0 ${400+i*11} H1200" stroke="#6B4526" stroke-width="1.2" opacity=".26"/>`;
+  for(let i=0;i<16;i++) planks+=`<path d="M${18+i*76} 392 V500" stroke="#5A3A24" stroke-width="1" opacity=".18"/>`;
+  const floor=px(0,392,1200,108,'url(#g8floor)')+planks
+    +`<ellipse cx="600" cy="446" rx="430" ry="44" fill="#C9A25C" opacity=".06"/>`;
+
+  /* ---------- 车窗：深木框（窗洞交给 CSS 的 .car-view） ---------- */
+  const winFrame=px(288,114,544,198,'#8A6242')
+    +px(292,118,536,192,'#5A3A24')
+    +px(300,126,520,176,'#3A2418')
+    +px(304,130,512,168,'#2A1A10')
+    +px(288,114,544,2.5,'#B48E66')
+    +px(288,116,544,1.5,'#6B4526','opacity=".6"')
+    +`<rect x="316" y="138" width="488" height="156" fill="url(#g8glass)"/>`
+    +px(316,138,488,7,'#241610','opacity=".42"')
+    +`<rect x="316" y="138" width="488" height="156" fill="none" stroke="#1A0F08"
+      stroke-width="5" opacity=".38"/>`
+    +px(292,118,536,4,'#8A6242','opacity=".65"')
+    +px(284,296,552,17,'#8A6242')+px(284,296,552,3.5,'#D8AC7C')
+    +px(284,297,552,2,'#B48E66','opacity=".7"')
+    +px(284,310,552,5,'#3A2418')
+    +px(284,315,552,3,'#241610','opacity=".4"')
+    /* 窗台黄铜搭扣 + 两侧铰链 */
+    +px(552,300,20,7,'#B48E4A')+px(554,301,16,3,'#E8C77E')
+    +px(316,302,6,9,'#B48E4A')+px(798,302,6,9,'#B48E4A');
+
+  /* ---------- 窗边小桌板 + 咖啡 ---------- */
+  const table=`<path d="M330 308 H770 L764 322 H336 Z" fill="#A9794F"/>`
+    +`<path d="M330 308 H770" stroke="#DBB081" stroke-width="3"/>`
+    +`<path d="M336 322 H764" stroke="#6B4526" stroke-width="2.5"/>`
+    +`<path d="M344 311 H760" stroke="#8E5F3B" stroke-width="1" opacity=".35"/>`
+    +`<path d="M344 317 H760" stroke="#8E5F3B" stroke-width="1" opacity=".28"/>`
+    +px(354,322,9,62,'#6B4526')+px(738,322,9,62,'#6B4526')
+    +px(354,322,3,62,'#8E5F3B','opacity=".6"')
+    +px(348,380,21,7,'#5A3A24')+px(732,380,21,7,'#5A3A24')
+    +px(354,378,9,5,'#7A5233')+px(738,378,9,5,'#7A5233')
+    +`<ellipse cx="560" cy="392" rx="150" ry="7" fill="#150C06" opacity=".2"/>`
+    +`<ellipse cx="560" cy="390" rx="96" ry="5" fill="#150C06" opacity=".18"/>`;
+  const cup=`<ellipse cx="560" cy="314" rx="34" ry="6" fill="#3A2418" opacity=".3"/>`
+    +`<ellipse cx="560" cy="311" rx="28" ry="5" fill="#F3EADA"/>`
+    +`<ellipse cx="560" cy="310" rx="28" ry="5" fill="none" stroke="#E0D2BE" stroke-width="1.4"/>`
+    +`<path d="M566 288 q17 3 15 15 q-2 11 -17 10" stroke="#FBF5E8" stroke-width="5.5" fill="none"/>`
+    +`<path d="M532 280 h58 l-6 30 q-23 6 -46 0 Z" fill="#FBF5E8"/>`
+    +`<path d="M532 280 h58 l-2 7 q-27 5 -54 0 Z" fill="#FFFFFF" opacity=".55"/>`
+    +`<path d="M538 300 q22 5 44 0" stroke="#E7DCCA" stroke-width="1.6" opacity=".55"/>`
+    +`<ellipse cx="561" cy="280" rx="29" ry="6" fill="#6B4326"/>`
+    +`<ellipse cx="561" cy="279" rx="24" ry="4.6" fill="#4A2C18"/>`
+    +`<ellipse cx="553" cy="278" rx="7" ry="2.2" fill="#7A4E2E" opacity=".7"/>`;
+
+  /* ---------- 墨绿丝绒座椅（右下 · 前沿由前景层遮挡，坐下时下摆陷进坐垫） ---------- */
+  let seat=`<ellipse cx="1002" cy="424" rx="196" ry="12" fill="#140B06" opacity=".34"/>`
+    +`<ellipse cx="1002" cy="338" rx="216" ry="80" fill="#152B24" opacity=".2"/>`;
+  /* 靠背：矮背 + 竖向褶 + 顶沿卷边 */
+  seat+=`<path d="M850 352 V320 q0 -22 22 -22 h260 q22 0 22 22 V352 Z" fill="url(#g8seat)"/>`;
+  for(let i=0;i<9;i++){
+    const x=876+i*30;
+    seat+=`<path d="M${x} 306 V348" stroke="#3E6354" stroke-width="15" opacity=".3"/>`;
+  }
+  seat+=`<path d="M850 320 q0 -22 22 -22 h260 q22 0 22 22" stroke="#5B8B73" stroke-width="5"
+    fill="none" opacity=".45"/>`;
+  seat+=`<path d="M850 320 q0 -22 22 -22 h260 q22 0 22 22" stroke="#7FB098" stroke-width="1.6"
+    fill="none" opacity=".4"/>`;
+  for(let i=0;i<9;i++) seat+=`<circle cx="${866+i*32}" cy="302" r="2.2" fill="#D8B77A" opacity=".62"/>`;
+  seat+=`<path d="M850 352 V320" stroke="#1E3A30" stroke-width="3" opacity=".28"/>`;
+  seat+=`<path d="M1154 352 V320" stroke="#1E3A30" stroke-width="3" opacity=".28"/>`;
+  seat+=seatFrontSvg();
+
+  /* ---------- 左侧车门（下车） ---------- */
+  const door=px(30,110,214,292,'#3A2418')
+    +px(38,118,198,278,'#7A5233')
+    +px(46,126,182,262,'#8E6440')
+    +`<circle cx="137" cy="196" r="44" fill="#2B3B49"/>`
+    +`<circle cx="137" cy="196" r="44" fill="none" stroke="#C9A25C" stroke-width="4"/>`
+    +`<path d="M108 178 q28 -18 56 4" stroke="#8FB6D4" stroke-width="5" fill="none" opacity=".38"/>`
+    +`<rect x="68" y="262" width="138" height="58" rx="3" fill="#96693F" opacity=".5"/>`
+    +`<rect x="68" y="262" width="138" height="58" rx="3" fill="none" stroke="#5E3E26" stroke-width="3"/>`
+    +px(190,292,9,32,'#8A6430')+px(192,294,5,28,'#D8B77A')
+    +`<circle cx="194" cy="306" r="6.5" fill="#E8C77E"/>`
+    +px(46,126,3,262,'#FFE7B4','opacity=".48"')
+    +`<ellipse cx="60" cy="300" rx="36" ry="74" fill="url(#g8lamp)" opacity=".45"/>`;
+
+  /* ---------- 行李架 + 偷偷眨眼的小熊 ---------- */
+  const rack=px(290,99,540,10,'#6B4526')+px(290,99,540,2.5,'#A9794F')
+    +px(294,109,532,3,'#2A170D','opacity=".5"')
+    +px(300,109,5,9,'#4A2E1C')+px(816,109,5,9,'#4A2E1C')
+    +px(556,109,5,8,'#4A2E1C','opacity=".8"');
+  const bags=px(330,74,46,28,'#8E6440')+px(330,74,46,3,'#B98A5C')+px(346,68,14,6,'#6B4526')
+    +px(392,80,38,22,'#A9794F')+px(392,80,38,3,'#C99E6C')+px(404,74,12,6,'#7E5A3C')
+    +px(700,78,44,24,'#7E5A3C')+px(700,78,44,3,'#A9794F');
+  const bear=`<g id="gsBear">`
+    +`<ellipse cx="772" cy="102" rx="17" ry="3.5" fill="#1E120A" opacity=".32"/>`
+    +`<ellipse cx="772" cy="88" rx="16" ry="14" fill="#D6B592"/>`
+    +`<circle cx="772" cy="68" r="12.5" fill="#E3C6A6"/>`
+    +`<circle cx="762" cy="58" r="5.5" fill="#CDA983"/><circle cx="782" cy="58" r="5.5" fill="#CDA983"/>`
+    +`<g id="gs-bear-eyes">`+px(766,65,3,3,'#4A3A34')+px(776,65,3,3,'#4A3A34')+`</g>`
+    +`<ellipse cx="772" cy="73" rx="4" ry="3" fill="#C89A78"/>`
+    +px(769,77,7,1.5,'#8B6B4F')
+    +`</g>`;
+
+  const defs=`
+  <linearGradient id="g8roof" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#2A1A10"/><stop offset="60%" stop-color="#43291A"/>
+    <stop offset="100%" stop-color="#54341F"/></linearGradient>
+  <linearGradient id="g8velvet" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#24443A"/><stop offset="52%" stop-color="#2E5044"/>
+    <stop offset="100%" stop-color="#1E3931"/></linearGradient>
+  <linearGradient id="g8floor" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#5A3A24"/><stop offset="52%" stop-color="#4A2E1C"/>
+    <stop offset="100%" stop-color="#331E12"/></linearGradient>
+  <linearGradient id="g8seat" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3A6350"/><stop offset="60%" stop-color="#2F5241"/>
+    <stop offset="100%" stop-color="#274434"/></linearGradient>
+  <linearGradient id="g8glass" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8FC7EA"/><stop offset="55%" stop-color="#C7E2F4"/>
+    <stop offset="100%" stop-color="#F3E7F3"/></linearGradient>
+  <radialGradient id="g8lamp"><stop offset="0" stop-color="#FFF6D2" stop-opacity=".92"/>
+    <stop offset="46%" stop-color="#FFEDBE" stop-opacity=".38"/>
+    <stop offset="100%" stop-color="#FFE6AE" stop-opacity="0"/></radialGradient>`;
+
+  const body=`<rect width="1200" height="500" fill="#241610"/>
+  ${roof}${wall}${wainscot}${floor}
+  ${winFrame}${table}${cup}${seat}${door}
+  ${pendants}${rack}${bags}${bear}`;
+  return artWrap(defs,body);
+}
+
+/* 座椅前沿：单独一层压在角色之上（物理遮挡），坐下时下摆藏进坐垫 */
+function carriageFgHTML(){
+  return `<svg viewBox="0 0 1200 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+    shape-rendering="crispEdges">${seatFrontSvg()}</svg>`;
 }
 
 /* ---------------------------------------------------------- 场景 6：午夜咖啡馆（暖光 · 木质 · 微醺） ----------------------------------------------------------
@@ -4357,7 +5089,7 @@ const SCENES = [
   spots:[
    {id:'bench',   label:'坐长椅发呆',   x:80,y:72, act:'bench',   line:'坐下来了。风从花瀑那边过来，什么都不用想。'},
    {id:'swing',   label:'荡起木秋千',   x:24,y:53, act:'swing',   line:'秋千荡起来，花瓣落了一身。', mat:'flowerBud'},
-   {id:'mailbox', label:'旧邮筒',       x:9, y:64, act:'collect', hidden:true, ach:'wish_fountain', mat:'postcard',
+   {id:'mailbox', label:'旧邮筒',       x:92,y:64, act:'collect', hidden:true, ach:'wish_fountain', mat:'postcard',
     nearLine:'今天没有来信哦。',
     line:'邮筒里躺着一张没有寄出的明信片。', firstLine:'你把一个小愿望塞进旧邮筒，水没有笑你。'},
    {id:'dew',     label:'接住晨露',     x:42,y:70, act:'collect', mat:'dew', line:'叶尖上滚下来一颗晨露，凉凉的。'},
@@ -4411,16 +5143,34 @@ const SCENES = [
   ]
  },
  {
-  id:'train', name:'云端列车', mood:'漂浮', art:artTrain, night:false, event:'ribbon',
-  tip:'云在窗外慢慢走，车不急。', specialty:['ticket','ribbon'],
-  orbs:[{x:18,y:62},{x:48,y:56},{x:80,y:68}],
+  id:'station', name:'云端车站', mood:'梦幻', art:artStation, night:false, event:'duck',
+  tip:'站台是云做的，踩上去软软的。', specialty:['ticket','postcard'],
+  orbs:[{x:18,y:62},{x:48,y:54},{x:76,y:66}],
   spots:[
-   {id:'window',label:'趴窗边看云',   x:48,y:56, act:'bench',   line:'把下巴搁在窗沿上，云一团一团地飘过去。'},
-   {id:'bear',  label:'行李架小熊',   x:83,y:26, act:'bear',    hidden:true, ach:'find_bear', mat:'star',
+   {id:'clerk', label:'和列车员说话', x:52,y:68, act:'ticket',
+    line:'旅行者，想去云端深处看看吗？', nearLine:'他理了理帽檐，等你开口。'},
+   {id:'bench', label:'坐木长椅等车', x:34,y:64, act:'bench',   line:'云做的站台，坐下去像陷进棉花里。'},
+   {id:'board', label:'走上列车',     x:86,y:66, act:'board',
+    line:'车门敞着，里面有暖黄的光。', nearLine:'车门开着，就等你上车了。'},
+   {id:'glow',  label:'捡起站台星屑', x:18,y:74, act:'collect', mat:'star', line:'云缝里掉下一粒星屑，还温着。'},
+   {id:'lost',  label:'长椅缝里',     x:30,y:74, act:'collect', hidden:true, mat:'postcard',
+    line:'长椅缝里卡着一张旧明信片，边角被云打湿了。', firstLine:'长椅缝里夹着点什么，是被人落下的。'},
+   {id:'evt',   label:'云里有动静',   x:68,y:58, act:'event',   line:'旁边的云团动了一下。'}
+  ]
+ },
+ {
+  id:'carriage', name:'列车车厢', mood:'行驶中', art:artCarriage, night:false, event:'ribbon',
+  hidden:true, tip:'车开得很稳，窗外的云一直往后退。', specialty:['ribbon','cloudCandy'],
+  orbs:[{x:22,y:58},{x:52,y:50},{x:70,y:64}],
+  spots:[
+   {id:'seat',   label:'坐下歇一会儿', x:83,y:62, act:'bench',   line:'丝绒座椅软软的，车身轻轻晃。'},
+   {id:'coffee', label:'喝一口咖啡',   x:47,y:58, act:'coffee',  line:'杯子还是热的，热气糊了眼镜。'},
+   {id:'exit',   label:'下车',         x:11,y:62, act:'leave',
+    line:'车门那边就是站台。', nearLine:'要下车了吗？'},
+   {id:'look',   label:'看窗外的云',   x:30,y:56, act:'lookCloud',line:'云一层一层往后退，像有人在慢慢翻书。'},
+   {id:'bear',   label:'行李架小熊',   x:64,y:16, act:'bear',    hidden:true, ach:'find_bear', mat:'star',
     line:'它悄悄眨了一下眼，又装回玩偶了。', firstLine:'一路没说几句，但一直在。'},
-   {id:'ticket',label:'桌板旧车票',   x:50,y:66, act:'collect', mat:'ticket', line:'票根上的站名已经晕开了。'},
-   {id:'letter',label:'窗帘缝里的信', x:73,y:44, act:'collect', mat:'postcard', line:'谁把一封信卡在了窗帘缝里。'},
-   {id:'evt',   label:'有风飘过来',   x:16,y:54, act:'event',   line:'一条丝带被风卷进了车厢。'}
+   {id:'evt',    label:'有风飘过来',   x:22,y:50, act:'event',   line:'一条丝带被风卷进了车厢。'}
   ]
  },
  {
@@ -4449,16 +5199,16 @@ function unlockedScenes(g){
   const open=['garden','path'];                       /* 初始两处 */
   if(star>=20) open.push('sea');                      /* 收集满 20 颗星碎 → 海边灯塔 */
   if(pc>=3)   open.push('library');                  /* 樱花小径完成 3 次收集 → 星空图书馆 */
-  if(star>=50) open.push('train');                    /* 收集满 50 颗星碎 → 云端列车 */
-  if(['sea','library','train'].every(x=>open.includes(x))) open.push('cafe'); /* 解锁 3 个场景 → 午夜咖啡馆 */
+  if(star>=50) open.push('station');                  /* 收集满 50 颗星碎 → 云端车站 */
+  if(['sea','library','station'].every(x=>open.includes(x))) open.push('cafe'); /* 解锁 3 个场景 → 午夜咖啡馆 */
   return open;
 }
 function lockProgress(g,id){
   const star=starCount(g), pc=(g.stats&&g.stats.pathCollects)||0;
-  const extra=['sea','library','train'].filter(x=>unlockedScenes(g).includes(x)).length;
+  const extra=['sea','library','station'].filter(x=>unlockedScenes(g).includes(x)).length;
   if(id==='sea')     return '✦'+Math.min(star,20)+'/20';
   if(id==='library') return '✿'+Math.min(pc,3)+'/3';
-  if(id==='train')   return '✦'+Math.min(star,50)+'/50';
+  if(id==='station') return '✦'+Math.min(star,50)+'/50';
   if(id==='cafe')    return '✧'+Math.min(extra,3)+'/3';
   return '';
 }
@@ -4485,6 +5235,7 @@ function renderSceneTabs(given){
   const box=$('#sceneTabs'); if(!box) return;
   const g=given||gameGet(), open=unlockedScenes(g);
   box.innerHTML=SCENES.map((sc,i)=>{
+    if(sc.hidden) return '';                        /* 列车车厢不单独出现在旅行地图上 */
     const locked=!open.includes(sc.id);
     const prog=locked?lockProgress(g,sc.id):'';
     const on=(!S.inRoom && i===S.gameScene)?'on':'';
@@ -4507,7 +5258,7 @@ const NEARBY = {
     {id:'rug',      x:50, r:18, act:'sit',      tip:'发发呆', hint:'点一点地毯 ✦',        zone:[33,66,34,24], trigger:'click'},
     {id:'door',     x:91, r:11, act:'map',      tip:'出门',   hint:'走到门前按空格开门',   zone:[89,19,11,70], trigger:'space'}
   ],
-  garden:[{id:'postbox', x:9,  r:15, hint:'点一点旧邮筒 ✦', line:'今天没有来信哦。', trigger:'click'}],
+  garden:[{id:'postbox', x:92, r:9, hint:'✦', line:'今天没有来信哦。', trigger:'click'}],
   path:[  {id:'door',    x:85, r:15, act:'doorDream', hint:'空格 · 敲敲小木门', line:'里面会不会住着精灵？', trigger:'space'}]
 };
 function nearbyHere(){
@@ -4576,8 +5327,8 @@ function renderPropZones(){
 /* ========================================================== 出门 / 回家 / 旅行地图 / 小屋互动 ==========================================================
    链路：小屋（默认）→ 走到最右木门 → 旅行地图选卡片（淡出）→ 户外 → 出生点小木门 → 回家。
    底部场景栏已废弃，六张地点卡片只存在于半透明水彩「旅行地图」中。 */
-const MAP_ICONS = {garden:'✿', path:'❀', sea:'☾', library:'✦', train:'☁', cafe:'✧'};
-function lockReason(id){ return (id==='sea'||id==='train') ? '星碎不足' : '探索度不够'; }
+const MAP_ICONS = {garden:'✿', path:'❀', sea:'☾', library:'✦', station:'☁', carriage:'▤', cafe:'✧'};
+function lockReason(id){ return (id==='sea'||id==='station') ? '星碎不足' : '探索度不够'; }
 
 function openTravelMap(){
   if(!S.inRoom) return;
@@ -4942,6 +5693,7 @@ function closeSidePanels(except){
   if(except!=='ach') closeAch();
   if(except!=='bag') closeBag();
   if(except!=='event'){ const e=$('#eventPanel'); if(e) e.classList.add('hidden'); }
+  if(except!=='ticket') closeTicket();
 }
 /* ---------------------------------------------------------- 星蕾图鉴：面板渲染 ---------------------------------------------------------- */
 function renderAchPanel(){
@@ -5033,7 +5785,7 @@ const BASE_TASKS = [
 ];
 const DYNAMIC_TASKS = [
   {id:'beach_wave',   text:'去海边看浪',       check:'visit:sea',     need:1, unlock:'sea'},
-  {id:'train_ride',   text:'坐一趟云端列车',   check:'visit:train',   need:1, unlock:'train'},
+  {id:'train_ride',   text:'去云端车站等一趟车', check:'visit:station', need:1, unlock:'station'},
   {id:'library_read', text:'在图书馆看一本书', check:'visit:library', need:1, unlock:'library'}
 ];
 /* 兼容既有引用/测试：完整候选池 + 单项可入池判定 */
@@ -5073,7 +5825,8 @@ function defaultGame(){
     got:{},                          /* 一次性馈赠标记（猫铃铛等） */
     giftDay:'',                      /* 香薰每日赠送的日期 */
     puzzle:{pathKey:false, pathOpen:false, librarySolved:false, books:['blue','green','red']},
-    mate:{state:'home', departAt:0, returnAt:0, bento:'', spriteUntil:0}   /* 小喵旅行 */
+    mate:{state:'home', departAt:0, returnAt:0, bento:'', spriteUntil:0},  /* 小喵旅行 */
+    train:{rides:0, lastBoard:0}                                           /* 云端列车：坐过几次 */
   };
 }
 function gameGet(){
@@ -5382,6 +6135,7 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-mate-trail" id="companionTrail"></div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
 <div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="rug-thought" aria-hidden="true"><div class="rug-thought-body"><i></i><i></i><i></i></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
+<div class="gs-fg" id="fgLayer"></div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
 <div class="gs-collect hidden" id="collectTip"><div class="cc-text" id="collectTipText"></div><div class="cc-bar"><i id="collectTipBar"></i></div></div>
 <div class="room-tip" id="roomTip"></div>
@@ -5391,7 +6145,87 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-pad left" id="padLeft"><span class="pad-tip">‹</span></div>
 <div class="gs-pad right" id="padRight"><span class="pad-tip">›</span></div>
 <div class="gs-home hidden" id="homeGate" title="回温馨小屋">
-  <svg viewBox="0 0 64 96" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
+  <!-- 花庭：藤蔓花拱门 -->
+  <span class="hg-vine"><svg viewBox="0 0 64 96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="vineArchG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7EA85F"/><stop offset="52%" stop-color="#5E8A47"/>
+        <stop offset="100%" stop-color="#456B36"/></linearGradient>
+      <linearGradient id="vineWoodG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#8A6A46"/><stop offset="45%" stop-color="#A5825A"/>
+        <stop offset="100%" stop-color="#6E5236"/></linearGradient>
+      <radialGradient id="vineInG" cx="50%" cy="72%" r="62%">
+        <stop offset="0" stop-color="#FFF3CE" stop-opacity=".92"/>
+        <stop offset="46%" stop-color="#F6DFAE" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#B9C7A2" stop-opacity=".18"/></radialGradient>
+      <radialGradient id="vineGlowG">
+        <stop offset="0" stop-color="#FFE6AE" stop-opacity=".62"/>
+        <stop offset="100%" stop-color="#FFE6AE" stop-opacity="0"/></radialGradient>
+      <radialGradient id="vineLampG">
+        <stop offset="0" stop-color="#FFF8DA" stop-opacity=".95"/>
+        <stop offset="38%" stop-color="#FFE9A8" stop-opacity=".5"/>
+        <stop offset="100%" stop-color="#FFE29A" stop-opacity="0"/></radialGradient>
+    </defs>
+    <!-- 拱门里的那条小路：暖光渐深，像通向小屋的门廊 -->
+    <path d="M11 94 V40 a21 21 0 0 1 42 0 V94 Z" fill="#41604A" opacity=".42"/>
+    <path d="M11 40 a21 21 0 0 1 42 0 L53 62 Q32 52 11 62 Z" fill="#3C5A45" opacity=".34"/>
+    <path d="M14 94 V44 a18 18 0 0 1 36 0 V94 Z" fill="#5E7A5E" opacity=".26"/>
+    <ellipse cx="32" cy="86" rx="17" ry="14" fill="url(#vineInG)" opacity=".85"/>
+    <path d="M23 94 q9 -12 18 -7 q4 -14 10 -24 L53 94 Z" fill="#C9B98C" opacity=".2"/>
+    <!-- 两根交缠的藤干（拱形收口） -->
+    <path d="M9 96 C8 60 10 30 32 10 C54 30 56 60 55 96" fill="none"
+      stroke="url(#vineArchG)" stroke-width="6.6" stroke-linecap="round"/>
+    <path d="M13 96 C13 64 16 36 32 16 C48 36 51 64 51 96" fill="none"
+      stroke="#6E9A52" stroke-width="2.8" stroke-linecap="round" opacity=".72"/>
+    <!-- 拱顶的木楔 -->
+    <rect x="28.5" y="8" width="7" height="9" rx="2.2" fill="url(#vineWoodG)"/>
+    <!-- 拱顶的花冠：让门读起来是「花长成的拱」 -->
+    <g class="vine-leaf" fill="#5F9448" opacity=".92">
+      <ellipse cx="24" cy="12" rx="7.5" ry="4.6" transform="rotate(-30 24 12)"/>
+      <ellipse cx="40" cy="12" rx="7.5" ry="4.6" transform="rotate(30 40 12)"/>
+      <ellipse cx="32" cy="8" rx="8.5" ry="5.2"/>
+      <ellipse cx="17" cy="20" rx="6" ry="3.6" transform="rotate(-46 17 20)"/>
+      <ellipse cx="47" cy="20" rx="6" ry="3.6" transform="rotate(46 47 20)"/>
+    </g>
+    <g class="vine-leaf" fill="#7FB264" opacity=".95">
+      <ellipse cx="27" cy="18" rx="6" ry="3.6" transform="rotate(-18 27 18)"/>
+      <ellipse cx="37" cy="18" rx="6" ry="3.6" transform="rotate(18 37 18)"/>
+      <ellipse cx="13" cy="28" rx="5" ry="3" transform="rotate(-40 13 28)"/>
+      <ellipse cx="51" cy="28" rx="5" ry="3" transform="rotate(40 51 28)"/>
+    </g>
+    <g class="vine-leaf">
+      <circle cx="22" cy="10" r="3.4" fill="#FFFFFF"/><circle cx="22" cy="10" r="1.1" fill="#F4D69E"/>
+      <circle cx="42" cy="10" r="3.4" fill="#FFFFFF"/><circle cx="42" cy="10" r="1.1" fill="#F4D69E"/>
+      <circle cx="32" cy="7" r="3.8" fill="#FFEAF2"/><circle cx="32" cy="7" r="1.2" fill="#F4D69E"/>
+      <circle cx="14" cy="24" r="3" fill="#FBD6E3"/><circle cx="14" cy="24" r="1" fill="#F4D69E"/>
+      <circle cx="50" cy="24" r="3" fill="#FBD6E3"/><circle cx="50" cy="24" r="1" fill="#F4D69E"/>
+      <circle cx="27" cy="16" r="2.8" fill="#FFFFFF"/><circle cx="27" cy="16" r=".9" fill="#F4D69E"/>
+      <circle cx="37" cy="16" r="2.8" fill="#FFFFFF"/><circle cx="37" cy="16" r=".9" fill="#F4D69E"/>
+    </g>
+    <!-- 垂下的藤条 -->
+    <path d="M18 34 q-3 16 2 30 M46 34 q3 16 -2 30 M32 22 q-1 10 1 16" fill="none"
+      stroke="#7BA85C" stroke-width="1.7" stroke-linecap="round" opacity=".85"/>
+    <!-- 叶子（会轻轻摇） -->
+    <g class="vine-leaf" fill="#8CBB6A">
+      <ellipse cx="14" cy="44" rx="5" ry="2.8" transform="rotate(-32 14 44)"/>
+      <ellipse cx="50" cy="44" rx="5" ry="2.8" transform="rotate(32 50 44)"/>
+      <ellipse cx="16" cy="64" rx="4.6" ry="2.6" transform="rotate(-24 16 64)"/>
+      <ellipse cx="48" cy="64" rx="4.6" ry="2.6" transform="rotate(24 48 64)"/>
+    </g>
+    <g class="vine-leaf" fill="#A6CF80" opacity=".9">
+      <ellipse cx="19" cy="54" rx="4.2" ry="2.3" transform="rotate(-40 19 54)"/>
+      <ellipse cx="45" cy="54" rx="4.2" ry="2.3" transform="rotate(40 45 54)"/>
+    </g>
+    <!-- 门口的小提灯：走近才亮 -->
+    <path d="M44 36 v6" stroke="#8A6A46" stroke-width="1.2"/>
+    <rect x="41.6" y="42" width="5" height="6.4" rx="1.6" fill="#F6DFA6"/>
+    <rect x="41.6" y="42" width="5" height="2" rx="1" fill="#D9B77C"/>
+    <circle class="door-lamp" cx="44.1" cy="45.4" r="9" fill="url(#vineLampG)"/>
+    <!-- 走近时脚下透出的暖光 -->
+    <ellipse class="door-glow" cx="32" cy="93" rx="30" ry="8" fill="url(#vineGlowG)"/>
+  </svg></span>
+  <!-- 其它场景：嵌在墙里的复古木门 -->
+  <span class="hg-wood"><svg viewBox="0 0 64 96" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
     <defs>
       <linearGradient id="doorWoodG" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0" stop-color="#6E4A2C"/><stop offset="38%" stop-color="#94663F"/>
@@ -5403,24 +6237,21 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
         <stop offset="0" stop-color="#FFE1A6" stop-opacity=".85"/>
         <stop offset="100%" stop-color="#FFE1A6" stop-opacity="0"/></radialGradient>
     </defs>
-    <!-- 门套 -->
     <rect x="1" y="2" width="62" height="94" rx="2" fill="#4F3421"/>
     <rect x="4" y="5" width="56" height="91" fill="#6B4830"/>
     <rect x="1" y="1" width="62" height="5" fill="#412A1A"/>
-    <!-- 门板 -->
     <rect x="7" y="8" width="50" height="88" fill="url(#doorWoodG)"/>
     <path d="M17 8 V96 M27 8 V96 M37 8 V96 M47 8 V96" stroke="#452C1A" stroke-width="1" opacity=".22"/>
     <rect x="12" y="14" width="40" height="30" fill="none" stroke="#432B19" stroke-width="2" opacity=".5"/>
     <rect x="12" y="50" width="40" height="38" fill="none" stroke="#432B19" stroke-width="2" opacity=".5"/>
     <path d="M13 15 H51" stroke="#B98757" stroke-width="1" opacity=".35"/>
     <path d="M13 51 H51" stroke="#B98757" stroke-width="1" opacity=".3"/>
-    <!-- 黄铜门把 + 走近才亮的光 -->
     <rect x="43.4" y="46" width="3.2" height="10" rx="1.6" fill="#8A6430"/>
     <rect x="43.8" y="46.4" width="2.4" height="9" rx="1.2" fill="#C9A25C"/>
     <circle cx="45" cy="51" r="2.6" fill="#EDCB86"/>
     <circle class="door-knob" cx="45" cy="51" r="10" fill="url(#knobGlowG)"/>
     <ellipse class="door-glow" cx="32" cy="94" rx="31" ry="9" fill="url(#doorGlowG)"/>
-  </svg>
+  </svg></span>
   <span class="home-tag">回家 ✦</span>
 </div>
 <div class="gs-wardrobe-veil hidden" id="wardrobeVeil"></div>
@@ -5432,6 +6263,7 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <!-- 背包 / 合成 / 种植 / 小喵派遣：同一块和纸面板里的四页（与其它面板互斥） -->
 <div class="gs-panel gs-bag hidden" id="bagPanel"><div id="bagBody"></div></div>
 <div class="gs-panel gs-event hidden" id="eventPanel"><div id="eventBody"></div></div>
+<div class="gs-panel gs-ticket hidden" id="ticketPanel"><div id="ticketBody"></div></div>
 <div class="gs-map hidden" id="travelMap">
   <div class="map-card">
     <div class="map-lace"></div>
@@ -5471,7 +6303,7 @@ function clearSceneTimers(){ sceneTimers.forEach(clearTimeout); sceneTimers=[]; 
 const CHAR_GROUND_RATIO = 0.11;
 const GROUND_SVG_Y = 445;
 /* 每个场景「可坐面」在 1200×500 viewBox 里的 y 坐标，用于算脚踩实椅面所需的抬升 */
-const SEAT_Y = {garden:360, path:400, sea:372, library:432, train:330, cafe:344};
+const SEAT_Y = {garden:360, path:400, sea:372, library:432, station:352, carriage:347, cafe:344};
 const SWING_SEAT_Y = 342;
 const stageH = () => { const st=$('#game-stage'); return (st && st.clientHeight) || 400; };
 function applyGround(){
@@ -5535,8 +6367,13 @@ function renderScene(){
   stage.insertAdjacentHTML('beforeend', STAGE_LAYERS);
   $('#gsArt').innerHTML = sc.art();              /* 只渲染当前这一个场景的 SVG */
   $('#gsDeco').innerHTML = sc.id==='path' ? pathDecoHTML()
-    : (sc.id==='room' ? roomDecoHTML() : (sc.id==='cafe' ? cafeDecoHTML() : ''));
+    : sc.id==='room' ? roomDecoHTML()
+    : sc.id==='garden' ? gardenDecoHTML()
+    : sc.id==='cafe' ? cafeDecoHTML()
+    : sc.id==='station' ? stationDecoHTML()
+    : sc.id==='carriage' ? carriageDecoHTML() : '';
   bindCafeDeco();                                /* 咖啡馆：墙上便签的悬停/点击 */
+  const fg=$('#fgLayer'); if(fg) fg.innerHTML = sc.id==='carriage' ? carriageFgHTML() : '';
   $('#gsVignette').classList.toggle('night', !!sc.night);
   $('#gameTitle').innerHTML = `${esc(sc.name)} <span class="gm-mood">· ${esc(sc.mood)}</span>`;
   renderSceneTabs();                             /* 旅行地图里六张卡片的锁定态 / 进度 */
@@ -5547,6 +6384,9 @@ function renderScene(){
   renderLiveLayer();                            /* 花盆 / 工作台 / 家具 / 书 / 海鸥 / 精灵 */
   applyWeatherTime();                           /* 时间光照 + 天气粒子（真实时间驱动） */
   renderMateState();                            /* 小喵在家 / 出门 / 带着包裹回来 */
+  stopWalkerLoop();
+  if(sc.id==='station') startWalkerLoop();       /* 站台上的随机路人 / 小动物 */
+  if(sc.id==='carriage') startCarWeather();      /* 车厢窗外：流云 + 30 秒天气循环 */
   if(sc.id==='path') startCatchTicker();
   S.lastCollect=Date.now();                     /* 进新场景重新计发呆时间 */
   seedMomentLog();                              /* 屏幕边缘补上今天最后两件小事 */
@@ -5556,6 +6396,7 @@ function renderScene(){
   startRadarLoop();
   /* 户外只在出生点留一扇小门；底部场景栏、小屋衣橱按钮一律退场 */
   const home=$('#homeGate'); if(home) home.classList.toggle('hidden', S.inRoom);
+  if(home) home.classList.toggle('vine', curScene() && curScene().id==='garden');
   const wbtn=$('#btnWardrobe'); if(wbtn) wbtn.classList.toggle('hidden', !S.inRoom);
   const ebtn=$('#btnExplore'); if(ebtn) ebtn.classList.toggle('hidden', S.inRoom);
   const stay=$('#mapStay'); if(stay) stay.onclick=closeTravelMap;
@@ -5621,7 +6462,8 @@ const COLLECT_THEMES = {
   path:  {hold:'摘下樱花花苞', triple:'摸了摸橘猫',   drag:'接住飘落的花瓣'},
   sea:   {hold:'捡起一片海玻璃', triple:'敲了敲灯塔的门', drag:'捞起漂流瓶'},
   library:{hold:'抽出一本旧书', triple:'敲了敲书脊', drag:'接住飘落的书页'},
-  train: {hold:'够到行李架的星', triple:'敲了敲车窗', drag:'接住窗外的云絮'},
+  station:{hold:'拿起窗台上的星屑', triple:'敲了敲站牌', drag:'接住云里落下的星'},
+  carriage:{hold:'够到行李架的星', triple:'敲了敲车窗', drag:'接住窗外的云絮'},
   cafe:  {hold:'端起温热的杯子', triple:'摸了摸橘猫', drag:'接住落下的糖霜'}
 };
 let orbStates=[], collectState=null, collectLockUntil=0;
@@ -5912,7 +6754,7 @@ function say(who,text){
   d.classList.remove('hidden');
   clearTimeout(say._t); say._t=setTimeout(()=>d.classList.add('hidden'),3800);
 }
-function switchScene(i, force=false){
+function switchScene(i, force=false, atX){
   if(i<0||i>=SCENES.length) return;
   if(!force && !isSceneUnlocked(i)){
     topToast('这里还没解锁哦，去前面的地方多走走吧。','lock');
@@ -5920,8 +6762,9 @@ function switchScene(i, force=false){
   }
   closeWardrobe(); closeAch(); stopBench(); closeEvent(); closeTravelMap();
   clearWindowPose(); wakeFromBed(true);
-  S.inRoom=false; S.gameScene=i; S.charX=16;      /* 户外出生在最左侧，回家小门就在身旁 */
-  withGame(g=>{ g.current=i; g.charX=16; g.inRoom=false; });
+  S.inRoom=false; S.gameScene=i;
+  S.charX=(typeof atX==='number')?atX:16;         /* 默认出生在最左侧，回家小门就在身旁 */
+  withGame(g=>{ g.current=i; g.charX=S.charX; g.inRoom=false; });
   renderScene();                                   /* 全量清空 + 重建，画面里只有这一个场景 */
   say('小喵',`到了「${SCENES[i].name}」。${SCENES[i].tip}`);
 }
@@ -6035,6 +6878,11 @@ function activateSpot(i){
       say('小喵','长椅底下有东西——一把生锈的星星钥匙 ✦');
       break;
     }
+    case 'ticket':   sceneLater(()=>openTicket(), 420); break;
+    case 'board':    sceneLater(()=>boardTrain(), 460); break;
+    case 'coffee':   sipCoffee(); break;
+    case 'leave':    sceneLater(()=>leaveCarriage(), 460); break;
+    case 'lookCloud': lookCloud(); break;
     case 'bear':     blinkBear(); break;
     case 'drawStar': drawStarOnGlass(); break;
     case 'bottleDrag':
@@ -6086,6 +6934,9 @@ function sitAt(sp){
     n.classList.remove('walking','crouch','touch','spin','swinging');
     n.classList.add('sitting');
     sitting=true; swingActive=false;
+    if(curScene().id==='carriage'){                 /* 车厢：座椅前沿浮到角色之上，腿藏进沙发 */
+      const st=$('#game-stage'); if(st) st.classList.add('seated');
+    }
     startBench();
     sceneLater(()=>say('小喵','坐稳了。风很轻，头顶开始冒 Zzz 了…'), 260);
   });
@@ -6093,7 +6944,7 @@ function sitAt(sp){
 function standUp(){
   const c=charEl();
   if(c){ c.classList.remove('sitting','swinging','rug-rest'); c.style.removeProperty('--sit-rise'); }
-  const st=$('#game-stage'); if(st) st.classList.remove('rug-rest');
+  const st=$('#game-stage'); if(st) st.classList.remove('rug-rest','seated');
   const m=$('#companion'); if(m) m.classList.remove('circling');
   const a=$('#gsArt'); if(a) a.classList.remove('swinging','bottle-drag');
   sitting=false; swingActive=false;
@@ -6541,7 +7392,7 @@ const BENTOS = [
 const MATE_TRIP_MS = 15*60*1000;               /* 真实时间 15 分钟 */
 const POSTCARDS = [
   '我在海边，今天的风很舒服。',
-  '云端列车晚点了，云朵也晚点了。',
+  '云端车站的下班车晚点了，云朵也晚点了。',
   '图书馆的灯一直亮着，我借了一小会儿光。',
   '咖啡馆的橘猫说，它有点想你。'
 ];
@@ -6673,6 +7524,12 @@ function playNormalize(g, d){
   if(!g.mate || typeof g.mate!=='object')
     g.mate={state:'home', departAt:0, returnAt:0, bento:'', spriteUntil:0};
   if(!['home','away','back'].includes(g.mate.state)) g.mate.state='home';
+  /* 云端列车：坐过几次 / 上次上车时间 */
+  if(!g.train || typeof g.train!=='object') g.train={rides:0,lastBoard:0};
+  if(typeof g.train.rides!=='number') g.train.rides=0;
+  if(typeof g.train.lastBoard!=='number') g.train.lastBoard=0;
+  /* 旧存档的 current 可能指向已改名的场景：落在隐藏场景就退回花庭 */
+  if(Number.isInteger(g.current) && SCENES[g.current] && SCENES[g.current].hidden) g.current=0;
   return g;
 }
 
@@ -7048,7 +7905,7 @@ function todNow(){
 }
 function isOutdoor(){
   const sc=curScene();
-  return !!sc && !['room','library','cafe'].includes(sc.id);
+  return !!sc && !['room','library','cafe','station','carriage'].includes(sc.id);
 }
 /* 天气三小时变一次；也可用 setWeather() 手动指定（测试与调试用） */
 function rollWeather(force){
@@ -7431,6 +8288,399 @@ function playOnEnter(){
   applyWeatherTime();
   renderLiveLayer();
   renderMateState();
+}
+
+
+/* ==========================================================================
+   云端车站 / 列车车厢（双层场景）
+   —— 随机路人 · 列车员购票 · 上车下车 · 窗外云海与天气循环
+   ========================================================================== */
+const TICKET_PRICE = 15;
+
+/* ---------------- 路人形象：像素小人 / 戴帽子的鸭子 / 小猫 / 兔子 ---------------- */
+const WALKER_ART = {
+  case: { h:86, svg:`<svg viewBox="0 0 44 72" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    ${px(13,60,7,9,'#3A3450')}${px(24,60,7,9,'#3A3450')}
+    ${px(12,67,9,4,'#2A2438')}${px(23,67,9,4,'#2A2438')}
+    ${px(12,32,20,30,'#C98FA8')}${px(12,32,20,3,'#DCA6BF')}
+    ${px(21,34,3,26,'#B57C97')}${px(14,30,16,4,'#F2E4D0')}
+    ${px(16,20,12,12,'#F3D3B0')}
+    ${px(15,18,14,5,'#5C4638')}${px(15,20,3,9,'#5C4638')}${px(26,20,3,9,'#5C4638')}
+    ${px(18,25,2,2,'#4A3A34')}${px(24,25,2,2,'#4A3A34')}${px(20,29,3,1,'#C08E72')}
+    ${px(30,36,5,16,'#C98FA8')}${px(31,50,5,5,'#F3D3B0')}
+    ${px(2,44,14,20,'#9C6B46')}${px(2,44,14,3,'#B98A5C')}
+    ${px(2,51,14,2,'#7A4F31')}${px(2,58,14,2,'#7A4F31')}
+    ${px(5,38,8,2,'#6B4526')}
+    </svg>` },
+  basket:{ h:82, svg:`<svg viewBox="0 0 44 70" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    ${px(14,58,7,9,'#5E4B63')}${px(24,58,7,9,'#5E4B63')}
+    ${px(13,65,9,4,'#3B3040')}${px(23,65,9,4,'#3B3040')}
+    ${px(12,30,20,29,'#E2C489')}${px(12,30,20,3,'#F0D7A4')}
+    ${px(21,32,3,25,'#C9A96C')}${px(14,28,16,4,'#FBF1DC')}
+    ${px(16,18,12,12,'#F3D3B0')}
+    ${px(15,16,14,5,'#7A5C46')}${px(15,18,3,10,'#7A5C46')}${px(26,18,3,10,'#7A5C46')}
+    ${px(13,14,18,3,'#C9A25C')}
+    ${px(18,23,2,2,'#4A3A34')}${px(24,23,2,2,'#4A3A34')}${px(20,27,3,1,'#C08E72')}
+    ${px(31,34,5,15,'#E2C489')}${px(32,47,5,5,'#F3D3B0')}
+    ${px(4,42,15,12,'#B98A5C')}${px(4,42,15,3,'#D3A87A')}
+    ${px(6,38,11,4,'#8A6440')}${px(8,44,9,2,'#8A6440','opacity=".45"')}
+    </svg>` },
+  duck:  { h:42, svg:`<svg viewBox="0 0 40 34" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    ${px(9,28,6,4,'#E8A03C')}${px(24,28,6,4,'#E8A03C')}
+    ${px(7,12,24,16,'#F7E7A8')}${px(7,12,24,3,'#FCF2C6')}
+    ${px(9,16,20,10,'#F3DE95')}
+    ${px(26,8,9,9,'#F7E7A8')}
+    ${px(34,11,6,4,'#E8913C')}${px(34,11,6,1,'#F2A959')}
+    ${px(29,10,2,2,'#4A3A34')}
+    ${px(26,4,10,4,'#C97B5A')}${px(27,1,8,4,'#C97B5A')}${px(26,3,12,2,'#E09A78')}
+    ${px(5,16,2,7,'#F0D77F')}${px(31,18,2,2,'#F2B0B0')}
+    </svg>` },
+  cat:   { h:42, svg:`<svg viewBox="0 0 38 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    ${px(8,24,18,7,'#B4B2BE')}${px(8,24,18,2,'#C6C4CE')}
+    ${px(23,15,11,11,'#B4B2BE')}
+    ${px(24,11,3,5,'#B4B2BE')}${px(30,11,3,5,'#B4B2BE')}
+    ${px(25,17,2,2,'#3E3C4A')}${px(30,17,2,2,'#3E3C4A')}
+    ${px(28,21,2,1,'#E0A0AC')}
+    ${px(8,30,5,3,'#A3A1AD')}${px(21,30,5,3,'#A3A1AD')}
+    ${px(6,19,2,7,'#B4B2BE')}${px(5,17,2,3,'#B4B2BE')}
+    ${px(11,27,4,2,'#9C9AA6','opacity=".7"')}
+    ${px(26,22,6,2,'#D8D6E0')}
+    </svg>` },
+  bunny: { h:48, svg:`<svg viewBox="0 0 36 38" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    ${px(10,32,5,4,'#F2E6EE')}${px(21,32,5,4,'#F2E6EE')}
+    ${px(9,20,18,14,'#F7EEF4')}${px(9,20,18,2,'#FFFAFC')}
+    ${px(11,24,14,8,'#EFE3EB')}
+    ${px(21,11,11,11,'#F7EEF4')}
+    ${px(22,2,3,11,'#F7EEF4')}${px(28,3,3,10,'#F7EEF4')}
+    ${px(22,4,3,7,'#F2BFCC')}${px(28,5,3,6,'#F2BFCC')}
+    ${px(23,15,2,2,'#5A4A52')}${px(28,15,2,2,'#5A4A52')}
+    ${px(26,19,2,1,'#E8A0B0')}
+    ${px(7,26,2,6,'#F7EEF4')}
+    ${px(11,29,5,2,'#EADDE6')}
+    </svg>` }
+};
+const WALKER_POOL = ['case','basket','duck','cat','bunny'];
+const walkerCool = {};                 /* 冷却池：id → 可再次出现的毫秒时间戳 */
+let walkerTimer = null;
+
+function gardenDecoHTML(){
+  /* 持续落花：远近两层，远的慢、近的快 */
+  let petals='';
+  for(let i=0;i<22;i++){
+    const near=i%3===0;
+    petals+=`<i class="gp${near?' deep':''}" style="left:${(Math.random()*100).toFixed(1)}%;
+      width:${near?9:6}px;height:${near?7:5}px;
+      animation-duration:${((near?13:19)+Math.random()*10).toFixed(1)}s;
+      animation-delay:-${(Math.random()*20).toFixed(1)}s"><b style="animation-duration:${(2.4+Math.random()*2.2).toFixed(1)}s;
+      animation-delay:-${(Math.random()*2.4).toFixed(1)}s"></b></i>`;
+  }
+  /* 草地上的阳光光斑 */
+  let spots='';
+  for(let i=0;i<7;i++){
+    spots+=`<i style="left:${(3+Math.random()*84).toFixed(1)}%;top:${(60+Math.random()*30).toFixed(1)}%;
+      width:${(90+Math.random()*130).toFixed(0)}px;height:${(24+Math.random()*30).toFixed(0)}px;
+      animation-duration:${(12+Math.random()*9).toFixed(1)}s;
+      animation-delay:-${(Math.random()*10).toFixed(1)}s"></i>`;
+  }
+  return `<div class="gd-sun"></div><div class="gd-bask"></div>`
+    +`<div class="gd-spots">${spots}</div>`
+    +`<div class="gd-petas">${petals}</div>`;
+}
+function stationDecoHTML(){
+  let stars='';
+  for(let i=0;i<28;i++){
+    const big=Math.random()<.22;
+    stars+=`<i class="st-star${big?' big':''}" style="left:${(2+Math.random()*96).toFixed(1)}%;`
+      +`top:${(1+Math.random()*35).toFixed(1)}%;animation-delay:${(Math.random()*3.4).toFixed(2)}s"></i>`;
+  }
+  return `<div class="st-sky">${stars}</div>`
+    +`<div class="st-mist"></div><div class="st-mist b"></div><div class="st-mist c"></div>`
+    +`<div class="st-doorlight" style="left:74.5%;bottom:21%;width:24%;height:38%"></div>`
+    +`<div class="st-walkers" id="stWalkers"></div>`;
+}
+function carriageDecoHTML(){
+  return `<div class="car-view wx-sunny" id="carView">
+      <div class="car-sky"></div>
+      <div class="car-sun"></div>
+      <div class="car-sea" id="carSea"></div>
+      <div class="car-clouds far" id="carCloudFar"></div>
+      <div class="car-clouds" id="carCloudNear"></div>
+      <div class="car-veil"></div>
+      <div class="car-shower" id="carShower"></div>
+      <div class="car-muntin"></div>
+      <div class="car-glass"></div>
+    </div>
+    <div class="car-steam" id="carSteam" style="left:46.75%;bottom:43.6%"><i></i><i></i><i></i></div>`;
+}
+
+/* ---------------- 随机路人：从两侧走进来 → 中间停一会儿 → 走出去淡出 ---------------- */
+function spawnWalker(quick){
+  const box=$('#stWalkers'); if(!box) return;
+  if(!$('#game-stage') || curScene().id!=='station') return;
+  if($$('#stWalkers .st-walker').length>=3) return;
+  const now=Date.now();
+  const ready=WALKER_POOL.filter(k=>!walkerCool[k] || walkerCool[k]<=now);
+  if(!ready.length) return;
+  const kind=ready[Math.floor(Math.random()*ready.length)];
+  const art=WALKER_ART[kind];
+  const dir=Math.random()<.5?1:-1;                     /* 1 = 从左往右走 */
+  const el=document.createElement('div');
+  el.className='st-walker'+(dir<0?' face-left':'');
+  el.dataset.kind=kind;
+  el.style.height=art.h+'px';
+  el.style.left=(dir>0?-12:112)+'%';
+  el.innerHTML=`<i class="wk-bob"><span class="wk-flip">${art.svg}</span></i>`;
+  box.appendChild(el);
+
+  const pauseX = dir>0 ? (34+Math.random()*24) : (66-Math.random()*24);
+  const dur1 = (quick? 2600 : 5400) + Math.random()*2400;
+  const stay = 1500 + Math.random()*2400;
+  const dur2 = (quick? 3000 : 5200) + Math.random()*2600;
+
+  sceneLater(()=>{
+    el.classList.add('show');
+    el.style.transitionDuration=dur1+'ms, .7s';
+    el.style.left=pauseX+'%';
+  }, 40);
+  sceneLater(()=>{
+    el.classList.add('rest');                          /* 停下脚步，左右张望 */
+    sceneLater(()=>{
+      el.classList.remove('rest');
+      el.style.transitionDuration=dur2+'ms, .9s';
+      el.style.left=(dir>0?114:-14)+'%';
+      sceneLater(()=>{ el.classList.add('gone'); }, Math.max(200, dur2-260));
+      sceneLater(()=>{
+        el.remove();
+        walkerCool[kind]=Date.now()+60000;             /* 走掉的一分钟内不再出现 */
+      }, dur2+900);
+    }, stay);
+  }, dur1);
+}
+function walkerTick(){
+  if(!$('#stWalkers')){ walkerTimer=null; return; }
+  spawnWalker();
+  walkerTimer = sceneLater(()=>{ walkerTimer=null; walkerTick(); }, 4200+Math.random()*3800);
+}
+function startWalkerLoop(){
+  if(!$('#stWalkers')) return;
+  walkerTimer = sceneLater(()=>{ walkerTimer=null; walkerTick(); }, 1200+Math.random()*800);
+  sceneLater(()=>spawnWalker(true), 320);              /* 进站台时先来一位，别空着 */
+  sceneLater(()=>spawnWalker(true), 2400);
+}
+function stopWalkerLoop(){
+  if(walkerTimer!=null){
+    clearTimeout(walkerTimer);
+    sceneTimers=sceneTimers.filter(t=>t!==walkerTimer);
+    walkerTimer=null;
+  }
+}
+
+/* ---------------- 列车员 & 购票 ---------------- */
+const CLERK_AVATAR = `<svg viewBox="0 0 60 108" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">`
+  + `<g transform="translate(0,22)">` + stationClerk(30, 84) + `</g></svg>`;
+
+function ticketHTML(){
+  const g=gameGet();
+  const wallet=g.materials.star||0;
+  const has=(g.materials.ticket||0)>0;
+  const can=wallet>=TICKET_PRICE;
+  return `<div class="tk-avatar">${CLERK_AVATAR}</div>
+    <h3>列车员</h3>
+    <p class="tk-say">旅行者，想去云端深处看看吗？<br>车窗外一会儿晴、一会儿落雨，看得可清楚了。</p>
+    <div class="tk-price">云端车票 <b>✦ ${TICKET_PRICE}</b></div>
+    <p class="tk-wallet">你的星碎 ✦ ${wallet}${has?'　·　身上已有一张车票':''}</p>
+    <div class="tk-btns">
+      <button class="tk-btn main" id="tkBuy" ${can?'':'disabled'}>${can?'购买车票':'星碎不够'}</button>
+      ${has?'<button class="tk-btn" id="tkGo">现在上车</button>':''}
+      <button class="tk-btn ghost" id="tkClose">再想想</button>
+    </div>
+    <p class="tk-tip">${has?'车票已经在你身上了，走右边那扇敞开的车门上车。'
+      :(can?'买好票以后，走右边那扇敞开的车门就能上车。'
+      :'再去路上捡些星碎吧，云端深处值得多等一会儿。')}</p>`;
+}
+function openTicket(){
+  const p=$('#ticketPanel'), b=$('#ticketBody'); if(!p||!b) return;
+  closeSidePanels('ticket');
+  b.innerHTML=ticketHTML();
+  p.classList.remove('hidden');
+  bindTicket();
+}
+function closeTicket(){ const p=$('#ticketPanel'); if(p) p.classList.add('hidden'); }
+function bindTicket(){
+  const buy=$('#tkBuy');
+  if(buy) buy.onclick=()=>buyTicket();
+  const go=$('#tkGo');
+  if(go) go.onclick=()=>{ closeTicket(); boardTrain(); };
+  const cl=$('#tkClose');
+  if(cl) cl.onclick=closeTicket;
+}
+function buyTicket(){
+  const g=gameGet();
+  const wallet=g.materials.star||0;
+  if(wallet<TICKET_PRICE){ topToast('星碎还不够，再攒一攒吧。','lock'); return; }
+  if((g.materials.ticket||0)>0){ topToast('你身上已经有一张云端车票啦。','lock'); return; }
+  g.materials.star=wallet-TICKET_PRICE;
+  g.materials.ticket=(g.materials.ticket||0)+1;
+  gameSet(g); updateHUD(true); playChime();
+  topToast('买到一张「云端车票」✦','unlock');
+  logMoment('在云端车站买了一张车票，花掉 15 颗星碎');
+  const b=$('#ticketBody');
+  if(b){ b.innerHTML=ticketHTML(); bindTicket(); }
+}
+
+/* ---------------- 上车 / 下车：白云过场 ---------------- */
+function playBoardFx(cb){
+  let fx=document.getElementById('boardFx');
+  if(!fx){
+    fx=document.createElement('div');
+    fx.id='boardFx'; fx.className='gs-board-fx';
+    fx.innerHTML='<i></i>';
+    document.body.appendChild(fx);
+  }
+  fx.classList.remove('on'); void fx.offsetWidth; fx.classList.add('on');
+  setTimeout(()=>{ try{ if(cb) cb(); }catch(e){} }, 520);
+  setTimeout(()=>{ fx.classList.remove('on'); }, 1400);
+}
+function boardTrain(){
+  const g=gameGet();
+  if((g.materials.ticket||0)<=0){
+    say('小喵','还没有车票呢，去和站台中间的列车员说说话吧。');
+    sceneLater(()=>openTicket(), 1000);
+    return;
+  }
+  g.materials.ticket-=1;
+  g.train=Object.assign({rides:0}, g.train||{});
+  g.train.rides=(g.train.rides||0)+1;
+  g.train.lastBoard=Date.now();
+  gameSet(g); updateHUD(true);
+  logMoment('把云端车票递给列车员，走上了云端列车');
+  fxStarBurst();
+  const idx=SCENES.findIndex(x=>x.id==='carriage');
+  playBoardFx(()=>{
+    if(sitting) standUp();
+    switchScene(idx, true, 18);
+    sceneLater(()=>say('小喵','车开了。窗外的云一直在往后跑 ✦'), 900);
+  });
+}
+function leaveCarriage(){
+  const idx=SCENES.findIndex(x=>x.id==='station');
+  playBoardFx(()=>{
+    if(sitting) standUp();
+    switchScene(idx, true, 84);
+    sceneLater(()=>say('小喵','回到站台了，云还是那么软。'), 900);
+  });
+}
+
+/* ---------------- 车厢窗外：双层流云 + 每 30 秒换一次天气 ---------------- */
+let carWx='sunny';
+const CAR_WX_NAMES={sunny:'晴', cloudy:'阴', rainy:'雨', hail:'冰雹'};
+function renderCarClouds(){
+  const near=$('#carCloudNear'), far=$('#carCloudFar'), sea=$('#carSea');
+  if(!near||!far) return;
+  /* 一朵积云 = 一层发灰的云底 + 三个白团；云底先画，白团压在上面 */
+  const make=(n,wMin,wMax,yMin,yMax,op)=>{
+    let h='';
+    for(let i=0;i<n;i++){
+      const x=Math.random()*90, y=yMin+Math.random()*(yMax-yMin);
+      const w=wMin+Math.random()*(wMax-wMin);
+      const ht=w*1.05;
+      const put=(cx,cy,cw,ch,cls,o)=>{
+        const st=`top:${cy.toFixed(1)}%;width:${cw.toFixed(1)}%;height:${ch.toFixed(1)}%;`
+          +`opacity:${o.toFixed(2)}`;
+        h+=`<i${cls} style="left:${cx.toFixed(1)}%;${st}"></i>`
+          +`<i${cls} style="left:${(cx+100).toFixed(1)}%;${st}"></i>`;
+      };
+      put(x-w*.08, y+ht*.42, w*1.6, ht*.62, ' class="base"', .52*op);   /* 云底 */
+      put(x, y, w*.9, ht*.9, '', .95*op);                               /* 左团 */
+      put(x+w*.52, y-ht*.42, w*1.05, ht*1.05, '', 1*op);                /* 顶团 */
+      put(x+w*1.16, y-ht*.02, w*.78, ht*.84, '', .9*op);                /* 右团 */
+    }
+    return h;
+  };
+  far.innerHTML=make(5,7,13,8,38,.6);
+  near.innerHTML=make(6,11,20,18,52,.95);
+  if(sea){
+    let s='';
+    for(let i=0;i<20;i++){
+      const x=i*5+Math.random()*3, y=60+Math.random()*26;
+      const w=9+Math.random()*9, ht=w*1.1, o=.5+Math.random()*.42;
+      const st=`top:${y.toFixed(1)}%;width:${w.toFixed(1)}%;height:${ht.toFixed(1)}%;opacity:${o.toFixed(2)}`;
+      s+=`<i style="left:${x.toFixed(1)}%;${st}"></i>`
+        +`<i style="left:${(x+100).toFixed(1)}%;${st}"></i>`;
+    }
+    sea.innerHTML=s;
+  }
+}
+function renderCarShower(){
+  const box=$('#carShower'); if(!box) return;
+  let h='';
+  if(carWx==='rainy'){
+    for(let i=0;i<26;i++){
+      h+=`<i class="rain" style="left:${(Math.random()*100).toFixed(1)}%;`
+        +`animation-duration:${(.55+Math.random()*.45).toFixed(2)}s;`
+        +`animation-delay:-${(Math.random()*1.2).toFixed(2)}s;`
+        +`opacity:${(.4+Math.random()*.5).toFixed(2)}"></i>`;
+    }
+    for(let i=0;i<9;i++){
+      h+=`<i class="bead" style="left:${(Math.random()*100).toFixed(1)}%;`
+        +`top:${(Math.random()*64).toFixed(0)}%;`
+        +`animation-duration:${(5+Math.random()*5).toFixed(1)}s;`
+        +`animation-delay:-${(Math.random()*9).toFixed(1)}s"></i>`;
+    }
+  } else if(carWx==='hail'){
+    for(let i=0;i<30;i++){
+      h+=`<i class="hail" style="left:${(Math.random()*100).toFixed(1)}%;`
+        +`animation-duration:${(.45+Math.random()*.4).toFixed(2)}s;`
+        +`animation-delay:-${(Math.random()*1).toFixed(2)}s;`
+        +`opacity:${(.55+Math.random()*.45).toFixed(2)}"></i>`;
+    }
+  }
+  box.innerHTML=h;
+}
+function applyCarWx(){
+  const v=$('#carView'); if(!v) return;
+  v.className='car-view wx-'+carWx;
+  carWxName();
+  renderCarShower();
+}
+function carWxName(){ return CAR_WX_NAMES[carWx]||'晴'; }
+function carWxTick(){
+  if(!$('#carView')) return;
+  sceneLater(()=>{
+    if(!$('#carView')) return;
+    const pool=['sunny','cloudy','rainy','hail'].filter(k=>k!==carWx);
+    carWx=pool[Math.floor(Math.random()*pool.length)];
+    applyCarWx();
+    carWxTick();
+  }, 30000);
+}
+function startCarWeather(){
+  if(!$('#carView')) return;
+  carWx='sunny';
+  renderCarClouds();
+  applyCarWx();
+  carWxTick();
+}
+
+/* ---------------- 车厢里的两个小互动 ---------------- */
+function sipCoffee(){
+  const s=$('#carSteam');
+  if(s){
+    s.classList.remove('burst'); void s.offsetWidth; s.classList.add('burst');
+    sceneLater(()=>{ const n=$('#carSteam'); if(n) n.classList.remove('burst'); }, 2800);
+  }
+  fxNote('呼——');
+  say('小喵','咖啡是热的，杯口结了一层薄薄的雾。');
+}
+function lookCloud(){
+  fxNote('☁');
+  const words={
+    sunny:'外面是粉蓝色的天，云跑得飞快，像被谁赶着。',
+    cloudy:'云层压得很低，整片天灰蓝灰蓝的，看不远。',
+    rainy:'雨点斜斜地打在玻璃上，划成一条一条的线。',
+    hail:'小冰粒砸在窗上，噼里啪啦的，像有人在敲门。'
+  };
+  say('小喵', words[carWx]||words.sunny);
 }
 
 /* ---------------------------------------------------------- 初始化 ---------------------------------------------------------- */
