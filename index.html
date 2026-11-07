@@ -1302,13 +1302,40 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   box-shadow:0 10px 26px rgba(120,86,70,.18),inset 0 0 42px rgba(255,255,255,.36),inset 0 -9px 24px rgba(196,150,132,.24)}
 .room-rug::after{content:'';position:absolute;left:17%;top:22%;width:66%;height:54%;border-radius:50%;
   background:radial-gradient(ellipse at 50% 48%,rgba(255,255,255,.32),transparent 72%)}
-/* 盘腿坐：坐标上移 + 直接隐藏下半身（裁掉双腿），裙摆正好落在地毯上；绝不压缩变矮 */
-.gs-char.rug-sit .gs-char-float{animation:none}
-.gs-char.rug-sit .gs-char-pose{transform:translateY(34px)}
-.gs-char.rug-sit .px-avatar{animation:none}
-/* 用 clip-path 在髋部裁掉双腿（仅留头+躯干+大腿），坐标下移坐实到地毯；不压缩、不变矮 */
-.gs-char.rug-sit .px-upper{clip-path:inset(0 0 28% 0)}
-.gs-char.rug-sit .px-lower{display:none}
+/* 地毯放空（方案 A）：人物零形变 —— 不裁腿、不隐藏下半身、不缩放，
+   完整站立着原地发呆，只让整个人做 3px 的呼吸浮动；
+   氛围交给「头顶像素思考气泡 + 屏幕边缘暖白柔光」，可爱但不诡异 */
+.gs-char.rug-rest{cursor:default}
+.gs-char.rug-rest .gs-char-float{animation:rugDaze 4.6s ease-in-out infinite}
+.gs-char.rug-rest .gs-char-pose{transform:none}
+@keyframes rugDaze{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* 思考气泡：纯 CSS 像素风（3 个方点先后亮起 + 两个朝下的小气泡尾巴）
+   top 里减掉 --ground-px：立绘被贴地偏移抬起，气泡要跟着一起抬高，才浮在头顶而不是贴着脸 */
+.rug-thought{position:absolute;right:-18px;top:calc(-52px - var(--ground-px,44px));width:52px;height:33px;z-index:33;
+  display:none;pointer-events:none;animation:rugThoughtFloat 4.2s ease-in-out infinite}
+.gs-char.rug-rest .rug-thought{display:block}
+.rug-thought::before,.rug-thought::after{content:'';position:absolute;border-radius:50%;
+  background:#FFFCF4;border:2px solid #DFCCAC;box-sizing:border-box}
+.rug-thought::before{left:3px;bottom:-9px;width:12px;height:12px}
+.rug-thought::after{left:-6px;bottom:-18px;width:7px;height:7px}
+.rug-thought-body{position:absolute;inset:0;border-radius:13px;background:#FFFCF4;
+  border:2px solid #DFCCAC;box-sizing:border-box;
+  box-shadow:0 6px 14px rgba(140,112,86,.16),inset 0 -5px 0 rgba(223,204,172,.20)}
+.rug-thought-body i{position:absolute;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:1px;
+  background:#B79C74;opacity:.24;animation:rugDots 1.5s steps(1,end) infinite}
+.rug-thought-body i:nth-child(1){left:13px}
+.rug-thought-body i:nth-child(2){left:24px;animation-delay:.22s}
+.rug-thought-body i:nth-child(3){left:35px;animation-delay:.44s}
+@keyframes rugDots{0%,100%{opacity:.24}38%{opacity:.95}}
+@keyframes rugThoughtFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* 屏幕边缘微微泛白变暖：像午后的光把房间包住，中心保持通透，不给人物染色 */
+.gs-warm-veil{position:absolute;inset:0;z-index:24;pointer-events:none;opacity:0;
+  transition:opacity .85s ease;
+  background:radial-gradient(ellipse at 50% 46%,rgba(255,244,222,0) 26%,rgba(255,236,198,.30) 70%,rgba(255,222,168,.50) 100%);
+  box-shadow:inset 0 0 70px rgba(255,228,176,.28)}
+#game-stage.rug-rest .gs-warm-veil{opacity:1}
 /* 小喵绕圈飞 */
 .gs-mate.circling{animation:mateCircle 3.2s linear infinite}
 @keyframes mateCircle{0%{transform:translate(0,0)}
@@ -3485,7 +3512,7 @@ const NEARBY = {
     {id:'bed',      x:27, r:18, act:'bed',      tip:'睡觉',   hint:'点一点小床 ✦',        zone:[12,50,28,40], trigger:'click'},
     {id:'window',   x:52, r:16, act:'window',   tip:'看星星', hint:'点一点窗户 ✦',        zone:[41,13,23,52], trigger:'click'},
     {id:'wardrobe', x:79, r:14, act:'wardrobe', tip:'换衣服', hint:'点一点衣橱换衣服 ✦',   zone:[71,31,15,55], trigger:'click'},
-    {id:'rug',      x:50, r:18, act:'sit',      tip:'坐下',   hint:'点一点地毯 ✦',        zone:[33,66,34,24], trigger:'click'},
+    {id:'rug',      x:50, r:18, act:'sit',      tip:'发发呆', hint:'点一点地毯 ✦',        zone:[33,66,34,24], trigger:'click'},
     {id:'door',     x:91, r:11, act:'map',      tip:'出门',   hint:'走到门前按空格开门',   zone:[89,19,11,70], trigger:'space'}
   ],
   garden:[{id:'postbox', x:9,  r:15, hint:'点一点旧邮筒 ✦', line:'今天没有来信哦。', trigger:'click'}],
@@ -3507,6 +3534,7 @@ function updateNearHint(){
 function tryNearby(trigger, direct){
   const p=direct||nearbyHere();
   if(!p || (!direct && p.trigger!==trigger)) return false;
+  if(p.act!=='sit' && sitting){ clearRugRest(); standUp(); }   /* 从「放空」里起身再去做别的事 */
   if(p.act==='map'){ roomDoor(); return true; }
   if(p.act==='bed'){ roomBed(); return true; }
   if(p.act==='window'){ roomWindow(); return true; }
@@ -3597,7 +3625,8 @@ function goHome(){
 /* ---------------- 小屋四件互动：门 / 床 / 窗 / 衣橱 ---------------- */
 function roomDoor(){
   if(!S.inRoom) return;
-  clearWindowPose(); wakeFromBed(true);
+  clearWindowPose(); wakeFromBed(true); clearRugRest();
+  if(sitting) standUp();                          /* 从地毯发呆状态直接出门，先回神 */
   if(S.charX<82) travelTo(88, ()=>openTravelMap());
   else openTravelMap();
 }
@@ -3605,7 +3634,8 @@ function roomBed(){
   if(!S.inRoom) return;
   /* 已经躺着时，再点一次床 = 起床 */
   if(S.roomRest){ wakeFromBed(false); return; }
-  clearWindowPose();
+  clearWindowPose(); clearRugRest();
+  if(sitting) standUp();
   const c=charEl(); if(!c) return;
   c.classList.remove('at-window','jump-bed','in-bed');
   /* 抬起量随舞台高度自适应：让人物坐进床里，被子刚好盖到胸口，只露出头与上半身 */
@@ -3669,17 +3699,33 @@ function clearWindowPose(){
   const m=$('#companion'); if(m) m.classList.remove('on-window');
   const t=$('#companionTrail'); if(t) t.classList.remove('on-window');
 }
-/* 点地毯：原地盘腿坐下，小喵绕着圈飞 */
+/* 点地毯：平滑走到毯子正中，站定发呆 —— 人物完整不变形，头顶浮出思考气泡，画面边缘泛暖 */
+function clearRugRest(){
+  const c=charEl(); if(c) c.classList.remove('rug-rest');
+  const st=$('#game-stage'); if(st) st.classList.remove('rug-rest');
+  const m=$('#companion'); if(m) m.classList.remove('circling');
+}
 function roomRug(){
   if(!S.inRoom) return;
   wakeFromBed(true); clearWindowPose();
-  const c=charEl(); if(!c) return;
-  c.classList.remove('in-bed','at-window','jump-bed');
-  c.classList.add('rug-sit');
-  sitting=true; swingActive=false;
-  const m=$('#companion'); if(m) m.classList.add('circling');
-  say('小喵','地毯软乎乎的，坐下来歇会儿吧 ✦');
-  topToast('盘腿坐下来 ✦');
+  if(sitting){                                    /* 已经在发呆：再点一下就是回神 */
+    clearRugRest(); standUp();
+    say('小喵','回神啦 ✦');
+    topToast('伸个懒腰，站起来啦 ✦');
+    return;
+  }
+  travelTo(48, ()=>{                              /* 毯子因 translate(-4%) 左移，视觉中心在 48% */
+    if(!S.inRoom || S.roomRest) return;
+    const c=charEl(); if(!c) return;
+    c.classList.remove('in-bed','at-window','jump-bed','walking','crouch','touch','spin','swinging');
+    c.classList.add('rug-rest');                  /* 只加一层氛围状态，立绘一像素不动 */
+    const st=$('#game-stage'); if(st) st.classList.add('rug-rest');
+    sitting=true; swingActive=false;
+    const m=$('#companion'); if(m) m.classList.add('circling');
+    say('小喵','就站在这儿发会儿呆吧，地毯软乎乎的 ✦');
+    for(let i=0;i<2;i++) sceneLater(()=>fxNote('✦'), i*320);
+    topToast('在地毯上放空一会儿 ✦');
+  });
 }
 
 /* ========================================================== 樱花小径：水彩景深 + 风吹花瓣 + 接花瓣 ========================================================== */
@@ -3886,6 +3932,7 @@ function withGame(fn){ const g=gameGet(); fn(g); gameSet(g); return g; }
 const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-deco" id="gsDeco"></div>
 <div class="gs-vignette" id="gsVignette"></div>
+<div class="gs-warm-veil" id="gsWarmVeil"></div>
 <div class="gs-fx" id="fxLayer"></div>
 <div class="gs-spots" id="hotspots"></div>
 <div class="gs-prop-layer" id="propLayer"></div>
@@ -3893,7 +3940,7 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div id="orbsLayer"></div>
 <div class="gs-mate-trail" id="companionTrail">${PX_MATE_SVG}</div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
-<div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
+<div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="rug-thought" aria-hidden="true"><div class="rug-thought-body"><i></i><i></i><i></i></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
 <div class="room-tip" id="roomTip"></div>
 <div class="room-quilt" id="roomQuilt" aria-hidden="true"></div>
@@ -4226,7 +4273,8 @@ function sitAt(sp){
 }
 function standUp(){
   const c=charEl();
-  if(c){ c.classList.remove('sitting','swinging','rug-sit'); c.style.removeProperty('--sit-rise'); }
+  if(c){ c.classList.remove('sitting','swinging','rug-rest'); c.style.removeProperty('--sit-rise'); }
+  const st=$('#game-stage'); if(st) st.classList.remove('rug-rest');
   const m=$('#companion'); if(m) m.classList.remove('circling');
   const a=$('#gsArt'); if(a) a.classList.remove('swinging','bottle-drag');
   sitting=false; swingActive=false;
@@ -4548,6 +4596,7 @@ function closeEvent(){
 /* ---------------------------------------------------------- 衣橱 / 旅行报告 ---------------------------------------------------------- */
 function openWardrobe(){
   if(!S.inRoom){ topToast('要回小屋才能换衣服哦 ✦','lock'); return; }
+  clearRugRest(); if(sitting) standUp();            /* 从地毯放空里站起来再换衣服 */
   const g=gameGet(), p=$('#wardrobePanel'), r=$('#reportPanel'), e=$('#eventPanel');
   if(r) r.classList.add('hidden'); if(e) e.classList.add('hidden');
   p.classList.remove('hidden');
