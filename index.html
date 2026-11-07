@@ -1082,15 +1082,13 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   animation:roomCurtain 6.5s ease-in-out infinite alternate}
 @keyframes roomCurtain{from{transform:skewX(-1.5deg)}to{transform:skewX(1.8deg)}}
 /* 悬停手写提示：仅鼠标移到门/床/衣橱/窗/地毯上时出现，移开即消失（出戏文字全部移除） */
-.room-tip{position:fixed;z-index:920;pointer-events:none;transform:translate(-50%,-122%);
-  padding:2px 11px;border:1px solid rgba(222,206,176,.85);border-radius:11px;
-  background:rgba(255,252,245,.84);backdrop-filter:blur(4px);
-  font-family:var(--hand);font-size:15px;letter-spacing:.05em;color:#9A8767;white-space:nowrap;
-  box-shadow:0 4px 14px rgba(120,100,80,.14),inset 0 0 0 1px rgba(255,255,255,.5);
-  opacity:0;transition:opacity .16s ease}
-.room-tip.show{opacity:1}
-/* 睡眠：整屋蒙一层黑半透明遮罩（比 room-night 更深），点遮罩即起身 */
-.room-dim-veil{position:absolute;inset:0;z-index:25;background:rgba(38,28,24,.34);
+.room-tip{position:absolute;z-index:920;pointer-events:none;transform:translate(-50%,-100%);
+  font-family:var(--hand);font-size:11px;letter-spacing:.1em;color:#9A8767;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(255,253,247,.9),0 0 5px rgba(255,253,247,.85);
+  opacity:0;transition:opacity .2s ease}
+.room-tip.show{opacity:.58}
+/* 睡眠：整屋蒙一层极轻的黑半透明遮罩（盖住人物与被子），点遮罩即起身 */
+.room-dim-veil{position:absolute;inset:0;z-index:33;background:rgba(38,28,24,.30);
   opacity:0;visibility:hidden;transition:opacity .8s ease,visibility 0s linear .8s;cursor:pointer}
 .room-dim-veil.on{opacity:1;visibility:visible;transition-delay:0s}
 /* 地毯：CSS 大椭圆 + 毛绒柔光渐变，去掉粗糙虚线 */
@@ -1100,10 +1098,6 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   box-shadow:0 10px 26px rgba(120,86,70,.18),inset 0 0 42px rgba(255,255,255,.36),inset 0 -9px 24px rgba(196,150,132,.24)}
 .room-rug::after{content:'';position:absolute;left:17%;top:22%;width:66%;height:54%;border-radius:50%;
   background:radial-gradient(ellipse at 50% 48%,rgba(255,255,255,.32),transparent 72%)}
-/* 地毯上的软方抱枕 */
-.room-pillow{position:absolute;left:81%;top:76.4%;width:6.6%;height:6.6%;z-index:3;pointer-events:none;
-  border-radius:9px;background:linear-gradient(150deg,#F7E3CF,#E8C8B6);
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.5),0 5px 10px rgba(120,90,70,.18);transform:rotate(-7deg)}
 /* 盘腿坐：坐标上移 + 直接隐藏下半身（裁掉双腿），裙摆正好落在地毯上；绝不压缩变矮 */
 .gs-char.rug-sit .gs-char-float{animation:none}
 .gs-char.rug-sit .gs-char-pose{transform:translateY(34px)}
@@ -1117,76 +1111,42 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   25%{transform:translate(28px,-13px)}50%{transform:translate(0,-23px)}
   75%{transform:translate(-28px,-13px)}100%{transform:translate(0,0)}}
 
-/* ---------- 4.2 小屋睡眠：跳上床 → 侧卧屈膝露腿 → 呼吸 / Zzz / 屏幕微暗 ---------- */
-/* 起跳：站立立绘走一段带后仰的抛物线，落地后把画面交给独立的「睡姿层」 */
-.gs-char.jump-bed .gs-char-float{animation:gsBedJump .66s cubic-bezier(.2,.8,.3,1)}
-@keyframes gsBedJump{0%{transform:translateY(0) rotate(0deg)}
-  32%{transform:translateY(-46px) rotate(-6deg)}
-  58%{transform:translateY(-18px) rotate(-15deg)}
-  100%{transform:translateY(-4px) rotate(-21deg)}}
+/* ---------- 4.2 小屋睡眠：走到床边 → 粉色被子盖在身前（z-index 遮挡）→ 只露头与上半身，绝不旋转/裁切 ---------- */
+/* 起跳：只做上下弹跳，不旋转人物，完整像素立绘始终保留 */
+.gs-char.jump-bed .gs-char-float{animation:gsBedJump .62s cubic-bezier(.2,.8,.3,1)}
+@keyframes gsBedJump{0%{transform:translateY(0)}38%{transform:translateY(-28px)}
+  72%{transform:translateY(-9px)}100%{transform:translateY(0)}}
+/* 躺进被子：人物整体上移坐进床里（纯位移，无 rotate、无 clip-path，完整身体保留） */
 .gs-char.in-bed .gs-char-float{animation:none}
-.gs-char.in-bed .gs-char-pose{transform:none}
-/* 站立立绘淡出、睡姿层淡入：交叉过渡，不再把整张图硬转 76° 又裁掉双腿 */
-#gameAvatar{transition:opacity .3s ease}
-.gs-char.in-bed #gameAvatar{opacity:0}
-.gs-char.waking-up #gameAvatar{animation:bpWakeUp .4s cubic-bezier(.2,.8,.3,1)}
-@keyframes bpWakeUp{0%{transform:translateY(11px) scale(.95)}
-  62%{transform:translateY(-3px) scale(1.03)}100%{transform:translateY(0) scale(1)}}
+.gs-char.in-bed .gs-char-pose{transform:translateY(var(--in-bed-lift,-62px))}
+.gs-char.in-bed .px-avatar{animation:none}
+.gs-char.waking-up .gs-char-pose{animation:gsWakeHop .46s cubic-bezier(.2,.8,.3,1)}
+@keyframes gsWakeHop{0%{transform:translateY(var(--in-bed-lift,-62px))}
+  55%{transform:translateY(4px)}100%{transform:translateY(0)}}
 
-/* 睡姿层：头靠枕保持正向 + 格子被盖身 + 两条会屈膝晃脚的像素腿 */
-.bed-pose{position:absolute;left:50%;bottom:calc(var(--bed-rise,88px) - 6px);
-  width:250px;height:126px;margin-left:-45px;z-index:2;pointer-events:none;
-  opacity:0;visibility:hidden;transform-origin:50% 100%;
-  transition:opacity .3s ease,visibility 0s linear .3s}
-.gs-char.in-bed .bed-pose{opacity:1;visibility:visible;transition-delay:0s;
-  animation:bpSettle .82s cubic-bezier(.2,.8,.3,1)}
-@keyframes bpSettle{
-  0%{transform:translateY(-32px) rotate(-14deg) scale(.9)}
-  40%{transform:translateY(5px) rotate(-2deg) scale(1.02)}
-  66%{transform:translateY(-4px) rotate(1deg) scale(.99)}
-  84%{transform:translateY(2px) rotate(0deg) scale(1.005)}
-  100%{transform:translateY(0) rotate(0deg) scale(1)}}
-/* 主体：完整立绘斜躺 72°，一个像素都不裁 —— 原图的双腿与鞋子整段保留 */
-.bp-head{position:absolute;left:56px;bottom:-46px;width:120px;height:170px;
-  z-index:2;transform-origin:50% 50%;transform:rotate(72deg);
-  animation:bpLieBreathe 3.4s ease-in-out infinite alternate}
-.bp-head img{position:absolute;left:0;top:0;width:120px;height:auto;display:block;
-  image-rendering:pixelated;image-rendering:crisp-edges;
-  filter:drop-shadow(0 3px 4px rgba(90,65,60,.22))}
-@keyframes bpLieBreathe{from{transform:rotate(70deg) translateY(0)}
-  to{transform:rotate(73deg) translateY(-2px)}}
-/* 被子：粉格子水彩 + 柔和起伏，只盖住肚子，头与脚都露在外面 */
-.bp-quilt{position:absolute;left:88px;bottom:2px;width:78px;height:44px;z-index:3;
-  border-radius:18px 20px 10px 12px;border:1px solid rgba(214,174,178,.5);
+/* 粉色格子被：直接作为 DOM 盖在人物「前方」（z-index 高于 .gs-char），只露出头部与上半身，
+   腿部被完全遮住 —— 这就是「盖被子睡觉」的物理遮挡，人物本身一个像素都没变形 */
+.room-quilt{position:absolute;left:13%;top:71.5%;width:26.5%;height:16%;z-index:32;pointer-events:none;
+  opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s;
+  border-radius:38% 38% 44% 44% / 22px 22px 30px 30px;
   background:
-    radial-gradient(ellipse at 28% 16%,rgba(255,255,255,.82),transparent 62%),
-    repeating-linear-gradient(0deg,rgba(211,158,166,.20) 0 2px,transparent 2px 13px),
-    repeating-linear-gradient(90deg,rgba(211,158,166,.20) 0 2px,transparent 2px 15px),
-    linear-gradient(168deg,#FFF8F2 0%,#F4DFE1 58%,#E8CBD2 100%);
-  box-shadow:inset 0 7px 12px rgba(255,255,255,.8),inset 0 -8px 12px rgba(188,138,150,.26),
-              0 7px 14px rgba(90,60,55,.16);
-  transform-origin:50% 100%;animation:bpQuilt 3.4s ease-in-out infinite alternate}
-.bp-quilt::after{content:'';position:absolute;right:9px;top:6px;width:34px;height:12px;
-  border-radius:8px 12px 3px 8px;transform:rotate(-9deg);opacity:.78;
-  background:linear-gradient(160deg,rgba(255,255,255,.95),rgba(255,238,243,.2))}
-@keyframes bpQuilt{from{transform:scaleY(.985) translateY(1px)}
-  to{transform:scaleY(1.035) translateY(-1px)}}
-/* 脚端：一整条连续的像素腿（膝盖折起 + 小皮鞋），贴着被脚缓缓晃，不再用分离方块拼 */
-.bp-legs{position:absolute;left:-62px;top:86px;width:96px;height:50px;z-index:4;
-  transform-box:fill-box;transform-origin:90% 70%;
-  animation:bpLegSway 3.1s ease-in-out infinite alternate}
-@keyframes bpLegSway{from{transform:rotate(-3deg) translateY(0)}
-  to{transform:rotate(4deg) translateY(-2px)}}
-.bp-leg{shape-rendering:crispEdges}
-.bp-leg rect:not(.bp-shoe){stroke-linejoin:miter}
-.bp-leg.b{opacity:.92}
-.bp-shoe{fill:#2B2530}
-/* Zzz 紧跟头顶，不挡视野（恒可见，不依赖动画首帧） */
-.room-zzz{position:absolute;right:2px;top:-46px;z-index:4;pointer-events:none;
+    radial-gradient(ellipse at 32% 8%,rgba(255,255,255,.88),transparent 56%),
+    repeating-linear-gradient(0deg,rgba(206,150,160,.28) 0 2px,transparent 2px 16px),
+    repeating-linear-gradient(90deg,rgba(206,150,160,.28) 0 2px,transparent 2px 18px),
+    linear-gradient(172deg,#FFFBF6 0%,#F6E2E4 46%,#E9CCD3 100%);
+  box-shadow:inset 0 12px 16px rgba(255,255,255,.85),inset 0 -14px 20px rgba(190,140,152,.30),
+             0 10px 22px rgba(90,60,55,.20);
+}
+#game-stage.room-rest .room-quilt{opacity:1;visibility:visible;transition-delay:0s}
+/* Zzz 紧贴头上方（随被子一起出现，恒可见不依赖动画首帧） */
+.room-zzz{position:absolute;left:27%;top:52%;transform:translate(-50%,-50%);z-index:34;pointer-events:none;
   font-family:var(--serif);font-size:21px;letter-spacing:.14em;color:#8A7458;
+  opacity:0;visibility:hidden;transition:opacity .4s ease;
   text-shadow:2px 0 0 rgba(255,253,247,.92),0 2px 0 rgba(255,253,247,.92),0 0 10px rgba(255,240,205,.9);
   animation:roomZzz 2.6s ease-in-out infinite alternate}
-@keyframes roomZzz{from{transform:translateY(0);opacity:.8}to{transform:translateY(-10px);opacity:1}}
+#game-stage.room-rest .room-zzz{opacity:1;visibility:visible}
+@keyframes roomZzz{from{transform:translate(-50%,-50%) translateY(0);opacity:.85}
+  to{transform:translate(-50%,-50%) translateY(-10px);opacity:1}}
 /* 小喵蜷在床尾打盹 */
 .gs-mate.on-bed{bottom:37% !important;left:19% !important;
   transform:scale(.82) rotate(-9deg);opacity:.88}
@@ -2267,9 +2227,6 @@ function refreshGameAvatar(){
     box.innerHTML = `<div class="px-av-wrap">${avatarHTML(outfit,'px-upper')}${avatarHTML(outfit,'px-lower')}</div>`;
     syncFacing();
   }
-  /* 睡姿头部同样跟随换装，但只用柔光，不做任何色相旋转 */
-  const head = $('#bedPose .bp-head img');
-  if(head){ head.src = AVATAR_DATA; head.className = 'px-avatar '+(outfit==='moon'?'moon':''); }
 }
 
 /* ---------------------------------------------------------- 水彩 SVG 绘制工具 ---------------------------------------------------------- */
@@ -2839,7 +2796,7 @@ function roomDecoHTML(){
     dust+=`<i class="room-dust-bit" style="left:${x}%;top:${top}%;--dd:${d}s;--dl:${dl}s"></i>`;
   }
   return `<div class="room-glow"></div><div class="room-dust">${dust}</div>`
-    + `<div class="room-rug"></div><div class="room-pillow"></div>`;
+    + `<div class="room-rug"></div>`;
 }
 
 /* 小屋是「家」，与六个户外场景分开定义；切换户外时完全不渲染小屋元素 */
@@ -3049,10 +3006,16 @@ function renderPropZones(){
     const p=list.find(q=>q.id===z.dataset.prop);
     if(!p) return;
     z.addEventListener('click',()=>tryNearby('click',p));
-    /* 悬停才出现手写小提示，移开即消失，绝不长期霸屏 */
+    /* 悬停才出现：极淡小字浮在该物件正上方（如床的上方），移开即消失，绝不长期霸屏 */
     if(p.tip){
-      z.addEventListener('mouseenter',e=>{ tip.textContent=p.tip; tip.style.left=(e.clientX)+'px'; tip.style.top=(e.clientY)+'px'; tip.classList.add('show'); });
-      z.addEventListener('mousemove',e=>{ tip.style.left=(e.clientX)+'px'; tip.style.top=(e.clientY)+'px'; });
+      const show=()=>{
+        const zr=z.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+        tip.textContent=p.tip;
+        tip.style.left=(zr.left-sr.left+zr.width/2)+'px';
+        tip.style.top=(zr.top-sr.top)+'px';
+        tip.classList.add('show');
+      };
+      z.addEventListener('mouseenter',show);
       z.addEventListener('mouseleave',()=>tip.classList.remove('show'));
     }
   });
@@ -3109,10 +3072,13 @@ function roomDoor(){
 }
 function roomBed(){
   if(!S.inRoom) return;
+  /* 已经躺着时，再点一次床 = 起床 */
+  if(S.roomRest){ wakeFromBed(false); return; }
   clearWindowPose();
   const c=charEl(); if(!c) return;
-  c.classList.remove('in-bed','at-window','jump-bed');
-  c.style.setProperty('--bed-rise', Math.round(stageH()*(445-330)/500)+'px');
+  c.classList.remove('at-window','jump-bed','in-bed');
+  /* 抬起量随舞台高度自适应：让人物坐进床里，被子刚好盖到胸口，只露出头与上半身 */
+  c.style.setProperty('--in-bed-lift', (-Math.round(stageH()*0.100))+'px');
   travelTo(27, ()=>{
     const n=charEl(); if(!n || !S.inRoom) return;
     n.classList.add('jump-bed');
@@ -3123,32 +3089,32 @@ function roomBed(){
       S.roomRest=true;
       const bg=gameGet(); bump('action:bed',1,bg); gameSet(bg);   /* 小屋点床休息 · 每日任务 */
       const v=$('#gsVignette'); if(v) v.classList.add('room-dim');
-      const st=$('#game-stage'); if(st) st.classList.add('room-night');
+      const st=$('#game-stage'); if(st) st.classList.add('room-rest');   /* 触发被子/暗场/Zzz */
       const veil=$('#roomDimVeil'); if(veil){ veil.classList.add('on'); veil.onclick=()=>wakeFromBed(false); }
-      const zz=$('#roomZzz'); if(zz) zz.classList.remove('hidden');
       say('小喵','呼……被子软得像云，先睡一小会儿 ✦');
       fxNote('Zzz');
       sceneLater(()=>{ if(S.roomRest) wakeFromBed(true); }, 9000);
-    }, 660);
+    }, 620);
   });
-  topToast('跳上小床，躺一会儿 ✦');
+  topToast('钻进被窝，躺一会儿 ✦');
 }
 function wakeFromBed(auto){
+  const wasRest=S.roomRest;
   S.roomRest=false;
   const c=charEl();
   if(c){
-    const asleep=c.classList.contains('in-bed');
     c.classList.remove('in-bed','jump-bed');
-    if(asleep && !auto){
+    if(wasRest && !auto){
       c.classList.add('waking-up');
-      sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove('waking-up'); }, 420);
+      sceneLater(()=>{ const n=charEl(); if(n) n.classList.remove('waking-up'); }, 460);
     }
   }
   const mate=$('#companion'); if(mate) mate.classList.remove('on-bed');
   const v=$('#gsVignette'); if(v) v.classList.remove('room-dim');
-  const st=$('#game-stage'); if(st) st.classList.remove('room-night');
+  const st=$('#game-stage'); if(st) st.classList.remove('room-rest');
   const veil=$('#roomDimVeil'); if(veil){ veil.classList.remove('on'); veil.onclick=null; }
-  const zz=$('#roomZzz'); if(zz) zz.classList.add('hidden');
+  /* 起床后退回地毯中央 */
+  if(wasRest && S.inRoom) travelTo(46);
   if(!auto) say('小喵','醒啦？门还等着我们呢 ✦');
 }
 function roomWindow(){
@@ -3290,18 +3256,22 @@ const EVENTS = {
     hint:'左右拖动瓶子，捞满 3 下', special:'drag', reward:{postcard:1,seaGlass:1},
     done:'有人把话留在门缝里，等你来读。' }
 };
-/* 每日手账任务池：
-   基础三项（花庭收集 / 樱花小径摸绵羊 / 小屋点床休息）始终可抽；
-   「海边看浪」需已解锁【海边灯塔】、「坐云端列车」需已解锁【云端列车】才进入任务池。
-   生成时按当前 localStorage 解锁进度动态过滤，再随机抽 3 个。 */
-const COMMISSION_POOL = [
-  {id:'garden3',  text:'在花庭收集 3 次',      check:'collect:star', need:3, unlock:null},
-  {id:'sheep1',   text:'在樱花小径摸一次绵羊',  check:'action:sheep',  need:1, unlock:null},
-  {id:'bed1',     text:'在小屋点床休息一次',    check:'action:bed',    need:1, unlock:null},
-  {id:'seaWave',  text:'去海边看看浪',          check:'visit:sea',     need:1, unlock:'sea'},
-  {id:'train1',   text:'坐一趟云端列车',        check:'visit:train',   need:1, unlock:'train'}
+/* ---------------- 每日手账任务生成（严格按解锁状态过滤，绝不让未解锁地图的任务出现） ----------------
+   1) 基础任务池：永远在【温馨小屋 / 晴天花庭 / 樱花小径】，绝对安全；
+   2) 动态任务：只有对应场景已在存档解锁列表里，才会加入候选；
+   3) 从候选池里随机抽 3 个。 */
+const BASE_TASKS = [
+  {id:'room_rest',     text:'在温馨小屋休息一次',   check:'action:bed',   need:1, unlock:null},
+  {id:'garden_collect',text:'去晴天花庭收集 3 次',   check:'collect:star', need:3, unlock:null},
+  {id:'path_sheep',    text:'在樱花小径摸一次绵羊', check:'action:sheep', need:1, unlock:null}
 ];
-/* 任务是否可入池：无 unlock 限制，或对应场景已在存档解锁列表中 */
+const DYNAMIC_TASKS = [
+  {id:'beach_wave',   text:'去海边看浪',       check:'visit:sea',     need:1, unlock:'sea'},
+  {id:'train_ride',   text:'坐一趟云端列车',   check:'visit:train',   need:1, unlock:'train'},
+  {id:'library_read', text:'在图书馆看一本书', check:'visit:library', need:1, unlock:'library'}
+];
+/* 兼容既有引用/测试：完整候选池 + 单项可入池判定 */
+const COMMISSION_POOL = BASE_TASKS.concat(DYNAMIC_TASKS);
 function commissionUnlocked(c){
   if(!c.unlock) return true;
   return unlockedScenes(gameGet()).includes(c.unlock);
@@ -3340,8 +3310,12 @@ function restoreOriginalPalette(){
   gameSet(g);
 }
 function makeCommissions(){
-  const pool = COMMISSION_POOL.filter(commissionUnlocked);
-  return {date:todayStr(), list:pickN(pool, Math.min(3, pool.length)).map(c=>({...c, progress:0, done:false}))};
+  /* 严格按玩家当前解锁进度动态过滤：基础三项 + 已解锁场景的联动任务，再随机抽 3 个 */
+  const openSceneIds = unlockedScenes(gameGet());
+  const dynamicTasks = DYNAMIC_TASKS.filter(t=>openSceneIds.includes(t.unlock));
+  const pool = BASE_TASKS.concat(dynamicTasks);
+  const shuffled = pool.slice().sort(()=>0.5-Math.random());
+  return {date:todayStr(), list:shuffled.slice(0,3).map(c=>({...c, progress:0, done:false}))};
 }
 function rollDaily(g){
   if(g.steps.date !== todayStr()){
@@ -3388,9 +3362,11 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div id="orbsLayer"></div>
 <div class="gs-mate-trail" id="companionTrail">${PX_MATE_SVG}</div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
-<div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div><div class="bed-pose" id="bedPose" aria-hidden="true"><div class="bp-head"><img class="px-avatar" src="${AVATAR_DATA}" alt=""></div><div class="bp-quilt"></div><svg class="bp-legs" viewBox="0 0 96 50" aria-hidden="true"><g class="bp-leg a"><rect x="18" y="10" width="72" height="13" rx="6" fill="#F8EBD6" stroke="#E5A2B4" stroke-width="1.4"/><rect class="bp-shoe" x="3" y="8" width="18" height="17" rx="3"/></g><g class="bp-leg b" transform="translate(9,20)"><rect x="18" y="10" width="72" height="13" rx="6" fill="#F1D9BC" stroke="#E5A2B4" stroke-width="1.4"/><rect class="bp-shoe" x="3" y="8" width="18" height="17" rx="3"/></g></svg><div class="room-zzz hidden" id="roomZzz">Zzz</div></div></div></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
+<div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
 <div class="room-tip" id="roomTip"></div>
+<div class="room-quilt" id="roomQuilt" aria-hidden="true"></div>
+<div class="room-zzz" id="roomZzz" aria-hidden="true">Zzz</div>
 <div class="room-dim-veil" id="roomDimVeil"></div>
 <div class="gs-pad left" id="padLeft"><span class="pad-tip">‹</span></div>
 <div class="gs-pad right" id="padRight"><span class="pad-tip">›</span></div>
