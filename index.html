@@ -1083,12 +1083,13 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs-art.swinging #gsSwing{animation:gsSwingRock 1.5s ease-in-out infinite alternate}
 @keyframes gsSwingRock{from{transform:rotate(-15deg)}to{transform:rotate(15deg)}}
 /* 2 樱花小径：小猫伸懒腰 / 绵羊果冻弹动 */
-#gsCat{transform-box:view-box;transform-origin:74.5% 80%}
-#gsCat.stretch{animation:catStretch .95s cubic-bezier(.2,.8,.3,1)}
-@keyframes catStretch{0%{transform:scale(1,1)}
-  35%{transform:scaleX(1.2) scaleY(.82) translateX(-6px)}
-  68%{transform:scaleX(.94) scaleY(1.08) translateX(3px)}
-  100%{transform:scale(1,1)}}
+/* 白猫只做整格位移（1 格 = 屏幕 2px），绝不缩放拉伸，像素永远方正 */
+#gsCat{transform-box:fill-box;transform-origin:50% 100%;animation:catIdle 3.6s steps(1,end) infinite}
+#gsCat.stretch{animation:catPerk .9s steps(1,end)}
+@keyframes catIdle{0%,70%{transform:translateY(0)}86%{transform:translateY(-1px)}}
+@keyframes catPerk{0%,100%{transform:translateY(0)}
+  18%{transform:translateY(-2px)}42%{transform:translateY(0)}
+  60%{transform:translateY(-1px)}80%{transform:translateY(0)}}
 #gsSheep{transform-box:view-box;transform-origin:33% 76%}
 #gsSheep.jelly{animation:gsJelly .82s cubic-bezier(.2,.8,.3,1)}
 @keyframes gsJelly{0%{transform:scale(1,1)}22%{transform:scale(1.16,.84)}
@@ -1216,9 +1217,8 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   48%{transform:translateY(-4px) scale(1.06,.94)}
   72%{transform:translateY(-7px) scale(.98,1.03)}
   100%{transform:translateY(0) scale(1,1)}}
-.gs--path #gsCat .cat-tail{transform-box:view-box;transform-origin:75.6% 80%;
-  animation:gsTailWag 1.5s ease-in-out infinite alternate}
-@keyframes gsTailWag{from{transform:rotate(-9deg)}to{transform:rotate(14deg)}}
+/* 白猫的柔光轮廓：像素猫在浅粉水彩背景上也能浮出来 */
+.gs--path #gsCat{filter:drop-shadow(0 1px 0 rgba(255,255,255,.9)) drop-shadow(0 3px 5px rgba(150,120,110,.22))}
 
 /* ---------- 3.6 衣橱：界面半透明柔化 + 换装高光闪烁 ---------- */
 .gs-wardrobe-veil{position:absolute;inset:0;z-index:46;pointer-events:none;
@@ -2749,6 +2749,8 @@ const AVATAR_RATIO = 132/93;          /* 高 / 宽，用于坐姿裁腿与贴地
 const LEG_CUT_RATIO = 0.14;          /* 裙摆以下（双腿）占图片高度约 14% */
 /* 小喵：用户提供的像素猫图纸（39×38 十字绣色卡）逐格取色还原，29×24 像素，零外部请求 */
 const PX_MATE_SVG = `<svg viewBox="0 0 29 24" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true"><path fill="#b4b2be" d="M21 2h3v1h-3zM20 3h1v1h-1zM24 3h1v1h-1zM21 4h3v1h-3zM20 5h1v1h-1zM21 6h2v1h-2zM20 7h1v1h-1zM10 8h2v1h-2zM21 8h2v1h-2zM9 9h3v1h-3zM17 9h1v1h-1zM23 9h1v1h-1zM8 10h4v1h-4zM13 10h1v1h-1zM15 10h3v1h-3zM8 11h3v1h-3zM12 11h2v1h-2zM15 11h3v1h-3zM22 11h1v1h-1zM7 12h2v1h-2zM10 12h1v1h-1zM12 12h3v1h-3zM16 12h3v1h-3zM7 13h2v1h-2zM10 13h3v1h-3zM14 13h1v1h-1zM16 13h3v1h-3zM23 13h1v1h-1zM6 14h7v1h-7zM14 14h2v1h-2zM18 14h2v1h-2zM24 14h1v1h-1zM8 15h1v1h-1zM10 15h7v1h-7zM23 15h1v1h-1zM26 15h1v1h-1zM11 16h1v1h-1zM15 16h3v1h-3zM21 16h1v1h-1zM24 16h1v1h-1zM17 17h1v1h-1zM22 17h1v1h-1zM20 18h2v1h-2zM16 19h4v1h-4z"/><path fill="#4a4a4a" d="M21 0h3v1h-3zM20 1h1v1h-1zM24 1h1v1h-1zM20 2h1v1h-1zM25 2h1v1h-1zM19 3h1v1h-1zM25 3h1v1h-1zM19 4h1v1h-1zM24 4h1v1h-1zM19 5h1v1h-1zM23 5h1v1h-1zM9 6h3v1h-3zM19 6h1v1h-1zM23 6h1v1h-1zM8 7h1v1h-1zM12 7h1v1h-1zM19 7h1v1h-1zM23 7h1v1h-1zM8 8h1v1h-1zM12 8h1v1h-1zM16 8h3v1h-3zM20 8h1v1h-1zM24 8h1v1h-1zM7 9h1v1h-1zM13 9h2v1h-2zM19 9h1v1h-1zM24 9h1v1h-1zM6 10h1v1h-1zM19 10h1v1h-1zM21 10h2v1h-2zM24 10h1v1h-1zM6 11h1v1h-1zM19 11h1v1h-1zM23 11h1v1h-1zM5 12h1v1h-1zM20 12h1v1h-1zM24 12h1v1h-1zM5 13h1v1h-1zM20 13h1v1h-1zM25 13h2v1h-2zM3 14h2v1h-2zM27 14h1v1h-1zM2 15h1v1h-1zM4 15h1v1h-1zM7 15h1v1h-1zM20 15h1v1h-1zM28 15h1v1h-1zM7 16h1v1h-1zM12 16h1v1h-1zM19 16h1v1h-1zM28 16h1v1h-1zM12 17h1v1h-1zM19 17h1v1h-1zM26 17h2v1h-2zM8 18h1v1h-1zM18 18h1v1h-1zM24 18h2v1h-2zM11 19h2v1h-2zM22 19h2v1h-2zM20 20h2v1h-2zM11 21h1v1h-1zM19 21h1v1h-1zM11 22h1v1h-1zM16 22h2v1h-2zM12 23h4v1h-4z"/><path fill="#878787" d="M21 1h3v1h-3zM24 2h1v1h-1zM21 3h3v1h-3zM20 4h1v1h-1zM21 5h2v1h-2zM20 6h1v1h-1zM9 7h3v1h-3zM21 7h2v1h-2zM9 8h1v1h-1zM19 8h1v1h-1zM23 8h1v1h-1zM8 9h1v1h-1zM12 9h1v1h-1zM16 9h1v1h-1zM18 9h1v1h-1zM20 9h3v1h-3zM7 10h1v1h-1zM12 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM23 10h1v1h-1zM7 11h1v1h-1zM11 11h1v1h-1zM18 11h1v1h-1zM20 11h2v1h-2zM6 12h1v1h-1zM9 12h1v1h-1zM11 12h1v1h-1zM19 12h1v1h-1zM22 12h2v1h-2zM6 13h1v1h-1zM9 13h1v1h-1zM13 13h1v1h-1zM19 13h1v1h-1zM22 13h1v1h-1zM24 13h1v1h-1zM5 14h1v1h-1zM13 14h1v1h-1zM17 14h1v1h-1zM21 14h1v1h-1zM23 14h1v1h-1zM25 14h2v1h-2zM5 15h2v1h-2zM21 15h1v1h-1zM24 15h1v1h-1zM27 15h1v1h-1zM13 16h2v1h-2zM18 16h1v1h-1zM20 16h1v1h-1zM23 16h1v1h-1zM27 16h1v1h-1zM15 17h2v1h-2zM18 17h1v1h-1zM20 17h2v1h-2zM24 17h1v1h-1zM17 18h1v1h-1zM19 18h1v1h-1zM22 18h1v1h-1zM20 19h2v1h-2zM18 20h2v1h-2zM16 21h2v1h-2z"/><path fill="#beb9df" d="M15 9h1v1h-1zM14 10h1v1h-1zM14 11h1v1h-1zM15 12h1v1h-1zM21 12h1v1h-1zM15 13h1v1h-1zM21 13h1v1h-1zM16 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM17 15h3v1h-3zM22 15h1v1h-1zM2 16h4v1h-4zM22 16h1v1h-1zM6 17h1v1h-1zM23 17h1v1h-1zM7 18h1v1h-1zM23 18h1v1h-1zM7 19h1v1h-1zM13 19h3v1h-3zM24 19h1v1h-1zM7 20h1v1h-1zM11 20h2v1h-2zM16 20h2v1h-2zM0 21h1v1h-1zM7 21h1v1h-1zM10 21h1v1h-1zM18 21h1v1h-1zM1 22h1v1h-1zM6 22h1v1h-1zM19 22h1v1h-1zM2 23h4v1h-4z"/><path fill="#d5e6fd" d="M5 17h1v1h-1zM2 18h4v1h-4zM3 19h3v1h-3zM2 20h3v1h-3z"/><path fill="#e8dde1" d="M25 15h1v1h-1zM25 16h2v1h-2zM25 17h1v1h-1zM13 20h1v1h-1zM14 21h2v1h-2zM13 22h3v1h-3z"/><path fill="#bed0e9" d="M6 20h1v1h-1zM1 21h1v1h-1zM5 21h2v1h-2zM2 22h4v1h-4z"/><path fill="#c8e2f8" d="M6 18h1v1h-1zM6 19h1v1h-1zM5 20h1v1h-1zM2 21h3v1h-3z"/><path fill="#f8e0ee" d="M6 16h1v1h-1zM7 17h1v1h-1zM13 17h1v1h-1zM12 18h2v1h-2z"/></svg>`;
+/* 樱花小径的白猫：同一张图纸（29×24），改成奶白配色与灰色的「小喵」区分 */
+const PX_CAT_WHITE = `<path fill="#FFFFFF" d="M21 2h3v1h-3zM20 3h1v1h-1zM24 3h1v1h-1zM21 4h3v1h-3zM20 5h1v1h-1zM21 6h2v1h-2zM20 7h1v1h-1zM10 8h2v1h-2zM21 8h2v1h-2zM9 9h3v1h-3zM17 9h1v1h-1zM23 9h1v1h-1zM8 10h4v1h-4zM13 10h1v1h-1zM15 10h3v1h-3zM8 11h3v1h-3zM12 11h2v1h-2zM15 11h3v1h-3zM22 11h1v1h-1zM7 12h2v1h-2zM10 12h1v1h-1zM12 12h3v1h-3zM16 12h3v1h-3zM7 13h2v1h-2zM10 13h3v1h-3zM14 13h1v1h-1zM16 13h3v1h-3zM23 13h1v1h-1zM6 14h7v1h-7zM14 14h2v1h-2zM18 14h2v1h-2zM24 14h1v1h-1zM8 15h1v1h-1zM10 15h7v1h-7zM23 15h1v1h-1zM26 15h1v1h-1zM11 16h1v1h-1zM15 16h3v1h-3zM21 16h1v1h-1zM24 16h1v1h-1zM17 17h1v1h-1zM22 17h1v1h-1zM20 18h2v1h-2zM16 19h4v1h-4z"/><path fill="#6A6157" d="M21 0h3v1h-3zM20 1h1v1h-1zM24 1h1v1h-1zM20 2h1v1h-1zM25 2h1v1h-1zM19 3h1v1h-1zM25 3h1v1h-1zM19 4h1v1h-1zM24 4h1v1h-1zM19 5h1v1h-1zM23 5h1v1h-1zM9 6h3v1h-3zM19 6h1v1h-1zM23 6h1v1h-1zM8 7h1v1h-1zM12 7h1v1h-1zM19 7h1v1h-1zM23 7h1v1h-1zM8 8h1v1h-1zM12 8h1v1h-1zM16 8h3v1h-3zM20 8h1v1h-1zM24 8h1v1h-1zM7 9h1v1h-1zM13 9h2v1h-2zM19 9h1v1h-1zM24 9h1v1h-1zM6 10h1v1h-1zM19 10h1v1h-1zM21 10h2v1h-2zM24 10h1v1h-1zM6 11h1v1h-1zM19 11h1v1h-1zM23 11h1v1h-1zM5 12h1v1h-1zM20 12h1v1h-1zM24 12h1v1h-1zM5 13h1v1h-1zM20 13h1v1h-1zM25 13h2v1h-2zM3 14h2v1h-2zM27 14h1v1h-1zM2 15h1v1h-1zM4 15h1v1h-1zM7 15h1v1h-1zM20 15h1v1h-1zM28 15h1v1h-1zM7 16h1v1h-1zM12 16h1v1h-1zM19 16h1v1h-1zM28 16h1v1h-1zM12 17h1v1h-1zM19 17h1v1h-1zM26 17h2v1h-2zM8 18h1v1h-1zM18 18h1v1h-1zM24 18h2v1h-2zM11 19h2v1h-2zM22 19h2v1h-2zM20 20h2v1h-2zM11 21h1v1h-1zM19 21h1v1h-1zM11 22h1v1h-1zM16 22h2v1h-2zM12 23h4v1h-4z"/><path fill="#D6CBBD" d="M21 1h3v1h-3zM24 2h1v1h-1zM21 3h3v1h-3zM20 4h1v1h-1zM21 5h2v1h-2zM20 6h1v1h-1zM9 7h3v1h-3zM21 7h2v1h-2zM9 8h1v1h-1zM19 8h1v1h-1zM23 8h1v1h-1zM8 9h1v1h-1zM12 9h1v1h-1zM16 9h1v1h-1zM18 9h1v1h-1zM20 9h3v1h-3zM7 10h1v1h-1zM12 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM23 10h1v1h-1zM7 11h1v1h-1zM11 11h1v1h-1zM18 11h1v1h-1zM20 11h2v1h-2zM6 12h1v1h-1zM9 12h1v1h-1zM11 12h1v1h-1zM19 12h1v1h-1zM22 12h2v1h-2zM6 13h1v1h-1zM9 13h1v1h-1zM13 13h1v1h-1zM19 13h1v1h-1zM22 13h1v1h-1zM24 13h1v1h-1zM5 14h1v1h-1zM13 14h1v1h-1zM17 14h1v1h-1zM21 14h1v1h-1zM23 14h1v1h-1zM25 14h2v1h-2zM5 15h2v1h-2zM21 15h1v1h-1zM24 15h1v1h-1zM27 15h1v1h-1zM13 16h2v1h-2zM18 16h1v1h-1zM20 16h1v1h-1zM23 16h1v1h-1zM27 16h1v1h-1zM15 17h2v1h-2zM18 17h1v1h-1zM20 17h2v1h-2zM24 17h1v1h-1zM17 18h1v1h-1zM19 18h1v1h-1zM22 18h1v1h-1zM20 19h2v1h-2zM18 20h2v1h-2zM16 21h2v1h-2z"/><path fill="#CFD9E6" d="M15 9h1v1h-1zM14 10h1v1h-1zM14 11h1v1h-1zM15 12h1v1h-1zM21 12h1v1h-1zM15 13h1v1h-1zM21 13h1v1h-1zM16 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM17 15h3v1h-3zM22 15h1v1h-1zM2 16h4v1h-4zM22 16h1v1h-1zM6 17h1v1h-1zM23 17h1v1h-1zM7 18h1v1h-1zM23 18h1v1h-1zM7 19h1v1h-1zM13 19h3v1h-3zM24 19h1v1h-1zM7 20h1v1h-1zM11 20h2v1h-2zM16 20h2v1h-2zM0 21h1v1h-1zM7 21h1v1h-1zM10 21h1v1h-1zM18 21h1v1h-1zM1 22h1v1h-1zM6 22h1v1h-1zM19 22h1v1h-1zM2 23h4v1h-4z"/><path fill="#E6EFF9" d="M5 17h1v1h-1zM2 18h4v1h-4zM3 19h3v1h-3zM2 20h3v1h-3z"/><path fill="#E7DED5" d="M25 15h1v1h-1zM25 16h2v1h-2zM25 17h1v1h-1zM13 20h1v1h-1zM14 21h2v1h-2zM13 22h3v1h-3z"/><path fill="#DDE7F4" d="M6 20h1v1h-1zM1 21h1v1h-1zM5 21h2v1h-2zM2 22h4v1h-4z"/><path fill="#EDF4FB" d="M6 18h1v1h-1zM6 19h1v1h-1zM5 20h1v1h-1zM2 21h3v1h-3z"/><path fill="#F6D6E4" d="M6 16h1v1h-1zM7 17h1v1h-1zM13 17h1v1h-1zM12 18h2v1h-2z"/>`;
 function avatarHTML(outfit, extra){
   return `<img class="px-avatar ${outfit==='moon'?'moon':''} ${extra||''}" src="${AVATAR_DATA}"
     alt="星蕾" draggable="false" decoding="sync">`;
@@ -2912,15 +2914,9 @@ function artPath(){
   for(let i=0;i<12;i++) sheep+=`<circle cx="${(352+R()*88)|0}" cy="${(348+R()*32)|0}" r="${(5+R()*7)|0}" fill="#FFFDF8" opacity=".62"/>`;
   sheep+='<ellipse cx="446" cy="372" rx="20" ry="17" fill="#E8DCD0"/>'+px(452,368,3,3,'#4A3A34')+px(462,368,3,3,'#4A3A34')
     +px(380,398,7,16,'#B9A998')+px(414,398,7,16,'#B9A998')+'</g>';
-  /* 橘猫：暖橘渐变 + 虎斑纹 + 独立摆动的尾巴 */
-  const cat='<g id="gsCat"><ellipse cx="898" cy="404" rx="34" ry="16" fill="url(#g2cat)"/>'
-    +'<circle cx="876" cy="392" r="17" fill="#F6C48F"/>'
-    +'<path d="M864 382 l4 -13 l10 9 M888 380 l10 -9 l2 13" fill="#E9A86A"/>'
-    +px(866,384,4,3,'#D08B55','opacity=".7"')+px(884,384,4,3,'#D08B55','opacity=".7"')
-    +px(872,398,3,3,'#D08B55','opacity=".55"')+px(886,398,3,3,'#D08B55','opacity=".55"')
-    +'<g class="cat-tail"><path d="M906 400 q26 -4 18 -24" stroke="#E9A86A" stroke-width="8" fill="none" stroke-linecap="round"/>'
-    +'<path d="M922 380 q4 -4 2 -8" stroke="#C9814C" stroke-width="4" fill="none" stroke-linecap="round"/></g>'
-    +px(870,390,3,2,'#6B5A50')+px(882,390,3,2,'#6B5A50')+'</g>';
+  /* 白猫：与小喵同一张图纸，奶白配色区分；外层只做 2 倍整数缩放（像素不变形），内层承载动画 */
+  const cat='<ellipse cx="893" cy="418" rx="33" ry="6" fill="#9A7A70" opacity=".16" filter="url(#gs-puff)"/>'
+    +'<g transform="translate(864,370) scale(2)" shape-rendering="crispEdges"><g id="gsCat">'+PX_CAT_WHITE+'</g></g>';
   const defs=`
   <linearGradient id="g2sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7E3EA"/><stop offset="58%" stop-color="#FDF1EC"/><stop offset="100%" stop-color="#F3E9E4"/></linearGradient>
   <linearGradient id="g2grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9EBD9"/><stop offset="100%" stop-color="#D3DEC6"/></linearGradient>
@@ -2931,7 +2927,6 @@ function artPath(){
   <radialGradient id="g2blossom"><stop offset="0" stop-color="#FFF7FA" stop-opacity=".95"/><stop offset="52%" stop-color="#F4C2D5" stop-opacity=".84"/><stop offset="86%" stop-color="#EDAFC6" stop-opacity=".34"/><stop offset="100%" stop-color="#EDAFC6" stop-opacity="0"/></radialGradient>
   <radialGradient id="g2blossom2"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".9"/><stop offset="62%" stop-color="#F7CEDC" stop-opacity=".55"/><stop offset="100%" stop-color="#F2C4D5" stop-opacity="0"/></radialGradient>
   <radialGradient id="g2fluff"><stop offset="0" stop-color="#FFFFFF"/><stop offset="72%" stop-color="#FFFCF4"/><stop offset="100%" stop-color="#E9DED2"/></radialGradient>
-  <linearGradient id="g2cat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F8D2A5"/><stop offset="100%" stop-color="#DE9A62"/></linearGradient>
   <filter id="gs-puff" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
   <filter id="g2woodInner" x="-20%" y="-20%" width="140%" height="140%">
     <feComponentTransfer in="SourceAlpha" result="a"><feFuncA type="linear" slope="1"/></feComponentTransfer>
@@ -4279,7 +4274,7 @@ function touchAnimal(sp,kind){
     fxHearts(sp.x,sp.y);
     jiggle(sel, cls, 1000);
     if(kind==='sheep') jiggle(sel,'hop',760);       /* 绵羊被摸会整只弹跳起来 */
-    if(kind==='cat'){ fxHearts(sp.x+4,sp.y-3); fxPurr(sp.x,sp.y); }   /* 橘猫冒爱心 */
+    if(kind==='cat'){ fxHearts(sp.x+4,sp.y-3); fxPurr(sp.x,sp.y); }   /* 白猫冒爱心 */
   });
 }
 function startSwing(sp){
