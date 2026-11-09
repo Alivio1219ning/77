@@ -2430,6 +2430,128 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs-jump-puff.land{width:7px;height:7px;opacity:.82;animation-duration:.56s}
 @keyframes jumpPuff{0%{opacity:.95;transform:translate(0,0) scale(.5)}
   100%{opacity:0;transform:translate(var(--dx,0px),var(--dy,0px)) scale(1.75)}}
+
+/* ====================== 3.10 温馨小屋：粉色日历挂件 + 心情手账 ====================== */
+.gs-cal-hook{position:absolute;left:10%;top:20%;width:clamp(88px,9.4vw,126px);z-index:34;
+  cursor:pointer;transform-origin:50% -18px;animation:calSway 6.5s ease-in-out infinite;
+  transition:transform .34s cubic-bezier(.2,.8,.3,1),filter .34s ease;
+  filter:drop-shadow(0 8px 12px rgba(120,80,84,.24))}
+@keyframes calSway{0%,100%{transform:rotate(-1.3deg)}50%{transform:rotate(1.3deg)}}
+.gs-cal-hook:hover{transform:translateY(-7px) rotate(0deg);animation-play-state:paused;
+  filter:drop-shadow(0 15px 20px rgba(232,164,186,.6)) drop-shadow(0 0 17px rgba(255,224,236,.95))}
+.cal-strings{position:absolute;left:8%;right:8%;top:-27px;height:36px;pointer-events:none}
+.cal-strings svg{display:block;width:100%;height:100%;overflow:visible}
+.cal-nail{position:absolute;left:50%;top:-29px;width:8px;height:8px;margin-left:-4px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#F4D9A4,#B88C5A);box-shadow:0 1px 3px rgba(90,60,40,.4)}
+.cal-card{position:relative;border-radius:7px;padding:13px 7px 10px;text-align:center;
+  background:linear-gradient(165deg,#FFF5F7 0%,#FBDDE6 52%,#F5C8D8 100%);
+  border:2px solid #F0BFD0;
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.74),inset 0 0 0 4px rgba(226,168,190,.46),
+    0 5px 0 rgba(190,126,150,.16)}
+.cal-card::before{content:"";position:absolute;left:-2px;right:-2px;top:-7px;height:12px;pointer-events:none;
+  background:radial-gradient(circle at 5px 0,#FFFAFB 4.6px,transparent 5px) repeat-x;
+  background-size:10px 12px;filter:drop-shadow(0 1px 0 rgba(222,160,184,.45))}
+.cal-card::after{content:"";position:absolute;left:-2px;right:-2px;bottom:-6px;height:11px;pointer-events:none;
+  background:radial-gradient(circle at 5px 11px,#FFFAFB 4.6px,transparent 5px) repeat-x;
+  background-size:10px 11px;filter:drop-shadow(0 1px 0 rgba(222,160,184,.4))}
+.cal-bow{position:absolute;top:-17px;left:50%;transform:translateX(-50%);width:54px;height:22px;z-index:2}
+.cal-bow i{position:absolute;top:2px;width:23px;height:16px;border-radius:62% 22% 62% 22%;
+  background:linear-gradient(135deg,#F9BFD0,#E788A7);border:1px solid #D27394;
+  box-shadow:inset 2px 2px 3px rgba(255,255,255,.6)}
+.cal-bow i:first-child{left:0;transform:rotate(-16deg)}
+.cal-bow i:nth-child(2){right:0;transform:rotate(16deg) scaleX(-1)}
+.cal-bow b{position:absolute;left:50%;top:5px;width:11px;height:12px;margin-left:-5.5px;border-radius:4px;
+  background:linear-gradient(#F3A2BC,#D27394);border:1px solid #C46288}
+.cal-word{font-family:var(--serif);font-size:9px;letter-spacing:.2em;color:#B6718B}
+.cal-num{font-family:var(--serif);font-size:clamp(30px,3.6vw,46px);line-height:1.04;color:#A45676;
+  margin:1px 0;text-shadow:0 1px 0 #FFF,0 0 13px rgba(255,255,255,.9);animation:calGlow 3.4s ease-in-out infinite}
+@keyframes calGlow{0%,100%{text-shadow:0 1px 0 #FFF,0 0 8px rgba(255,255,255,.7)}
+  50%{text-shadow:0 1px 0 #FFF,0 0 19px rgba(255,214,232,1)}}
+.cal-mon{font-family:var(--hand);font-size:10px;letter-spacing:.12em;color:#B6718B}
+.cal-foot{margin-top:6px;padding-top:5px;border-top:1px dashed rgba(182,113,139,.55);
+  font-size:9px;letter-spacing:.1em;color:#B6718B}
+
+/* ---------- 心情手账：全屏蕾丝卡片 ---------- */
+.mood-modal{position:fixed;inset:0;z-index:880;display:flex;align-items:center;justify-content:center;
+  padding:18px;background:rgba(74,58,52,.42);backdrop-filter:blur(5px);animation:moodFade .3s ease}
+@keyframes moodFade{from{opacity:0}to{opacity:1}}
+.mood-card{position:relative;width:min(566px,94vw);max-height:90vh;overflow:auto;
+  padding:25px 28px 22px;border-radius:12px;
+  background:linear-gradient(160deg,#FFFDF7,#FFF7ED 56%,#FDEFF2);
+  border:1px solid #E3CBAA;
+  box-shadow:0 26px 70px rgba(70,48,42,.34),inset 0 0 0 6px rgba(255,255,255,.62);
+  animation:moodPop .44s cubic-bezier(.2,.9,.3,1)}
+@keyframes moodPop{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+.mood-card::before{content:"";position:absolute;inset:11px;border:1px dashed rgba(214,176,150,.72);
+  border-radius:7px;pointer-events:none}
+.mood-card::after{content:"";position:absolute;left:11px;right:11px;top:3px;height:11px;pointer-events:none;
+  background:radial-gradient(circle at 6px 0,#F8E0E9 4.8px,transparent 5.3px) repeat-x;
+  background-size:12px 11px;opacity:.95;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.9))}
+.mc-head,.mc-week,.mc-grid,.mc-foot{position:relative;z-index:1}
+.mc-head{text-align:center;margin-bottom:15px}
+.mc-close{position:absolute;right:-8px;top:-9px;width:30px;height:30px;border-radius:50%;
+  border:1px solid #E3CBAA;background:#FFFDF7;color:#A98C77;font-size:17px;line-height:1;cursor:pointer;
+  box-shadow:0 2px 7px rgba(120,90,70,.12)}
+.mc-close:hover{border-color:#D8B77E;color:#A45676}
+.mc-nav{display:flex;align-items:center;justify-content:center;gap:16px}
+.mc-nav button{width:28px;height:28px;border:1px solid #E3CBAA;border-radius:50%;
+  background:#FFF9F1;color:#A98C77;font-size:16px;line-height:1;cursor:pointer}
+.mc-nav button:hover{border-color:#D8B77E;background:#FFF0F4}
+.mc-title{font-family:var(--serif);font-size:24px;color:#8A6A57;letter-spacing:.1em;min-width:146px}
+.mc-sub{font-family:var(--hand);font-size:12px;color:#B39A87;margin-top:5px;letter-spacing:.06em}
+.mc-week,.mc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.mc-week span{text-align:center;font-size:11px;color:#B39A87;letter-spacing:.1em;padding:3px 0 6px}
+.mc-week span:nth-child(6),.mc-week span:nth-child(7){color:#C4919F}
+.mc-grid{margin-top:2px}
+.mc-cell{position:relative;min-height:53px;border:1px solid rgba(222,199,175,.72);border-radius:6px;
+  background:rgba(255,255,255,.64);padding:5px 5px;font-size:12px;color:#7B6658}
+.mc-cell.empty{background:transparent;border-color:transparent}
+.mc-cell.future{opacity:.74}
+.mc-cell .mc-d{font-family:var(--serif);font-size:13px;color:#75604F}
+.mc-cell .mc-emo{position:absolute;right:4px;bottom:3px;font-size:13px;line-height:1}
+.mc-cell.today{background:linear-gradient(155deg,#FDEFF3,#FBE0EA);border:1.5px solid #D8B77E;
+  box-shadow:0 0 0 2px rgba(216,183,126,.16),0 0 15px rgba(248,196,216,.72)}
+.mc-cell.today .mc-d{color:#A45676;font-weight:700;animation:mcGlow 2.3s ease-in-out infinite}
+@keyframes mcGlow{0%,100%{text-shadow:0 0 0 rgba(255,255,255,0)}
+  50%{text-shadow:0 0 9px #FFF,0 0 17px rgba(240,160,195,.95)}}
+.mc-today-tag{position:absolute;left:3px;top:-8px;background:#D8B77E;color:#FFFDF5;
+  font-size:8.5px;letter-spacing:.06em;padding:1px 5px;border-radius:6px;
+  box-shadow:0 2px 5px rgba(150,110,60,.28)}
+.mc-today-mood{display:block;font-size:23px;line-height:1.2;margin-top:1px;text-align:center;
+  filter:drop-shadow(0 2px 3px rgba(160,100,120,.25))}
+.mc-foot{margin-top:16px;padding-top:14px;border-top:1px dashed rgba(214,176,150,.82);text-align:center}
+.mc-ask{font-family:var(--hand);font-size:14px;color:#8A6A57;margin-bottom:11px;letter-spacing:.04em}
+.mc-btns{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.mood-btn{width:76px;padding:8px 2px 7px;border:1px solid #E6CFC2;border-radius:8px;
+  background:linear-gradient(#FFFDF8,#FFF2F5);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.mood-btn .mb-emoji{font-size:22px;line-height:1.15}
+.mood-btn .mb-name{font-size:11px;color:#8A6E5F;letter-spacing:.06em}
+.mood-btn:hover:not(:disabled){transform:translateY(-4px);border-color:#D8B77E;
+  box-shadow:0 8px 16px rgba(216,160,180,.32)}
+.mood-btn:disabled{cursor:not-allowed;opacity:.46;filter:grayscale(.5)}
+.mood-btn.chosen{border-color:#D8B77E;background:linear-gradient(#FFF7E8,#FDE8EF);
+  opacity:1;filter:none;box-shadow:0 0 0 2px rgba(216,183,126,.3)}
+.mc-hint{margin-top:11px;min-height:18px;font-size:11.5px;color:#B08296;letter-spacing:.05em}
+.mc-hint.ok{color:#849A70}
+.mc-streak{margin-top:11px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+  font-size:10.5px;color:#A99280}
+.mc-dots{display:flex;gap:4px}
+.mc-dots i{width:9px;height:9px;border-radius:50%;background:rgba(216,183,126,.22);
+  border:1px solid rgba(216,183,126,.52)}
+.mc-dots i.on{background:linear-gradient(#F6C97F,#D8B77E);box-shadow:0 0 7px rgba(230,180,110,.85)}
+.mc-badge{display:inline-block;padding:2px 9px;border-radius:10px;background:#FBE9EF;
+  border:1px solid #D8B77E;color:#A45676;font-size:10px;letter-spacing:.04em}
+/* 七日成就：小喵的粉色贝雷帽 */
+.gs-mate .mc-hat{position:absolute;left:50%;top:-10px;width:29px;height:14px;margin-left:-14px;
+  border-radius:52% 52% 20% 20%;background:linear-gradient(#F8B2CB,#DE7FA4);
+  border:1.5px solid #C96690;transform:rotate(-9deg);z-index:3;pointer-events:none;
+  box-shadow:inset 2px 2px 3px rgba(255,255,255,.62),0 2px 4px rgba(120,60,80,.26)}
+.gs-mate .mc-hat::after{content:"";position:absolute;left:50%;top:-6px;width:6px;height:6px;margin-left:-3px;
+  border-radius:50%;background:#FFE9A8;box-shadow:0 0 8px #FFD98A}
+.gs-mate.mood-cheer{transition:left .7s ease-in-out}
 </style>
 </head>
 <body>
@@ -2824,6 +2946,29 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 <div class="overlay hidden" id="editorOverlay"></div>
 <div class="modal hidden" id="profileModal"></div>
 
+<!-- 心情手账：全屏蕾丝弹窗。放在 body 直属，切场景时被 clearStage 清不掉，也不会被舞台 overflow 裁切 -->
+<div class="mood-modal hidden" id="moodModal" role="dialog" aria-label="心情日历">
+  <div class="mood-card">
+    <div class="mc-head">
+      <button class="mc-close" id="mcClose" aria-label="合上手账">×</button>
+      <div class="mc-nav">
+        <button id="mcPrev" aria-label="上个月">‹</button>
+        <div class="mc-title" id="mcTitle"></div>
+        <button id="mcNext" aria-label="下个月">›</button>
+      </div>
+      <div class="mc-sub" id="mcSub"></div>
+    </div>
+    <div class="mc-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+    <div class="mc-grid" id="mcGrid"></div>
+    <div class="mc-foot">
+      <div class="mc-ask" id="mcAsk"></div>
+      <div class="mc-btns" id="mcBtns"></div>
+      <div class="mc-hint" id="mcHint"></div>
+      <div class="mc-streak" id="mcStreak"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 "use strict";
 /* ==========================================================================
@@ -3073,6 +3218,11 @@ function initNav(){
     return !!(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)); };
   document.addEventListener('keydown', e=>{
     if(S.screen!=='game' || isTyping(e)) return;
+    /* 心情手账翻开时，A/D/空格/E 都交给手账，小人不许在背后乱跑 */
+    if(isMoodOpen()){
+      if(e.key==='Escape'){ e.preventDefault(); closeMoodCalendar(); }
+      return;
+    }
     if(isSpaceKey(e)){ e.preventDefault(); if(!e.repeat) setKey('space',true); return; }
     const k=MOVE_KEYS[e.key];
     if(k){ e.preventDefault(); if(!e.repeat) setKey(k,true); return; }
@@ -3804,7 +3954,8 @@ const ACHIEVEMENTS = [
   {id:'find_bottle',   name:'灯塔的信',     desc:'有人把话留在门缝里，等你来读。'},
   {id:'wish_fountain', name:'许愿一次',     desc:'你许了一个愿，水没有笑你。'},
   {id:'find_note',     name:'午夜便签',     desc:'有人提前写好了：今天你最大。'},
-  {id:'tree_secret',   name:'树洞的秘密',   desc:'树根下那扇小门后面，藏着一整个安静的洞。'}
+  {id:'tree_secret',   name:'树洞的秘密',   desc:'树根下那扇小门后面，藏着一整个安静的洞。'},
+  {id:'mood_week',     name:'七日手账',     desc:'连着七天，把心情好好收了起来。'}
 ];
 /* 旧版 id → 新版 id：老存档里的成就一条都不会丢 */
 const ACH_ALIAS = {
@@ -5746,6 +5897,7 @@ function closeSidePanels(except){
   if(except!=='bag') closeBag();
   if(except!=='event'){ const e=$('#eventPanel'); if(e) e.classList.add('hidden'); }
   if(except!=='ticket') closeTicket();
+  if(except!=='mood') closeMoodCalendar();
 }
 /* ---------------------------------------------------------- 星蕾图鉴：面板渲染 ---------------------------------------------------------- */
 function renderAchPanel(){
@@ -6316,6 +6468,20 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-panel gs-bag hidden" id="bagPanel"><div id="bagBody"></div></div>
 <div class="gs-panel gs-event hidden" id="eventPanel"><div id="eventBody"></div></div>
 <div class="gs-panel gs-ticket hidden" id="ticketPanel"><div id="ticketBody"></div></div>
+<!-- 小屋墙上：粉色蕾丝日历挂件，只在温馨小屋出现 -->
+<div class="gs-cal-hook hidden" id="calHook" title="翻开心情手账">
+  <div class="cal-strings"><svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M20 36 L50 2 M80 36 L50 2" fill="none" stroke="#D3A69C" stroke-width="1.5"/>
+    <path d="M20 36 L50 2 M80 36 L50 2" fill="none" stroke="#F6DFDA" stroke-width=".5"/>
+  </svg></div><div class="cal-nail"></div>
+  <div class="cal-card">
+    <div class="cal-bow"><i></i><i></i><b></b></div>
+    <div class="cal-word">Calendar</div>
+    <div class="cal-num" id="calNum"></div>
+    <div class="cal-mon" id="calMon"></div>
+    <div class="cal-foot">心情手账 ✦</div>
+  </div>
+</div>
 <div class="gs-map hidden" id="travelMap">
   <div class="map-card">
     <div class="map-lace"></div>
@@ -6449,6 +6615,9 @@ function renderScene(){
   /* 户外只在出生点留一扇小门；底部场景栏、小屋衣橱按钮一律退场 */
   const home=$('#homeGate'); if(home) home.classList.toggle('hidden', S.inRoom);
   if(home) home.classList.toggle('vine', curScene() && curScene().id==='garden');
+  /* 墙上的粉色日历只属于温馨小屋；舞台每次重建后重新绑定点击 */
+  const cal=$('#calHook'); if(cal) cal.classList.toggle('hidden', !S.inRoom);
+  bindCalHook(); renderCalHook(); applyMoodHat();
   const wbtn=$('#btnWardrobe'); if(wbtn) wbtn.classList.toggle('hidden', !S.inRoom);
   const ebtn=$('#btnExplore'); if(ebtn) ebtn.classList.toggle('hidden', S.inRoom);
   const stay=$('#mapStay'); if(stay) stay.onclick=closeTravelMap;
@@ -8882,6 +9051,188 @@ function lookCloud(){
     hail:'小冰粒砸在窗上，噼里啪啦的，像有人在敲门。'
   };
   say('小喵', words[carWx]||words.sunny);
+}
+
+/* ========================================================== 温馨小屋：粉色日历挂件 + 真实心情手账 ==========================================================
+   心情数据独立存放，不写进 game_save：localStorage.mood_records = { "2026-11-09": "🌸" }
+   日期一律取设备本地时间 new Date()，避免 toISOString() 的 UTC 时区偏移。 */
+const MOOD_KEY = 'mood_records';
+const MOOD_HAT_KEY = 'mood_hat';
+const MOOD_CHOICES = [
+  {emoji:'🌸', name:'开心'}, {emoji:'🍃', name:'平静'}, {emoji:'🌧️', name:'难过'},
+  {emoji:'⚡', name:'生气'}, {emoji:'✨', name:'兴奋'}
+];
+const MOOD_MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY',
+  'AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+const pad2Mood = n => String(n).padStart(2,'0');
+const moodDateKey = d => `${d.getFullYear()}-${pad2Mood(d.getMonth()+1)}-${pad2Mood(d.getDate())}`;
+const moodKeyOf = (y,m,day) => `${y}-${pad2Mood(m+1)}-${pad2Mood(day)}`;
+const todayKey = () => moodDateKey(new Date());
+function moodAll(){
+  try{
+    const o=JSON.parse(localStorage.getItem(MOOD_KEY)||'{}');
+    return (o && typeof o==='object' && !Array.isArray(o)) ? o : {};
+  }catch(e){ return {}; }
+}
+function moodWrite(rec){ try{ localStorage.setItem(MOOD_KEY,JSON.stringify(rec)); }catch(e){} }
+function moodHatUnlocked(){ try{ return localStorage.getItem(MOOD_HAT_KEY)==='1'; }catch(e){ return false; } }
+let moodView=null;    /* {y,m} 正在翻看的月份；null = 真实今天所在的月 */
+function isMoodOpen(){ const m=$('#moodModal'); return !!(m && !m.classList.contains('hidden')); }
+
+/* ---------- 墙上的挂件：日期数字永远跟着设备真实时间走 ---------- */
+function renderCalHook(){
+  const now=new Date(), n=$('#calNum'), mon=$('#calMon'), hook=$('#calHook');
+  if(n) n.textContent=String(now.getDate());
+  if(mon) mon.textContent=MOOD_MONTHS[now.getMonth()]+' '+now.getFullYear();
+  if(hook) hook.title=`翻开心情手账 · ${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+}
+function bindCalHook(){ const h=$('#calHook'); if(h) h.onclick=openMoodCalendar; }
+function applyMoodHat(){
+  const m=$('#companion'); if(!m) return;
+  const on=moodHatUnlocked();
+  m.classList.toggle('mood-hat',on);
+  const hat=m.querySelector('.mc-hat');
+  if(on && !hat) m.insertAdjacentHTML('beforeend','<i class="mc-hat" aria-hidden="true"></i>');
+  if(!on && hat) hat.remove();
+}
+
+/* ---------- 连续打卡：今天还没写就从昨天往回数，不打断已有的连击 ---------- */
+function moodStreak(rec){
+  const d=new Date(); d.setHours(0,0,0,0);
+  if(!rec[moodDateKey(d)]) d.setDate(d.getDate()-1);
+  let n=0;
+  for(let i=0;i<400;i++){
+    if(!rec[moodDateKey(d)]) break;
+    n++; d.setDate(d.getDate()-1);
+  }
+  return n;
+}
+
+/* ---------- 日历网格：当月天数与首日星期全部由 new Date() 动态算 ---------- */
+function renderMoodCalendar(){
+  const grid=$('#mcGrid'); if(!grid) return;
+  const now=new Date();
+  const view=moodView||{y:now.getFullYear(),m:now.getMonth()};
+  const y=view.y, m=view.m;
+  const first=(new Date(y,m,1).getDay()+6)%7;        /* 周一=0 … 周日=6 */
+  const days=new Date(y,m+1,0).getDate();             /* 当月真实天数，含闰年二月 */
+  const rec=moodAll(), tk=todayKey();
+  const title=$('#mcTitle'); if(title) title.textContent=`${y}年${m+1}月`;
+  const sub=$('#mcSub');
+  if(sub) sub.textContent = (y===now.getFullYear() && m===now.getMonth())
+    ? `今天是 ${now.getMonth()+1} 月 ${now.getDate()} 日 · 把心情轻轻收进手账 ✦`
+    : '翻回那个月，看看当时的自己 ✦';
+  let h='';
+  for(let i=0;i<first;i++) h+='<div class="mc-cell empty"></div>';
+  for(let day=1;day<=days;day++){
+    const key=moodKeyOf(y,m,day), emo=rec[key];
+    const isToday=key===tk, isFuture=key>tk;
+    const cls='mc-cell'+(isToday?' today':'')+(isFuture?' future':'');
+    h+=`<div class="${cls}" data-key="${key}">`
+      +(isToday?'<span class="mc-today-tag">今天</span>':'')
+      +`<span class="mc-d">${day}</span>`
+      +(isToday
+          ? `<span class="mc-today-mood"${emo?'':' style="opacity:.28"'}>${emo?esc(emo):'·'}</span>`
+          : (emo?`<span class="mc-emo" title="${esc(emo)}">${esc(emo)}</span>`:''))
+      +'</div>';
+  }
+  const tail=(7-(first+days)%7)%7;
+  for(let i=0;i<tail;i++) h+='<div class="mc-cell empty"></div>';
+  grid.innerHTML=h;
+  renderMoodButtons(rec,tk);
+  renderMoodStreak(rec);
+}
+function setMoodHint(text,ok){
+  const h=$('#mcHint'); if(!h) return;
+  h.textContent=text; h.classList.toggle('ok',!!ok);
+}
+function renderMoodButtons(rec,tk){
+  const box=$('#mcBtns'); if(!box) return;
+  const done=rec[tk];
+  box.innerHTML=MOOD_CHOICES.map(mo=>
+    `<button type="button" class="mood-btn${done===mo.emoji?' chosen':''}" data-emoji="${esc(mo.emoji)}"`
+    +`${done?' disabled':''} title="${esc(mo.name)}">`
+    +`<span class="mb-emoji">${esc(mo.emoji)}</span><span class="mb-name">${esc(mo.name)}</span></button>`).join('');
+  const ask=$('#mcAsk'); if(ask) ask.textContent=done?'今天已经写好啦 ✦':'今天，你的心情是哪一种？';
+  setMoodHint(done?'今天的心情已经记录过啦，明天再来吧。':'选一个，就收进手账里 ✦',!!done);
+  $$('#mcBtns .mood-btn').forEach(b=>{ b.onclick=()=>chooseMood(b.dataset.emoji); });
+}
+function renderMoodStreak(rec){
+  const box=$('#mcStreak'); if(!box) return;
+  const n=moodStreak(rec), k=Math.min(n,7);
+  let dots=''; for(let i=0;i<7;i++) dots+=`<i class="${i<k?'on':''}"></i>`;
+  const badge=(n>=7||moodHatUnlocked())
+    ? '<span class="mc-badge">七日手账 ✦ 小喵的新帽子已解锁</span>' : '';
+  box.innerHTML=`<span>连续记录 ${n} 天</span><span class="mc-dots">${dots}</span>${badge}`;
+}
+
+/* ---------- 打卡：一天只允许一次，写入后立刻回写格子与按钮 ---------- */
+function chooseMood(emo){
+  if(!MOOD_CHOICES.some(mo=>mo.emoji===emo)) return;
+  const rec=moodAll(), tk=todayKey();
+  if(rec[tk]){ setMoodHint('今天的心情已经记录过啦，明天再来吧。'); return; }
+  rec[tk]=emo;
+  moodWrite(rec);
+  renderMoodCalendar();
+  setMoodHint('今天的心情已收进手账 ✦',true);
+  topToast('今天的心情已收进手账 ✦');
+  moodCelebrate();
+  moodReward(rec);
+}
+function moodCelebrate(){
+  fxHearts(S.charX||46,44);                       /* 小人头顶飘出爱心 */
+  fxNote('♡');
+  const m=$('#companion');
+  if(m){                                          /* 小喵飞过来绕一圈 */
+    const old=m.style.left;
+    m.style.left=((S.charX||46)-8)+'%';
+    m.classList.add('circling','mood-cheer');
+    sceneLater(()=>{ m.classList.remove('circling','mood-cheer'); m.style.left=old; },3200);
+  }
+  playChime();
+}
+function moodReward(rec){
+  const n=moodStreak(rec);
+  if(n>=7){
+    let fresh=false;
+    try{
+      if(!moodHatUnlocked()){ localStorage.setItem(MOOD_HAT_KEY,'1'); fresh=true; }
+    }catch(e){}
+    applyMoodHat();
+    unlockAchievement('mood_week');
+    if(fresh) topToast('连续 7 天！小喵戴上了新帽子 ✦');
+  }
+  renderMoodStreak(rec);
+}
+
+/* ---------- 开关与翻月 ---------- */
+function shiftMoodMonth(delta){
+  const now=new Date(), base=moodView||{y:now.getFullYear(),m:now.getMonth()};
+  const nd=new Date(base.y,base.m+delta,1);
+  moodView={y:nd.getFullYear(),m:nd.getMonth()};
+  renderMoodCalendar();
+}
+function bindMoodModal(){
+  const modal=$('#moodModal'); if(!modal) return;
+  const close=$('#mcClose'); if(close) close.onclick=closeMoodCalendar;
+  modal.onclick=e=>{ if(e.target===modal) closeMoodCalendar(); };
+  const p=$('#mcPrev'), n=$('#mcNext');
+  if(p) p.onclick=()=>shiftMoodMonth(-1);
+  if(n) n.onclick=()=>shiftMoodMonth(1);
+}
+function openMoodCalendar(){
+  const modal=$('#moodModal'); if(!modal) return;
+  closeSidePanels('mood');                          /* 与衣橱 / 图鉴 / 背包互斥 */
+  if(typeof clearKeys==='function') clearKeys();   /* 松掉还按着的方向键，别让小人在弹窗后面走 */
+  moodView=null;
+  bindMoodModal();
+  modal.classList.remove('hidden');
+  renderCalHook();
+  renderMoodCalendar();
+}
+function closeMoodCalendar(){
+  const modal=$('#moodModal'); if(modal) modal.classList.add('hidden');
+  moodView=null;
 }
 
 /* ---------------------------------------------------------- 初始化 ---------------------------------------------------------- */
