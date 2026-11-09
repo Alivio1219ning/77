@@ -2384,6 +2384,52 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs-ticket .tk-btn.main{border-color:#C9A25C;background:linear-gradient(180deg,rgba(255,246,224,.95),rgba(248,232,198,.9));
   color:#8A6428;box-shadow:0 4px 12px rgba(190,150,90,.18)}
 .gs-ticket .tk-tip{margin-top:11px;font-size:10.5px;color:#A2968A;letter-spacing:.08em;line-height:1.8}
+
+/* ==========================================================================================
+   4.0 跳跃 / 重力系统：独立抬升层 + 地面阴影 + 空中姿态 + 粒子
+   结构： .gs-char(left 位移)
+            ├─ .gs-char-shadow   留在地面，不随小人升高
+            └─ .gs-char-lift     translateY(-y)，只抬小人
+                 └─ .gs-char-ground > .gs-char-float > .gs-char-pose > #gameAvatar
+   ========================================================================================== */
+.gs-char-lift{width:100%;height:100%;will-change:transform}
+/* 阴影：跳得越高越小越淡，落地时最实 —— 用 --sh-op / --sh-scale 由物理循环每帧写入 */
+.gs-char-shadow{position:absolute;left:50%;bottom:calc(var(--ground-px,44px) - 10px);
+  width:78px;height:15px;margin-left:-39px;border-radius:50%;z-index:-1;pointer-events:none;
+  background:rgba(52,40,30,.28);box-shadow:0 0 22px 11px rgba(52,40,30,.22);
+  opacity:var(--sh-op,1);transform:scale(var(--sh-scale,1))}
+/* 起跳：身体被拉长一点点（作用在 float 层，不碰 .px-avatar 的 scaleX(-1) 朝向翻转） */
+@keyframes charJumpStretch{0%{transform:scale(1,1)}32%{transform:scale(.93,1.10)}100%{transform:scale(1,1)}}
+.gs-char.jump-launch .gs-char-float{animation:charJumpStretch .36s ease-out}
+/* 落地：身体微微压扁一下做缓冲 */
+@keyframes charLandSquash{0%{transform:scale(1.10,.87)}52%{transform:scale(.97,1.04)}100%{transform:scale(1,1)}}
+.gs-char.land-squash .gs-char-float{animation:charLandSquash .42s ease-out}
+/* 空中姿态：站定时轻轻上提，横向移动时重心朝行进方向前倾 */
+.gs-char.airborne .gs-char-pose{transition-duration:.14s}
+.gs-char.airborne:not(.air-move) .gs-char-pose{transform:translateY(-2px)}
+.gs-char.airborne.air-move .gs-char-pose{transform:rotate(var(--air-tilt,6deg)) translateY(-2px)}
+/* 浮空：几颗极小的 ✦ 环绕上升 */
+.gs-float-stars{position:absolute;left:50%;top:32%;width:0;height:0;display:none;pointer-events:none}
+.gs-char.floating .gs-float-stars{display:block}
+.gs-float-stars i{position:absolute;font-style:normal;font-size:15px;line-height:1;
+  color:#F2B94E;text-shadow:-1px -1px 0 #FFFDF2,1px -1px 0 #FFFDF2,-1px 1px 0 #FFFDF2,1px 1px 0 #FFFDF2,
+    0 0 9px rgba(255,213,120,.95);opacity:0;
+  animation:floatStar 2.1s ease-in-out infinite}
+.gs-float-stars i:nth-child(1){--sx:-88px;--sy:-46px;animation-delay:0s}
+.gs-float-stars i:nth-child(2){--sx:86px;--sy:-54px;animation-delay:.42s}
+.gs-float-stars i:nth-child(3){--sx:-76px;--sy:38px;animation-delay:.84s}
+.gs-float-stars i:nth-child(4){--sx:78px;--sy:30px;animation-delay:1.26s}
+.gs-float-stars i:nth-child(5){--sx:2px;--sy:-84px;animation-delay:1.68s}
+@keyframes floatStar{0%{opacity:0;transform:translate(0,12px) scale(.4)}
+  28%{opacity:.95}68%{opacity:.78}
+  100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(1.2)}}
+/* 二段跳 / 落地：脚下爆开的白色像素云朵 */
+.gs-jump-puff{position:absolute;width:9px;height:9px;margin-left:-4px;border-radius:2px;
+  background:#FFFDF8;box-shadow:0 0 9px 2px rgba(255,255,255,.88);image-rendering:pixelated;
+  animation:jumpPuff .72s cubic-bezier(.2,.7,.4,1) forwards}
+.gs-jump-puff.land{width:7px;height:7px;opacity:.82;animation-duration:.56s}
+@keyframes jumpPuff{0%{opacity:.95;transform:translate(0,0) scale(.5)}
+  100%{opacity:0;transform:translate(var(--dx,0px),var(--dy,0px)) scale(1.75)}}
 </style>
 </head>
 <body>
@@ -3022,18 +3068,24 @@ function initNav(){
   $$('[data-back]').forEach(b => b.addEventListener('click', ()=>{
     if(history.length>1) history.back(); else go('desk');
   }));
+  const isSpaceKey = e => e.code==='Space'||e.key===' '||e.key==='Spacebar';
+  const isTyping = e => { const t=e.target;
+    return !!(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)); };
   document.addEventListener('keydown', e=>{
-    if(S.screen!=='game') return;
-    if(e.code==='Space' || e.key===' '){ e.preventDefault(); tryNearby('space'); return; }
-    const d=MOVE_KEYS[e.key];
-    if(d){ e.preventDefault(); if(!e.repeat) startHold(d); }
+    if(S.screen!=='game' || isTyping(e)) return;
+    if(isSpaceKey(e)){ e.preventDefault(); if(!e.repeat) setKey('space',true); return; }
+    const k=MOVE_KEYS[e.key];
+    if(k){ e.preventDefault(); if(!e.repeat) setKey(k,true); return; }
+    /* 空格已归跳跃，近物互动改到 E（场景中的可点击区域同样有效） */
+    if(e.key==='e'||e.key==='E'){ e.preventDefault(); if(!e.repeat) tryNearby('space'); }
   });
   document.addEventListener('keyup', e=>{
-    const d=MOVE_KEYS[e.key]; if(d) releaseHold(d);
+    if(isSpaceKey(e)){ if(S.screen==='game') e.preventDefault(); setKey('space',false); return; }
+    const k=MOVE_KEYS[e.key]; if(k) setKey(k,false);
   });
-  window.addEventListener('blur', ()=>{ heldDir.L=heldDir.R=false; });   /* 切窗时停止移动 */
+  window.addEventListener('blur', clearKeys);   /* 切窗 / 失焦：清空全部按键状态 */
   document.addEventListener('visibilitychange', ()=>{
-    if(document.hidden){ heldDir.L=heldDir.R=false; }
+    if(document.hidden){ clearKeys(); }
     else if(!document.hidden && S.screen==='blog'){
       const soft=!!S.pendingProfileGlow; S.pendingProfileGlow=false; refreshProfile(soft);
     }
@@ -5256,10 +5308,10 @@ const NEARBY = {
     {id:'window',   x:52, r:16, act:'window',   tip:'看星星', hint:'点一点窗户 ✦',        zone:[41,13,23,52], trigger:'click'},
     {id:'wardrobe', x:79, r:14, act:'wardrobe', tip:'换衣服', hint:'点一点衣橱换衣服 ✦',   zone:[71,31,15,55], trigger:'click'},
     {id:'rug',      x:50, r:18, act:'sit',      tip:'发发呆', hint:'点一点地毯 ✦',        zone:[33,66,34,24], trigger:'click'},
-    {id:'door',     x:91, r:11, act:'map',      tip:'出门',   hint:'走到门前按空格开门',   zone:[89,19,11,70], trigger:'space'}
+    {id:'door',     x:91, r:11, act:'map',      tip:'出门',   hint:'走到门前按 E 开门',   zone:[89,19,11,70], trigger:'space'}
   ],
   garden:[{id:'postbox', x:92, r:9, hint:'✦', line:'今天没有来信哦。', trigger:'click'}],
-  path:[  {id:'door',    x:85, r:15, act:'doorDream', hint:'空格 · 敲敲小木门', line:'里面会不会住着精灵？', trigger:'space'}]
+  path:[  {id:'door',    x:85, r:15, act:'doorDream', hint:'E · 敲敲小木门（空格跳跃）', line:'里面会不会住着精灵？', trigger:'space'}]
 };
 function nearbyHere(){
   const sc=curScene(); if(!sc) return null;
@@ -5644,7 +5696,7 @@ async function spriteVisit(){
   await swait(1250);
   if(el.isConnected) el.remove();
 }
-/* 点门 / 空格敲门：先走到门边；没钥匙就只能听见锁扣响一声 */
+/* 点门 / E 键敲门：先走到门边；没钥匙就只能听见锁扣响一声 */
 function startDoorDream(){
   if(doorBusy) return;
   if(!$('#gsDoorLeaf')) return;
@@ -6134,7 +6186,7 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-moment-log" id="momentLog"></div>
 <div class="gs-mate-trail" id="companionTrail"></div>
 <div class="gs-mate" id="companion">${PX_MATE_SVG}</div>
-<div class="gs-char" id="character"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="rug-thought" aria-hidden="true"><div class="rug-thought-body"><i></i><i></i><i></i></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
+<div class="gs-char" id="character"><div class="gs-char-shadow" aria-hidden="true"></div><div class="gs-char-lift"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="gs-float-stars" aria-hidden="true"><i>✦</i><i>✦</i><i>✦</i><i>✦</i><i>✦</i></div></div><div class="rug-thought" aria-hidden="true"><div class="rug-thought-body"><i></i><i></i><i></i></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
 <div class="gs-fg" id="fgLayer"></div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
 <div class="gs-collect hidden" id="collectTip"><div class="cc-text" id="collectTipText"></div><div class="cc-bar"><i id="collectTipBar"></i></div></div>
@@ -6418,6 +6470,8 @@ function renderScene(){
   $('#companion').style.left=(S.charX-8)+'%';
   $('#companionTrail').style.left=(S.charX-11)+'%';
   applyGround();
+  resetPhysics();          /* 舞台已重建：高度/速度/阴影全部归零，切场景不会带着浮空过去 */
+  startMainLoop();         /* 唤醒常驻主循环（休眠时由按键或场景切换重新排队） */
   updateOrbs(); updateCompanion(); updateNearHint();
   /* 首次进花庭：成就只走顶部极小 Toast，不再有居中大白框 */
   const g=gameGet();
@@ -6745,7 +6799,7 @@ function updateCompanion(){
     if(Math.abs(sp.x-x)<14){ near=true; el.classList.add('show'); } else el.classList.remove('show');
   });
   const m=$('#companion'); if(m) m.classList.toggle('near',near);
-  updateNearHint();                 /* 「空格 · 敲敲小木门」这类近物提示 */
+  updateNearHint();                 /* 「E · 敲敲小木门」这类近物提示 */
 }
 function say(who,text){
   const d=$('#gameDialog'); if(!d) return;
@@ -7055,11 +7109,127 @@ function explore(){
   bump('explore',1,g);
   gameSet(g); updateHUD(); playChime();
 }
-/* —— 匀速连续移动：按键状态 + rAF 时间积分，长按 A/D 或 ←/→ 以恒定速度平移 —— */
-const MOVE_KEYS={ArrowLeft:'L',a:'L',A:'L',ArrowRight:'R',d:'R',D:'R'};
-const heldDir={L:false,R:false};
-const MOVE_SPEED=19;          /* 恒定速度：每秒平移 19% 舞台宽度 */
-let moveRAF=0, moveLastT=0, moveFxT=0, moveSaveT=0;
+/* ==========================================================================================
+   4.1 移动 + 跳跃：全局按键状态 + 常驻 rAF 主循环 + 固定 60Hz 重力物理
+   keydown / keyup 只置位，绝不直接位移；每帧统一读 keys，A/D 互不冲突
+   ========================================================================================== */
+const keys = { a:false, d:false, space:false };
+const MOVE_KEYS={ArrowLeft:'a',a:'a',A:'a',ArrowRight:'d',d:'d',D:'d'};
+const heldDir={L:false,R:false};       /* 旧方向垫 / 回归兼容镜像，不再是真相源 */
+const MOVE_SPEED=19;                   /* 每秒平移 19% 舞台宽度 */
+
+/* —— 跳跃物理状态与常量 —— */
+const GRAVITY=0.8;                     /* 每 1/60 秒的重力加速度 */
+const JUMP_VY=-15;                     /* 起跳初速度（负 = 向上） */
+const DOUBLE_VY=-12;                   /* 二段跳力度稍小 */
+const FLOAT_HOLD=200;                  /* 长按空格超过 200ms 进入浮空 */
+const FLOAT_CEIL=118;                  /* 浮空悬停高度，略低于二段跳最高点 */
+const FEATHER_MAX=4.6;                 /* 松开空格后的终端下落速度（空气阻力） */
+const PHYS_STEP=1/60;
+const phys={ y:0, vy:0, gravity:GRAVITY, isGrounded:true, jumpCount:0, floating:false, feather:false };
+
+let moveRAF=0, moveLastT=0, moveFxT=0, moveSaveT=0, physAcc=0;
+let movingNow=false, spaceDownAt=0;
+const pulseTimers={};
+
+function pulseClass(cls,ms){
+  const c=charEl(); if(!c) return;
+  c.classList.remove(cls); void c.offsetWidth; c.classList.add(cls);
+  clearTimeout(pulseTimers[cls]);
+  pulseTimers[cls]=setTimeout(()=>{ const n=charEl(); if(n) n.classList.remove(cls); },ms);
+}
+function updateFloatVisual(){
+  const c=charEl(); if(c) c.classList.toggle('floating',phys.floating);
+}
+function charFootPx(){
+  const c=charEl(); if(!c) return 44;
+  return parseFloat(c.style.getPropertyValue('--ground-px'))||44;
+}
+/* 脚下爆开的白色像素云朵：left 跟着角色，bottom = 贴地偏移 + 当前离地高度 */
+function jumpPuff(land){
+  const fx=$('#fxLayer'); if(!fx) return;
+  const n=land?7:11, foot=charFootPx()+phys.y;
+  for(let i=0;i<n;i++){
+    const p=document.createElement('i');
+    p.className='gs-jump-puff'+(land?' land':'');
+    const a=(i/n)*Math.PI*2, r=land?(18+Math.random()*22):(30+Math.random()*30);
+    p.style.left=S.charX+'%';
+    p.style.bottom=(foot+(land?-2:0))+'px';
+    p.style.setProperty('--dx',(Math.cos(a)*r).toFixed(0)+'px');
+    p.style.setProperty('--dy',(land?-4-Math.random()*7:Math.sin(a)*18-6).toFixed(0)+'px');
+    fx.appendChild(p);
+    setTimeout(()=>p.remove(),820);
+  }
+}
+/* 空格按下：地面起跳 / 空中二段跳；长按浮空由 physicsStep 判定 */
+function onSpaceDown(){
+  if(S.screen!=='game') return;
+  spaceDownAt=performance.now();
+  if(sitting) standUp();
+  if(swingActive) stopSwing();
+  if(phys.isGrounded){
+    phys.vy=JUMP_VY; phys.isGrounded=false; phys.jumpCount=1;
+    phys.gravity=GRAVITY; phys.feather=false; phys.floating=false;
+    pulseClass('jump-launch',360);
+  }else if(phys.jumpCount<2){
+    phys.vy=DOUBLE_VY; phys.jumpCount=2;
+    phys.floating=false; phys.feather=false;
+    jumpPuff(false);
+    pulseClass('jump-launch',320);
+  }
+  updateFloatVisual(); renderPhysics();
+}
+function onSpaceUp(){
+  spaceDownAt=0;
+  if(phys.floating){ phys.floating=false; phys.feather=true; phys.gravity=GRAVITY; }
+  updateFloatVisual();
+}
+/* 单个固定物理步：vy += gravity; y -= vy（y 为离地高度，0 即地面） */
+function physicsStep(){
+  if(phys.isGrounded && phys.y<=0) return;
+  if(keys.space && spaceDownAt && performance.now()-spaceDownAt>FLOAT_HOLD && !phys.floating){
+    phys.floating=true; phys.feather=false; updateFloatVisual();
+  }
+  if(!keys.space && phys.floating){ phys.floating=false; phys.feather=true; updateFloatVisual(); }
+  phys.gravity = phys.floating ? GRAVITY*0.5 : GRAVITY;   /* 浮空时重力临时减半 */
+  if(phys.floating){
+    phys.vy += phys.gravity;
+    const target = phys.y>=FLOAT_CEIL ? 0 : -1.9;          /* 缓升 / 到顶悬停 */
+    phys.vy += (target-phys.vy)*0.75;
+  }else{
+    phys.vy += phys.gravity;
+    if(phys.feather){                                      /* 空气阻力：像羽毛一样落下 */
+      phys.vy*=0.93;
+      if(phys.vy>FEATHER_MAX) phys.vy=FEATHER_MAX;
+    }
+  }
+  phys.y -= phys.vy;
+  if(phys.y<=0){                                           /* 落地检测 */
+    phys.y=0; phys.vy=0; phys.isGrounded=true; phys.jumpCount=0;
+    phys.floating=false; phys.feather=false; phys.gravity=GRAVITY;
+    updateFloatVisual();
+    pulseClass('land-squash',430);
+    jumpPuff(true);
+  }
+}
+/* 每帧把物理状态映射到 DOM：抬升、地面阴影、空中前倾 */
+function renderPhysics(){
+  const c=charEl(); if(!c) return;
+  const lift=c.querySelector('.gs-char-lift');
+  if(lift) lift.style.transform='translateY('+(-phys.y).toFixed(1)+'px)';
+  const k=Math.min(1,phys.y/145);
+  c.style.setProperty('--sh-op',(1-k*.74).toFixed(2));
+  c.style.setProperty('--sh-scale',(1-k*.52).toFixed(2));
+  c.classList.toggle('airborne',!phys.isGrounded);
+  c.classList.toggle('air-move',!phys.isGrounded && movingNow);
+  if(!phys.isGrounded && movingNow) c.style.setProperty('--air-tilt',(S.facing==='left'?'-7deg':'7deg'));
+}
+function resetPhysics(){
+  keys.space=false; spaceDownAt=0; physAcc=0;
+  Object.assign(phys,{y:0,vy:0,gravity:GRAVITY,isGrounded:true,jumpCount:0,floating:false,feather:false});
+  const c=charEl(); if(c) c.classList.remove('airborne','air-move','floating','jump-launch','land-squash');
+  renderPhysics();
+}
 
 function stepMove(dir,dt){
   if(S.roomRest) wakeFromBed(true);
@@ -7087,24 +7257,55 @@ function stepMove(dir,dt){
   if(now-moveSaveT>600){ moveSaveT=now; g.charX=S.charX; gameSet(g); }  /* 节流写存档 */
 }
 function endMove(){
-  moveLastT=0;
   $$('#gameAvatar .px-avatar').forEach(a=>a.classList.remove('walking'));
   const c=charEl(); if(c) c.classList.remove('walking');
   const g=gameGet(); g.charX=S.charX; gameSet(g);
 }
+/* 主循环：只在「有方向键 / 人在空中」时保持排队；A+D 同时按住 dir=0 但循环绝不销毁，
+   所以松开任一键的下一帧就能立刻反向，长按 A 松手慢一点按 D 也丝滑响应 */
 function moveFrame(t){
   moveRAF=0;
-  const dir=(heldDir.R?1:0)-(heldDir.L?1:0);
-  if(!dir || S.screen!=='game'){ endMove(); return; }
-  if(sitting){ standUp(); endMove(); return; }
-  if(swingActive){ stopSwing(); endMove(); return; }
   const dt=moveLastT?Math.min(.05,(t-moveLastT)/1000):0;
   moveLastT=t;
-  if(dt>0) stepMove(dir,dt);
-  moveRAF=requestAnimationFrame(moveFrame);
+  if(S.screen==='game' && charEl()){
+    const dir=(keys.d?1:0)-(keys.a?1:0);
+    if(dir && !sitting && !swingActive){
+      if(dt>0) stepMove(dir,dt);
+      movingNow=true;
+    }else{
+      if(dir && sitting) standUp();               /* 坐着按方向键先起身，下一帧开走 */
+      if(dir && swingActive) stopSwing();
+      if(movingNow){ endMove(); movingNow=false; }
+    }
+    physAcc=Math.min(physAcc+dt,.1);             /* 固定步长积分，高刷/低刷手感一致 */
+    let guard=0;
+    while(physAcc>=PHYS_STEP && guard++<6){ physicsStep(); physAcc-=PHYS_STEP; }
+    renderPhysics();
+  }else if(movingNow){ endMove(); movingNow=false; }
+  const alive = S.screen==='game' && (keys.a||keys.d||keys.space||!phys.isGrounded);
+  if(alive) moveRAF=requestAnimationFrame(moveFrame);
+  else moveLastT=0;                              /* 休眠：下次按键由 setKey 唤醒 */
 }
-function startHold(d){ heldDir[d]=true; if(!moveRAF){ moveLastT=0; moveRAF=requestAnimationFrame(moveFrame); } }
-function releaseHold(d){ heldDir[d]=false; }
+function startMainLoop(){ if(!moveRAF){ moveLastT=0; moveRAF=requestAnimationFrame(moveFrame); } }
+/* 唯一的状态入口：事件只置位，位移一律交给主循环 */
+function setKey(name,down){
+  if(name==='a'||name==='d'){
+    keys[name]=down; heldDir[name==='a'?'L':'R']=down;
+  }else if(name==='space'){
+    if(keys.space===down) return;
+    keys.space=down;
+    if(down) onSpaceDown(); else onSpaceUp();
+  }
+  startMainLoop();
+}
+function clearKeys(){
+  keys.a=keys.d=false; heldDir.L=heldDir.R=false;
+  if(keys.space){ keys.space=false; onSpaceUp(); }
+  if(movingNow){ endMove(); movingNow=false; }
+}
+/* 旧接口兼容：方向垫 / 触屏 / 既有回归仍可用 */
+function startHold(d){ setKey(d==='L'?'a':'d',true); }
+function releaseHold(d){ setKey(d==='L'?'a':'d',false); }
 
 /* 单步移动（触屏方向垫 / 单击）：复用同一套位移核心，单步距离 = 0.21s × 19%/s ≈ 4%，与原手感一致 */
 let walkTimer=null;
