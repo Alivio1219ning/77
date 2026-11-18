@@ -2091,68 +2091,165 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   animation:mateBundle 1.5s steps(1,end) infinite;white-space:nowrap}
 @keyframes mateBundle{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-3px)}}
 
-/* ---------- 3.7.3 背包 / 合成 / 种植 / 小喵：同一块和纸面板里的四页 ---------- */
-.gs-bag{right:16px;top:16px;width:min(366px,90vw);max-height:86%;padding:0;overflow:hidden;
-  display:flex;flex-direction:column;border-color:rgba(212,188,150,.9);
-  background:linear-gradient(158deg,rgba(255,253,248,.94),rgba(249,240,228,.9))}
-#bagBody{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
-.bg-tabs{flex:none;display:flex;border-bottom:1px solid rgba(217,198,165,.42);background:rgba(255,252,246,.6)}
-.bg-tab{flex:1 1 auto;padding:9px 2px;border:0;background:transparent;cursor:pointer;
-  font-family:var(--serif);font-size:13.5px;letter-spacing:.08em;color:#A9977C;transition:.3s}
-.bg-tab.on{color:#856F50;background:rgba(255,248,232,.92);box-shadow:inset 0 -1px 0 #D9C6A5}
-.bg-body{flex:1 1 auto;min-height:0;overflow:auto;padding:13px 16px 16px}
-.bg-body::-webkit-scrollbar{width:5px}
-.bg-body::-webkit-scrollbar-thumb{background:rgba(217,198,165,.55);border-radius:3px}
-.bg-sec{font-family:var(--serif);font-size:12.5px;letter-spacing:.16em;color:#B29C7C;margin:0 0 6px}
-.bg-sec.mt{margin-top:13px}
-.bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.bg-item{display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 3px;
-  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.38)}
-.bg-item b{font-family:var(--hand);font-size:17px;font-weight:400;color:#A48C68;line-height:1.1}
-.bg-item span{font-size:12.5px;color:#A9997F;text-align:center;line-height:1.4}
-.bg-item.rare{border-color:rgba(212,174,104,.72);background:rgba(255,250,234,.75)}
-.craft-row{display:flex;gap:9px;align-items:center;padding:9px 10px;margin-bottom:8px;
-  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.34)}
-.craft-row .cr-ic{flex:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;
-  border:1px solid var(--line);border-radius:2px;background:rgba(255,250,238,.8)}
-.craft-row .cr-ic svg{width:28px;height:28px;display:block;image-rendering:pixelated}
+/* ---------- 3.7.3 背包 / 合成 / 种植 / 小喵：手账本式华丽面板 ---------- */
+.gs-bag{right:18px;top:18px;width:min(392px,92vw);max-height:88%;padding:0;overflow:visible;
+  display:flex;flex-direction:column;border:0;border-radius:16px;
+  background:linear-gradient(160deg,#FDFBF7 0%,#FFF5F7 56%,#FDEFF3 100%);
+  box-shadow:0 0 0 1px rgba(255,255,255,.9),0 0 0 3px rgba(240,205,214,.85),
+             0 0 0 4.5px rgba(217,198,165,.7),0 22px 60px rgba(120,86,96,.26);
+  animation:gsPanelIn .42s ease;transition:transform .4s cubic-bezier(.3,.8,.3,1),opacity .35s ease}
+.gs-bag::before{content:"";position:absolute;inset:9px;border:1px dashed rgba(226,178,193,.7);
+  border-radius:10px;pointer-events:none;z-index:0}
+.gs-bag::after{content:"";position:absolute;inset:13px;border:1px solid rgba(217,198,165,.6);
+  border-radius:8px;pointer-events:none;z-index:0}
+.gs-bag.bag-closing{transform:translateX(118%);opacity:0}
+@keyframes bagBowSway{from{transform:translateX(-50%) rotate(-4deg)}to{transform:translateX(-50%) rotate(4deg)}}
+
+/* 顶部蝴蝶结挂饰 */
+.bg-bow{position:absolute;left:50%;top:-19px;transform:translateX(-50%);width:76px;height:30px;
+  z-index:6;pointer-events:none;animation:bagBowSway 3.2s ease-in-out infinite alternate}
+.bg-bow i{position:absolute;top:0;width:36px;height:26px;
+  background:linear-gradient(150deg,#F8C9D8,#EC9DB6);border:1px solid rgba(214,126,156,.7);
+  box-shadow:inset 0 2px 5px rgba(255,255,255,.7),0 3px 6px rgba(170,100,120,.25)}
+.bg-bow i.l{left:1px;border-radius:60% 22% 55% 40%;transform:rotate(-16deg)}
+.bg-bow i.r{right:1px;border-radius:22% 60% 40% 55%;transform:rotate(16deg)}
+.bg-bow b{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:16px;height:16px;
+  border-radius:50%;background:linear-gradient(150deg,#FBD9E4,#E68FAB);
+  border:1px solid rgba(214,126,156,.8);box-shadow:inset 0 1px 3px rgba(255,255,255,.8)}
+.bg-bow s{position:absolute;top:20px;width:11px;height:22px;background:linear-gradient(#F1B6C9,#E694B0);
+  border:1px solid rgba(214,126,156,.5);border-radius:0 0 6px 6px}
+.bg-bow s.l{left:22px;transform:rotate(9deg)} .bg-bow s.r{right:22px;transform:rotate(-9deg)}
+
+/* 右上角关闭按钮（丝带打结风） */
+.bg-close{position:absolute;right:16px;top:14px;z-index:8;display:inline-flex;align-items:center;gap:4px;
+  padding:5px 11px;border:1px solid rgba(226,164,184,.85);border-radius:20px;
+  background:linear-gradient(150deg,#FFF6F8,#FDE7EE);color:#B4708A;
+  font-family:var(--hand);font-size:16px;letter-spacing:.06em;cursor:pointer;
+  box-shadow:0 3px 8px rgba(170,110,130,.18),inset 0 1px 0 rgba(255,255,255,.9);
+  transition:.22s}
+.bg-close:hover{background:linear-gradient(150deg,#FDE7EE,#F8D3E0);color:#96526C;
+  transform:translateY(-1px);box-shadow:0 5px 12px rgba(170,110,130,.28)}
+.bg-close:active{transform:translateY(0)}
+.bg-close em{font-style:normal;font-size:13px;opacity:.75}
+
+/* 四角微光星星 */
+.bg-corner{position:absolute;z-index:5;color:#E7B9C8;font-size:19px;line-height:1;pointer-events:none;
+  text-shadow:0 0 8px rgba(238,170,196,.95),0 0 16px rgba(238,190,210,.6);
+  animation:bgTwinkle 2.6s ease-in-out infinite alternate}
+.bg-corner.tl{left:14px;top:12px;animation-delay:0s}
+.bg-corner.tr{right:14px;top:40px;animation-delay:.7s}
+.bg-corner.bl{left:14px;bottom:12px;animation-delay:1.4s}
+.bg-corner.br{right:14px;bottom:12px;animation-delay:2.1s}
+@keyframes bgTwinkle{from{opacity:.35;transform:scale(.8) rotate(0)}to{opacity:1;transform:scale(1.25) rotate(25deg)}}
+
+#bagBody{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;position:relative;z-index:2}
+
+/* 垂坠丝带书签标签 */
+.bg-tabs{flex:none;display:flex;gap:4px;padding:30px 14px 0;border-bottom:1px solid rgba(226,178,193,.5);
+  background:linear-gradient(180deg,rgba(255,250,252,.2),rgba(255,244,247,.7))}
+.bg-tab{flex:1 1 auto;position:relative;padding:10px 2px 12px;border:1px solid rgba(217,198,165,.55);
+  border-bottom:0;border-radius:9px 9px 0 0;background:linear-gradient(180deg,rgba(250,242,232,.7),rgba(245,234,222,.5));
+  cursor:pointer;font-family:var(--hand);font-size:17px;letter-spacing:.08em;color:#9C8A74;
+  transition:.28s;box-shadow:0 2px 5px rgba(120,90,80,.08)}
+.bg-tab::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);
+  width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;
+  border-top:7px solid rgba(217,198,165,.55);transition:.28s}
+.bg-tab:hover{color:#8B6F7C;background:linear-gradient(180deg,#FFF8FA,#FDEFF3)}
+.bg-tab.on{color:#A4526E;background:linear-gradient(180deg,#FFF9FB,#FBE2EB);
+  border-color:rgba(226,164,184,.9);transform:translateY(2px);
+  box-shadow:inset 0 2px 6px rgba(214,140,168,.18),0 3px 8px rgba(170,110,130,.16);
+  text-shadow:0 1px 0 rgba(255,255,255,.9)}
+.bg-tab.on::after{border-top-color:#FBE2EB}
+
+.bg-body{flex:1 1 auto;min-height:0;overflow:auto;padding:20px 22px 24px;
+  color:#5C5346;line-height:1.8}
+.bg-body::-webkit-scrollbar{width:7px}
+.bg-body::-webkit-scrollbar-track{background:rgba(253,245,247,.5);border-radius:4px}
+.bg-body::-webkit-scrollbar-thumb{background:rgba(226,178,193,.7);border-radius:4px}
+
+.bg-sec{font-family:var(--hand);font-size:18px;letter-spacing:.1em;color:#A4617C;
+  margin:0 0 12px;padding-left:4px;text-shadow:0 1px 0 rgba(255,255,255,.85)}
+.bg-sec.mt{margin-top:24px}
+.bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+/* 种子/材料做成方格纸片，右下角标数量 */
+.bg-item{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  min-height:86px;padding:12px 5px 20px;border:1px solid rgba(217,198,165,.75);border-radius:7px;
+  background:linear-gradient(160deg,#FFFDF9,#FBF3E8);color:#5C5346;
+  box-shadow:0 2px 6px rgba(120,95,75,.1),inset 0 0 0 2px rgba(255,255,255,.6)}
+.bg-item::before{content:"";position:absolute;inset:0;border-radius:6px;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(217,198,165,.22) 15px,rgba(217,198,165,.22) 16px)}
+.bg-item .tile-ic{position:relative;z-index:1;font-size:25px;line-height:1;
+  filter:drop-shadow(0 2px 2px rgba(150,110,80,.2))}
+.bg-item b{position:absolute;right:5px;bottom:4px;z-index:2;min-width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;padding:0 4px;
+  font-family:var(--serif);font-size:14px;font-weight:600;color:#FFF;
+  background:linear-gradient(150deg,#E9B7C7,#D488A4);border:1px solid rgba(190,110,140,.7);
+  border-radius:11px;box-shadow:0 2px 4px rgba(160,100,120,.3)}
+.bg-item span{position:relative;z-index:1;font-family:var(--serif);font-size:14.5px;color:#6A5F50;text-align:center;line-height:1.4;padding:0 6px}
+.bg-item.empty{opacity:.6}
+.bg-item.rare{border-color:rgba(226,178,110,.9);background:linear-gradient(160deg,#FFFBF0,#FCF1D9);
+  box-shadow:0 2px 8px rgba(200,160,90,.18),inset 0 0 0 2px rgba(255,255,255,.65)}
+
+.craft-row{display:flex;gap:11px;align-items:center;padding:12px;margin-bottom:11px;
+  border:1px solid rgba(217,198,165,.65);border-radius:8px;
+  background:linear-gradient(160deg,rgba(255,253,249,.85),rgba(255,247,249,.7))}
+.craft-row .cr-ic{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:6px;background:rgba(255,250,238,.9)}
+.craft-row .cr-ic svg{width:34px;height:34px;display:block;image-rendering:pixelated}
 .craft-row .cr-tx{flex:1 1 auto;min-width:0}
-.craft-row .cr-tx b{display:block;font-family:var(--serif);font-weight:400;font-size:15px;color:#7E6A4F}
-.craft-row .cr-tx small{display:block;font-size:12.5px;line-height:1.55;color:#A9997F}
-.craft-row .cr-tx em{font-style:normal;color:#B4884C}
-.craft-row .cr-btn{flex:none;padding:4px 9px;border:1px solid rgba(212,176,110,.72);border-radius:2px;
-  background:rgba(255,250,236,.92);font-family:var(--serif);font-size:12.5px;color:#9A7A4E;cursor:pointer}
-.craft-row .cr-btn:disabled{opacity:.4;cursor:default}
-.plant-row{display:flex;gap:9px;align-items:center;padding:8px 10px;margin-bottom:8px;
-  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.34)}
-.plant-row .pr-pot{flex:none;width:30px;height:30px}
+.craft-row .cr-tx b{display:block;font-family:var(--serif);font-weight:600;font-size:17px;color:#5C5346;line-height:1.6}
+.craft-row .cr-tx small{display:block;font-family:var(--serif);font-size:15px;line-height:1.8;color:#7A6F60}
+.craft-row .cr-tx em{font-style:normal;color:#C0844F}
+.craft-row .cr-btn{flex:none;padding:7px 13px;border:1px solid rgba(212,150,174,.85);border-radius:18px;
+  background:linear-gradient(150deg,#FFF6F9,#FBE2EB);font-family:var(--hand);font-size:16px;color:#A4526E;cursor:pointer;
+  box-shadow:0 2px 5px rgba(170,110,130,.14);transition:.2s}
+.craft-row .cr-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 9px rgba(170,110,130,.24)}
+.craft-row .cr-btn:disabled{opacity:.42;cursor:default}
+
+.plant-row{display:flex;gap:11px;align-items:center;padding:11px 12px;margin-bottom:11px;
+  border:1px solid rgba(217,198,165,.65);border-radius:8px;
+  background:linear-gradient(160deg,rgba(255,253,249,.85),rgba(255,247,249,.7))}
+.plant-row .pr-pot{flex:none;width:38px;height:38px}
 .plant-row .pr-pot svg{width:100%;height:100%;display:block;image-rendering:pixelated}
 .plant-row .pr-tx{flex:1 1 auto;min-width:0}
-.plant-row .pr-tx b{display:block;font-family:var(--serif);font-weight:400;font-size:14.5px;color:#7E6A4F}
-.plant-row .pr-tx small{display:block;font-size:12.5px;color:#A9997F;margin-bottom:3px}
-.plant-row .pr-bar{height:3px;background:rgba(203,184,152,.36);overflow:hidden}
-.plant-row .pr-bar i{display:block;height:100%;background:linear-gradient(90deg,#E9D9AC,#CBA667);
-  transition:width .6s ease}
-.bg-plant-btn{padding:4px 8px;border:1px solid rgba(212,176,110,.65);border-radius:2px;
-  background:rgba(255,250,236,.9);font-family:var(--serif);font-size:12.5px;color:#9A7A4E;cursor:pointer}
-.bg-plant-btn:disabled{opacity:.38;cursor:default}
-.heart-row{display:inline-flex;gap:2px;vertical-align:1px}
-.heart-row i{width:5px;height:5px;background:rgba(203,184,152,.5);border-radius:1px}
-.heart-row i.on{background:#E7A8B8;box-shadow:0 0 4px rgba(231,168,184,.8)}
-.aff-row{display:flex;gap:8px;align-items:center;padding:7px 9px;margin-bottom:6px;
-  border:1px solid var(--line-soft);border-radius:3px;background:rgba(255,255,255,.32)}
-.aff-row .af-tx{flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:13.5px;color:#8B7C68}
-.aff-row .af-tx small{display:block;font-size:12px;color:#B0A18C}
-.aff-row em{font-style:normal;font-family:var(--hand);font-size:14px;color:#B08E56}
-.bg-hero{display:flex;gap:10px;align-items:center;padding:10px;margin-bottom:10px;
-  border:1px dashed rgba(217,198,165,.66);border-radius:3px;background:rgba(255,252,244,.6)}
-.bg-hero .bh-cat{flex:none;width:42px;height:36px}
-.bg-hero .bh-cat svg{width:100%;height:100%;display:block;image-rendering:pixelated}
-.bg-hero .bh-tx{flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:13.5px;color:#8B7C68;line-height:1.7}
-.bg-hero .bh-tx b{display:block;font-weight:400;font-size:15px;color:#7E6A4F}
-.bg-note{font-family:var(--serif);font-size:12.5px;line-height:1.85;color:#A9997F;letter-spacing:.02em}
-.bg-empty{font-family:var(--serif);font-size:13.5px;color:#B3A695;line-height:1.9;padding:6px 0}
+.plant-row .pr-tx b{display:block;font-family:var(--serif);font-weight:600;font-size:16px;color:#5C5346;line-height:1.6}
+.plant-row .pr-tx small{display:block;font-size:15px;color:#7A6F60;margin-bottom:5px;line-height:1.7}
+.plant-row .pr-bar{height:6px;background:rgba(226,178,193,.3);border-radius:3px;overflow:hidden}
+.plant-row .pr-bar i{display:block;height:100%;background:linear-gradient(90deg,#F3C4D3,#D988A6);
+  border-radius:3px;transition:width .6s ease}
+.bg-plant-btn{padding:6px 11px;border:1px solid rgba(212,150,174,.85);border-radius:16px;
+  background:linear-gradient(150deg,#FFF6F9,#FBE2EB);font-family:var(--hand);font-size:15px;color:#A4526E;cursor:pointer;
+  transition:.2s}
+.bg-plant-btn:hover:not(:disabled){transform:translateY(-1px)}
+.bg-plant-btn:disabled{opacity:.4;cursor:default}
 
+/* 好感度：爱心生长 + 满格发光 */
+.heart-row{display:inline-flex;gap:3px;vertical-align:middle}
+.heart-row i{width:14px;height:14px;background:rgba(203,184,152,.35);
+  clip-path:polygon(50% 100%,5% 45%,5% 20%,20% 5%,40% 8%,50% 25%,60% 8%,80% 5%,95% 20%,95% 45%);
+  transition:.35s}
+.heart-row i.on{background:linear-gradient(160deg,#F5A8C0,#DE6E96);
+  filter:drop-shadow(0 0 3px rgba(230,120,160,.85))}
+.heart-row.full i.on{filter:drop-shadow(0 0 5px rgba(238,140,180,1)) drop-shadow(0 0 9px rgba(240,180,205,.8));
+  animation:heartGlow 1.8s ease-in-out infinite alternate}
+@keyframes heartGlow{from{filter:drop-shadow(0 0 3px rgba(238,140,180,.9))}to{filter:drop-shadow(0 0 8px rgba(240,160,195,1))}}
+.aff-row{display:flex;gap:10px;align-items:center;padding:11px 12px;margin-bottom:9px;
+  border:1px solid rgba(226,178,193,.5);border-radius:8px;
+  background:linear-gradient(160deg,rgba(255,253,249,.7),rgba(255,245,248,.6))}
+.aff-row .af-tx{flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:16px;color:#5C5346;line-height:1.6}
+.aff-row .af-tx small{display:block;font-size:14px;color:#8A7D72;line-height:1.6}
+.aff-row em{font-style:normal;font-family:var(--hand);font-size:16px;color:#B4708A;white-space:nowrap}
+.bg-hero{display:flex;gap:12px;align-items:center;padding:13px;margin-bottom:12px;
+  border:1px dashed rgba(226,178,193,.8);border-radius:9px;background:rgba(255,250,252,.75)}
+.bg-hero .bh-cat{flex:none;width:52px;height:46px}
+.bg-hero .bh-cat svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+.bg-hero .bh-tx{flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:16px;color:#5C5346;line-height:1.8}
+.bg-hero .bh-tx b{display:block;font-weight:600;font-size:17px;color:#A4526E}
+.bg-note{font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.9;color:#8A7D72;letter-spacing:.02em}
+.bg-empty{font-family:var(--serif);font-style:italic;font-size:14px;color:#8A7D72;line-height:1.9;padding:8px 2px}
+.slot-lock{font-family:var(--serif);font-size:15px;color:#8A7D72}
+.slot-req{font-family:var(--serif);font-size:14px;font-style:italic;color:#8A7D72}
 /* ==========================================================================================
    四、温馨小屋 · 出门地图 · 回家入口
    架构：默认先进小屋 → 走到最右木门 → 旅行地图选目的地 → 户外 → 出生点小门回家
@@ -11734,25 +11831,41 @@ function bindLiveLayer(){
 /* ---------------------------------------------------------- 11. 背包 / 合成 / 种植 / 小喵 面板 ---------- */
 let bagTab='bag';
 const BAG_TABS=[['bag','背包'],['craft','合成'],['plant','种植'],['mate','小喵']];
+let bagCloseTimer=null;
 function openBag(tab){
   if(tab) bagTab=tab;
   clearRugRest();
   closeSidePanels('bag');
   const p=$('#bagPanel'); if(!p) return;
+  if(bagCloseTimer){ clearTimeout(bagCloseTimer); bagCloseTimer=null; }
   renderBag();
-  p.classList.remove('hidden');
+  p.classList.remove('hidden','bag-closing');
 }
 function closeBag(){
-  const p=$('#bagPanel'); if(p) p.classList.add('hidden');
+  const p=$('#bagPanel'); if(!p || p.classList.contains('hidden')) return;
+  p.classList.add('bag-closing');
+  if(bagCloseTimer) clearTimeout(bagCloseTimer);
+  bagCloseTimer=setTimeout(()=>{ p.classList.add('hidden'); p.classList.remove('bag-closing'); bagCloseTimer=null; }, 400);
+}
+function toggleBag(){
+  const p=$('#bagPanel');
+  if(p && !p.classList.contains('hidden') && !p.classList.contains('bag-closing')) closeBag();
+  else openBag('bag');
 }
 function setBagTab(t){ bagTab=t; renderBag(); }
 function renderBag(){
   const box=$('#bagBody'); if(!box) return;
   const g=gameGet();
-  box.innerHTML=`<div class="bg-tabs">${BAG_TABS.map(([id,label])=>
+  box.innerHTML=`
+    <div class="bg-bow"><i class="l"></i><i class="r"></i><b></b><s class="l"></s><s class="r"></s></div>
+    <button class="bg-close" id="bgCloseBtn" title="收起面板">✕ <em>收起面板</em></button>
+    <span class="bg-corner tl">✦</span><span class="bg-corner tr">✦</span>
+    <span class="bg-corner bl">✦</span><span class="bg-corner br">✦</span>
+    <div class="bg-tabs">${BAG_TABS.map(([id,label])=>
       `<button class="bg-tab ${bagTab===id?'on':''}" data-tab="${id}">${label}</button>`).join('')}</div>
     <div class="bg-body" id="bgBody">${bagBodyHTML(g)}</div>`;
   $$('#bagBody .bg-tab').forEach(b=>b.onclick=()=>setBagTab(b.dataset.tab));
+  const cb=$('#bgCloseBtn'); if(cb) cb.onclick=closeBag;
   bindBagBody();
 }
 function bagBodyHTML(g){
@@ -11762,13 +11875,14 @@ function bagBodyHTML(g){
   return bagHTML(g);
 }
 function bagHTML(g){
+  const seedIc={dew:'🌿',sakura:'🌸',star:'✦'};
   const seeds=SEED_ORDER.map(k=>
-    `<div class="bg-item ${g.inventory.seeds[k]?'':'empty'}"><b>${g.inventory.seeds[k]||0}</b>
-      <span>${SEEDS[k].seedName}</span></div>`).join('');
+    `<div class="bg-item ${g.inventory.seeds[k]?'':'empty'}"><span class="tile-ic">${seedIc[k]||'❁'}</span>
+      <span>${SEEDS[k].seedName}</span><b>${g.inventory.seeds[k]||0}</b></div>`).join('');
   const rareKeys=['luckyBell','bookmarkOld','rustyKey','cloudCandy','driedFish'];
   const mats=Object.keys(MAT_LABELS).filter(k=>(g.materials[k]||0)>0)
-    .map(k=>`<div class="bg-item ${rareKeys.includes(k)?'rare':''}"><b>${g.materials[k]}</b>
-      <span>${MAT_LABELS[k]}</span></div>`).join('')
+    .map(k=>`<div class="bg-item ${rareKeys.includes(k)?'rare':''}"><span class="tile-ic">${rareKeys.includes(k)?'✦':'❁'}</span>
+      <span>${MAT_LABELS[k]}</span><b>${g.materials[k]}</b></div>`).join('')
     || '<div class="bg-empty">口袋还空着，出门走走吧。</div>';
   const furn=RECIPES.filter(r=>r.kind!=='item').map(r=>{
     const n=(g.inventory.furniture||{})[r.id]||0;
@@ -11782,7 +11896,7 @@ function bagHTML(g){
     const a=AFFECTION[k], lv=g.affection[k]||0;
     return `<div class="aff-row"><div class="af-tx">${a.name}
       <small>${a.levelWords[Math.min(a.levelWords.length-1,lv)]}</small></div>
-      <span class="heart-row">${Array.from({length:a.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</span>
+      <span class="heart-row ${lv>=a.max?'full':''}">${Array.from({length:a.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</span>
       <em>${lv}/${a.max}</em></div>`;
   }).join('');
   return `<div class="bg-sec">✿ 种子</div><div class="bg-grid">${seeds}</div>
@@ -14979,7 +15093,7 @@ function initGame(){
   renderSceneTabs();
   $('#btnExplore').onclick=explore;
   $('#btnWardrobe').onclick=openWardrobe;
-  $('#btnBag').onclick=()=>openBag('bag');
+  $('#btnBag').onclick=toggleBag;
   $('#btnAch').onclick=openAch;
   $('#btnReport').onclick=()=>{ closeSettings(); openReport(); };
   $('#btnProfile').onclick=e=>{ e.stopPropagation(); openNickModal(); };
