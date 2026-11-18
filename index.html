@@ -397,63 +397,31 @@ button{cursor:pointer;border:0;background:none}
              radial-gradient(ellipse at 92% 78%,rgba(255,245,220,.55),transparent 38%)}
 .sky-star{position:absolute;width:3px;height:3px;border-radius:50%;background:#FFF6DC;box-shadow:0 0 9px 2px rgba(255,240,200,.75);animation:twinkle 4s ease-in-out infinite}
 .cake-wrap{position:relative;z-index:2;margin-top:16px}
-.big-cake{position:relative;width:300px;height:275px;margin:0 auto}
-/* 托盘 + 蕾丝 */
-.cake-plate{position:absolute;bottom:18px;left:-8px;width:316px;height:20px;border-radius:50%;z-index:1;
-  background:linear-gradient(180deg,#FFFFFF 0%,#F6EDE9 60%,#E6D8D5 100%);
-  box-shadow:0 12px 22px rgba(170,130,140,.25),inset 0 -3px 6px rgba(190,160,165,.25)}
-.cake-plate::after{content:"";position:absolute;left:8px;right:8px;top:3px;height:10px;border-radius:50%;background:linear-gradient(180deg,#FFFFFF,#FBF3F0);opacity:.9}
-.plate-lace{position:absolute;left:2px;right:2px;bottom:-3px;height:12px;border-radius:0 0 50% 50%;
-  background:radial-gradient(circle at 7px 3px,#FFFFFF 4px,transparent 4.6px) 0 0/14px 12px repeat-x;
-  filter:drop-shadow(0 2px 1px rgba(190,160,160,.3));opacity:.95}
-/* 蛋糕层 */
-.cake-layer{position:absolute;border-radius:12px 12px 14px 14px;
-  box-shadow:inset 0 -12px 18px rgba(200,155,155,.18),inset 12px 0 20px rgba(255,255,255,.5),0 8px 14px rgba(175,135,145,.18)}
-.cake-layer::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16px;border-radius:0 0 12px 12px;background:linear-gradient(180deg,transparent,rgba(205,160,160,.14))}
-.layer-base{bottom:30px;left:24px;width:252px;height:72px;border:1px solid rgba(225,185,185,.4);background:linear-gradient(100deg,#FFF3EE 0%,#FFFDF8 28%,#FBE3E0 72%,#F6D5D3 100%)}
-.layer-mid{bottom:100px;left:58px;width:184px;height:60px;border:1px solid rgba(225,190,188,.4);background:linear-gradient(100deg,#FFF6F4 0%,#FFFDF9 30%,#F7E6E2 70%,#F2DAD6 100%)}
-.layer-top{bottom:158px;left:98px;width:104px;height:54px;border:1px solid rgba(225,195,180,.4);background:linear-gradient(100deg,#FFF7F1 0%,#FFFEFB 32%,#FBEDE6 72%,#F6E0D8 100%)}
-/* 波浪奶油花边 */
-.cream-top{position:absolute;left:-2px;right:-2px;top:-11px;height:22px;
-  background:radial-gradient(circle at 11px 20px,#FFFDF8 10px,transparent 10.6px) 0 2px/22px 20px repeat-x;
-  filter:drop-shadow(0 3px 2px rgba(200,160,160,.22))}
-.cream-top::after{content:"";position:absolute;left:0;right:0;top:9px;height:8px;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,248,244,.2))}
-/* 像素小水果 */
-.fruit{position:absolute;display:block;z-index:3}
-.fruit.strawberry{width:16px;height:18px;border-radius:50% 50% 46% 46%/38% 38% 62% 62%;background:radial-gradient(circle at 35% 30%,#FF9B9B,#E8606E 60%,#C9465C);box-shadow:inset -2px -2px 3px rgba(150,40,60,.3),0 2px 3px rgba(150,80,90,.3)}
-.fruit.strawberry::before{content:"";position:absolute;left:1px;top:-4px;width:14px;height:7px;border-radius:50%;background:linear-gradient(#9FCB8A,#6FA85F);clip-path:polygon(0 100%,18% 20%,40% 70%,58% 10%,80% 65%,100% 25%,100% 100%)}
-.fruit.strawberry::after{content:"· · ·";position:absolute;left:3px;top:7px;font-size:7px;color:#FFE9C9;letter-spacing:1px}
-.fruit.blueberry{width:13px;height:13px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#9E9AD8,#6E6AB0 60%,#4E4A88);box-shadow:inset -1px -1px 2px rgba(40,35,80,.4),0 1px 2px rgba(60,50,100,.3)}
-.fruit.blueberry::after{content:"✳";position:absolute;left:2px;top:-3px;font-size:8px;color:#7C8F6A;line-height:1}
-/* 丝带 + 蝴蝶结 */
-.ribbon-band{position:absolute;left:0;right:0;bottom:20px;height:20px;background:linear-gradient(180deg,rgba(255,255,255,.35),#F7C6D2 30%,#EEA9BC 62%,#FBD5DE);box-shadow:inset 0 1px 2px rgba(255,255,255,.8),0 2px 4px rgba(190,120,140,.25);opacity:.95}
-.ribbon-bow{position:absolute;right:26px;bottom:12px;width:50px;height:34px;z-index:5}
-.ribbon-bow i{position:absolute;top:2px;width:24px;height:24px;border:3px solid #EFA9BD;border-radius:60% 40% 55% 45%;background:linear-gradient(135deg,#FFE0E8,#F6B9CA);box-shadow:0 3px 5px rgba(190,120,140,.3)}
-.ribbon-bow i:first-child{left:0;transform:rotate(-18deg)}
-.ribbon-bow i:nth-child(2){right:0;transform:rotate(18deg) scaleX(-1)}
-.ribbon-bow b{position:absolute;left:20px;top:8px;width:11px;height:13px;border-radius:50%;background:linear-gradient(#FBD9E2,#E79BB2);box-shadow:0 2px 3px rgba(170,100,120,.35)}
-.ribbon-bow::after{content:"";position:absolute;left:8px;top:20px;width:7px;height:26px;background:linear-gradient(#F4B9C9,#E89BB3);border-radius:0 0 5px 5px;transform:rotate(12deg)}
-/* 底座枝丫 */
-.cake-branches{position:absolute;bottom:4px;left:-34px;width:368px;height:130px;z-index:0;pointer-events:none;overflow:visible}
-/* 蜡烛火焰烟 */
-.big-candle{position:absolute;bottom:210px;left:143px;width:11px;height:40px;border-radius:4px;z-index:4;background:repeating-linear-gradient(48deg,#FFF4F1 0 7px,#F2C8C8 7px 14px);box-shadow:inset -2px 0 3px rgba(190,145,145,.35),0 2px 5px rgba(150,110,110,.2)}
-.big-candle::after{content:"";position:absolute;left:0;top:-2px;right:0;height:3px;background:#FFF9F5;border-radius:50%}
-.big-flame{position:absolute;bottom:246px;left:140px;width:18px;height:28px;border-radius:50% 50% 46% 46%/62% 62% 38% 38%;z-index:5;
-  background:radial-gradient(circle at 50% 72%,#FFFBE8,#FFD98A 50%,#F5A85E 82%,#E8874E);
-  box-shadow:0 0 24px 8px rgba(255,200,120,.6),0 0 55px 20px rgba(255,205,140,.25);
+.big-cake{position:relative;width:410px;height:376px;margin:0 auto}
+/* ===== 水彩梦幻蛋糕 · SVG 主体 ===== */
+.cake-art{position:absolute;inset:0;width:100%;height:100%;z-index:1;filter:drop-shadow(0 12px 16px rgba(185,135,150,.2))}
+/* 蜡烛（粉色螺旋） */
+.big-candle{position:absolute;bottom:142px;left:199px;width:11px;height:64px;border-radius:5px;z-index:4;
+  background:repeating-linear-gradient(52deg,#FFF6F2 0 7px,#F4C2D0 7px 13px);
+  box-shadow:inset -2px 0 3px rgba(190,140,150,.35),0 2px 5px rgba(160,110,120,.2)}
+.big-candle::after{content:"";position:absolute;left:-1px;top:-2px;right:-1px;height:3px;background:#FFF9F5;border-radius:50%}
+/* 水滴形粉色火焰 */
+.big-flame{position:absolute;bottom:206px;left:194px;width:23px;height:34px;border-radius:50% 50% 46% 46%/68% 68% 32% 32%;z-index:6;
+  background:radial-gradient(circle at 50% 76%,#FFFDF0 0%,#FFE89A 34%,#FFB0C7 68%,#EE7197 100%);
+  box-shadow:0 0 22px 8px rgba(255,160,195,.6),0 0 52px 20px rgba(255,190,215,.28);
   animation:breathe 2.2s ease-in-out infinite;transition:.7s;cursor:pointer}
-.big-flame::after{content:"";position:absolute;left:5px;bottom:4px;width:8px;height:13px;border-radius:50%;background:radial-gradient(circle at 50% 70%,#FFFEF5,#FFF0B8 70%,transparent)}
+.big-flame::after{content:"";position:absolute;left:7px;bottom:6px;width:9px;height:15px;border-radius:50%;background:radial-gradient(circle at 50% 70%,#FFFEF6,#FFF0C4 70%,transparent)}
 .big-flame.out{transform:scale(0) translateY(8px);opacity:0;animation:none}
-.smoke{position:absolute;bottom:248px;left:147px;width:6px;height:6px;border-radius:50%;background:rgba(190,195,195,.55);opacity:0;filter:blur(1.5px);z-index:5}
+.smoke{position:absolute;bottom:208px;left:200px;width:7px;height:7px;border-radius:50%;background:rgba(190,195,195,.55);opacity:0;filter:blur(1.5px);z-index:6}
 .smoke.go{animation:smokeUp 2.6s ease-out forwards}
 @keyframes smokeUp{0%{opacity:.75;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(26px,-90px) scale(4)}}
 /* 环绕星光 */
-.cake-sparkles{position:absolute;inset:-24px -30px;pointer-events:none;z-index:3}
-.cake-sparkles i{position:absolute;color:#F4C98F;font-size:var(--s,14px);line-height:1;text-shadow:0 0 12px rgba(255,215,150,.95);animation:twinkle var(--d,3.2s) ease-in-out infinite;animation-delay:var(--dl,0s)}
-.cake-glow{position:absolute;inset:-60px;pointer-events:none;opacity:0;transition:opacity 1.5s}
+.cake-sparkles{position:absolute;inset:-18px -24px;pointer-events:none;z-index:3}
+.cake-sparkles i{position:absolute;color:#F6C6DB;font-size:var(--s,14px);line-height:1;text-shadow:0 0 12px rgba(255,190,220,.95),0 0 3px #FFF;animation:twinkle var(--d,3.2s) ease-in-out infinite;animation-delay:var(--dl,0s)}
+.cake-glow{position:absolute;inset:-60px;pointer-events:none;opacity:0;transition:opacity 1.5s;z-index:2}
 .cake-glow.on{opacity:1}
-.cake-glow i{position:absolute;color:#EBD3A0;font-size:14px;text-shadow:0 0 14px rgba(240,210,150,.9);animation:twinkle 3.4s ease-in-out infinite}
-.cake-actions{position:relative;z-index:2;margin-top:46px;display:flex;gap:12px;align-items:center}
+.cake-glow i{position:absolute;color:#F4B6D0;font-size:14px;text-shadow:0 0 14px rgba(255,190,220,.9);animation:twinkle 3.4s ease-in-out infinite}
+.cake-actions{position:relative;z-index:2;margin-top:54px;display:flex;gap:12px;align-items:center}
 .cake-tip{position:relative;z-index:2;font-family:var(--hand);font-size:23px;color:#B07F92;margin-bottom:4px;letter-spacing:.08em}
 /* 粉白胶囊发光按钮 */
 #cakeBlow,#saveCard{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 30px;border-radius:999px;border:1px solid rgba(240,180,200,.9);font-family:var(--serif);font-size:15px;letter-spacing:.12em;color:#9C5F76;cursor:pointer;
@@ -3885,6 +3853,175 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
     <div class="cake-wrap">
       <div class="cake-glow" id="cakeGlow"></div>
       <div class="big-cake">
+        <svg class="cake-art" viewBox="0 0 360 330" aria-hidden="true">
+          <defs>
+            <linearGradient id="cSatin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F4C6D2"/><stop offset=".16" stop-color="#FFF1F3"/><stop offset=".48" stop-color="#FCE0E5"/><stop offset=".8" stop-color="#F3C4D0"/><stop offset="1" stop-color="#E5A6B8"/></linearGradient>
+            <linearGradient id="cTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFAF8"/><stop offset="1" stop-color="#FADFE3"/></linearGradient>
+            <radialGradient id="cDome" cx="40%" cy="26%" r="78%"><stop offset="0" stop-color="#FFFDFB"/><stop offset=".4" stop-color="#FDE6EA"/><stop offset=".8" stop-color="#F7CAD5"/><stop offset="1" stop-color="#EBA9BB"/></radialGradient>
+            <linearGradient id="cCream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#FFF5EE"/><stop offset="1" stop-color="#EFD5CB"/></linearGradient>
+            <linearGradient id="cRibbon" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE8EF" stop-opacity=".96"/><stop offset=".5" stop-color="#F1AAC3" stop-opacity=".92"/><stop offset="1" stop-color="#DB81A2" stop-opacity=".94"/></linearGradient>
+            <radialGradient id="cBerry" cx="34%" cy="26%" r="74%"><stop offset="0" stop-color="#FFD2D5"/><stop offset=".5" stop-color="#F4849A"/><stop offset="1" stop-color="#D64C6A"/></radialGradient>
+            <radialGradient id="cHeart" cx="34%" cy="28%" r="72%"><stop offset="0" stop-color="#FFE2E9"/><stop offset="1" stop-color="#EC96B2"/></radialGradient>
+            <radialGradient id="cBunny" cx="38%" cy="28%" r="78%"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F5E4E2"/></radialGradient>
+            <linearGradient id="cPlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F8EBE7"/><stop offset="1" stop-color="#E4CFCB"/></linearGradient>
+            <filter id="cSoft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7"/></filter>
+            <filter id="cGlowF" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+            <g id="cShell">
+              <path d="M0 2 C1 -8 15 -12 20 -3 C24 5 13 9 7 6 C3 4 1 3 0 2Z" fill="url(#cCream)" stroke="#EBD2C9" stroke-width=".6"/>
+              <path d="M3 3 C7 -2 14 -3 18 1" fill="none" stroke="#FFF" stroke-width="1.1" opacity=".9"/>
+              <path d="M7 6 C10 1 14 1 17 5" fill="none" stroke="#EAD0C6" stroke-width=".8" opacity=".7"/>
+            </g>
+            <g id="cBerryU">
+              <path d="M0 -1 C-9 -2 -11 8 -6 15 C-3 19 3 19 6 15 C11 8 9 -2 0 -1Z" fill="url(#cBerry)"/>
+              <path d="M-8 -1 C-12 -7 -5 -10 0 -6 C5 -10 12 -7 8 -1 C4 -4 -4 -4 -8 -1Z" fill="#93C27F" stroke="#7FAE6C" stroke-width=".5"/>
+              <g fill="#FFF1D9"><ellipse cx="-4" cy="5" rx="1" ry="1.3"/><ellipse cx="2.5" cy="4" rx="1" ry="1.3"/><ellipse cx="-2" cy="10" rx="1" ry="1.3"/><ellipse cx="4" cy="9" rx="1" ry="1.3"/><ellipse cx="0" cy="14" rx=".9" ry="1.2"/></g>
+              <ellipse cx="-3.5" cy="4" rx="2" ry="3.4" fill="#FFF" opacity=".38"/>
+            </g>
+            <g id="cHeartU">
+              <path d="M0 5 C-11 -4 -15 5 -8 11 L0 18 L8 11 C15 5 11 -4 0 5Z" fill="url(#cHeart)" stroke="#E486A4" stroke-width=".8"/>
+              <path d="M-4.5 7 l2 2 M-4.5 9 l2-2" stroke="#FFF" stroke-width="1.2" opacity=".95" stroke-linecap="round"/>
+            </g>
+            <g id="cBunnyU">
+              <ellipse cx="-7" cy="-16" rx="4.4" ry="12" fill="url(#cBunny)" stroke="#EAD4D2" stroke-width=".7" transform="rotate(-12 -7 -16)"/>
+              <ellipse cx="7" cy="-16" rx="4.4" ry="12" fill="url(#cBunny)" stroke="#EAD4D2" stroke-width=".7" transform="rotate(12 7 -16)"/>
+              <ellipse cx="-7" cy="-16" rx="2" ry="8" fill="#F6BFD0" transform="rotate(-12 -7 -16)"/>
+              <ellipse cx="7" cy="-16" rx="2" ry="8" fill="#F6BFD0" transform="rotate(12 7 -16)"/>
+              <ellipse cx="0" cy="6" rx="13" ry="12" fill="url(#cBunny)" stroke="#EAD4D2" stroke-width=".7"/>
+              <ellipse cx="0" cy="-4" rx="11" ry="10" fill="url(#cBunny)" stroke="#EAD4D2" stroke-width=".7"/>
+              <ellipse cx="-7" cy="-2" rx="2.6" ry="1.8" fill="#F5B5C7" opacity=".9"/>
+              <ellipse cx="7" cy="-2" rx="2.6" ry="1.8" fill="#F5B5C7" opacity=".9"/>
+              <circle cx="-4" cy="-5" r="1.15" fill="#8B6972"/><circle cx="4" cy="-5" r="1.15" fill="#8B6972"/>
+              <path d="M-1.5 -1.4 q1.5 2 3 0" fill="none" stroke="#B47E88" stroke-width=".9" stroke-linecap="round"/>
+              <circle cx="0" cy="-2.4" r=".8" fill="#E79AAE"/>
+              <ellipse cx="-8" cy="10" rx="4" ry="3" fill="#FFF9F7" stroke="#EAD4D2" stroke-width=".6"/>
+              <ellipse cx="8" cy="10" rx="4" ry="3" fill="#FFF9F7" stroke="#EAD4D2" stroke-width=".6"/>
+            </g>
+          </defs>
+
+          <!-- 柔光阴影 -->
+          <ellipse cx="180" cy="306" rx="152" ry="26" fill="#E7B2C1" opacity=".32" filter="url(#cSoft)"/>
+          <!-- 托盘 + 蕾丝 -->
+          <ellipse cx="180" cy="302" rx="146" ry="25" fill="url(#cPlate)" stroke="#E5D1CC" stroke-width="1"/>
+          <ellipse cx="180" cy="297" rx="140" ry="20" fill="#FFFCFA" opacity=".8"/>
+          <g opacity=".95">
+            <use href="#cShell" x="42" y="300"/><use href="#cShell" x="62" y="307"/><use href="#cShell" x="82" y="312"/><use href="#cShell" x="102" y="316"/><use href="#cShell" x="122" y="318"/><use href="#cShell" x="142" y="320"/><use href="#cShell" x="162" y="321"/><use href="#cShell" x="182" y="321"/><use href="#cShell" x="202" y="320"/><use href="#cShell" x="222" y="318"/><use href="#cShell" x="242" y="316"/><use href="#cShell" x="262" y="312"/><use href="#cShell" x="282" y="307"/><use href="#cShell" x="302" y="300"/>
+          </g>
+
+          <!-- 底层蛋糕 -->
+          <path d="M54 268 L54 294 A126 25 0 0 0 306 294 L306 268 Z" fill="url(#cSatin)"/>
+          <ellipse cx="180" cy="268" rx="126" ry="26" fill="url(#cTop)"/>
+          <path d="M56 282 A124 23 0 0 0 304 282" fill="none" stroke="#FFF" stroke-width="2" opacity=".5"/>
+          <ellipse cx="110" cy="284" rx="26" ry="10" fill="#FFF" opacity=".2"/>
+          <!-- 底层爱心 -->
+          <use href="#cHeartU" transform="translate(118 288) scale(.92)"/>
+          <use href="#cHeartU" transform="translate(180 297)"/>
+          <use href="#cHeartU" transform="translate(242 288) scale(.92)"/>
+          <!-- 底层奶油裱花 -->
+        <use href="#cShell" x="48" y="271.5"/>
+        <use href="#cShell" x="68" y="280"/>
+        <use href="#cShell" x="88" y="284.7"/>
+        <use href="#cShell" x="108" y="287.6"/>
+        <use href="#cShell" x="128" y="289.5"/>
+        <use href="#cShell" x="148" y="290.6"/>
+        <use href="#cShell" x="170" y="291"/>
+        <use href="#cShell" x="192" y="290.6"/>
+        <use href="#cShell" x="212" y="289.5"/>
+        <use href="#cShell" x="232" y="287.6"/>
+        <use href="#cShell" x="252" y="284.7"/>
+        <use href="#cShell" x="272" y="280"/>
+        <use href="#cShell" x="292" y="271.5"/>
+          <!-- 底层绕带 -->
+          <path d="M55 281 Q180 316 305 281 L305 293 Q180 328 55 293Z" fill="url(#cRibbon)" opacity=".62"/>
+
+          <!-- 上层蛋糕 -->
+          <path d="M94 214 L94 266 A86 18 0 0 0 266 266 L266 214 Z" fill="url(#cSatin)"/>
+          <ellipse cx="180" cy="214" rx="86" ry="18" fill="url(#cTop)"/>
+          <path d="M96 228 A84 16 0 0 0 264 228" fill="none" stroke="#FFF" stroke-width="1.8" opacity=".5"/>
+          <use href="#cBerryU" transform="translate(126 246) rotate(-14)"/>
+          <use href="#cBerryU" transform="translate(232 246) rotate(14)"/>
+          <use href="#cHeartU" transform="translate(180 258) scale(.7)"/>
+          <!-- 上层奶油裱花 -->
+        <use href="#cShell" x="90" y="271.6"/>
+        <use href="#cShell" x="106" y="277"/>
+        <use href="#cShell" x="122" y="280"/>
+        <use href="#cShell" x="138" y="281.7"/>
+        <use href="#cShell" x="154" y="282.7"/>
+        <use href="#cShell" x="170" y="283"/>
+        <use href="#cShell" x="186" y="282.7"/>
+        <use href="#cShell" x="202" y="281.7"/>
+        <use href="#cShell" x="218" y="280"/>
+        <use href="#cShell" x="234" y="277"/>
+        <use href="#cShell" x="250" y="271.6"/>
+
+          <!-- 顶部圆顶 -->
+          <path d="M94 216 A86 64 0 0 1 266 216 Z" fill="url(#cDome)"/>
+          <ellipse cx="150" cy="180" rx="30" ry="15" fill="#FFF" opacity=".3" transform="rotate(-22 150 180)"/>
+          <ellipse cx="206" cy="188" rx="16" ry="9" fill="#FFF" opacity=".18"/>
+          <!-- 圆顶底缘裱花 -->
+        <use href="#cShell" x="90" y="219.6"/>
+        <use href="#cShell" x="106" y="225"/>
+        <use href="#cShell" x="122" y="228"/>
+        <use href="#cShell" x="138" y="229.7"/>
+        <use href="#cShell" x="154" y="230.7"/>
+        <use href="#cShell" x="170" y="231"/>
+        <use href="#cShell" x="186" y="230.7"/>
+        <use href="#cShell" x="202" y="229.7"/>
+        <use href="#cShell" x="218" y="228"/>
+        <use href="#cShell" x="234" y="225"/>
+        <use href="#cShell" x="250" y="219.6"/>
+
+          <!-- 圆顶上的草莓与爱心 -->
+          <use href="#cBerryU" transform="translate(112 214) rotate(-22)"/>
+          <use href="#cBerryU" transform="translate(144 198) rotate(-8)"/>
+          <use href="#cBerryU" transform="translate(180 228) rotate(4)"/>
+          <use href="#cBerryU" transform="translate(216 198) rotate(10)"/>
+          <use href="#cBerryU" transform="translate(248 214) rotate(20)"/>
+          <use href="#cHeartU" transform="translate(160 214) scale(.5)"/>
+          <use href="#cHeartU" transform="translate(204 214) scale(.5)"/>
+
+          <!-- 垂落丝带（在兔子之后被其遮挡一部分） -->
+          <g opacity=".8">
+            <path d="M168 172 C150 218 128 262 106 296 L126 300 C142 262 160 220 178 174Z" fill="url(#cRibbon)" stroke="#E394AE" stroke-width=".6"/>
+            <path d="M192 172 C210 218 232 262 254 296 L234 300 C218 262 200 220 182 174Z" fill="url(#cRibbon)" stroke="#E394AE" stroke-width=".6"/>
+            <path d="M172 180 C158 222 140 262 122 292" fill="none" stroke="#FFF" stroke-width="1.2" opacity=".4"/>
+          </g>
+
+          <!-- 两只小兔子 -->
+          <use href="#cBunnyU" transform="translate(146 199) scale(1.14)"/>
+          <use href="#cBunnyU" transform="translate(220 202) scale(1.0)"/>
+
+          <!-- 左右丝带环 -->
+          <g transform="translate(66 258) rotate(-16)">
+            <path d="M0 0 C-22 -15 -36 -4 -25 9 C-16 18 -5 11 0 4Z" fill="url(#cRibbon)" stroke="#E090AB" stroke-width="1"/>
+            <path d="M-2 4 C-6 22 -12 38 -18 52 L-7 55 C0 38 5 22 5 5Z" fill="url(#cRibbon)" stroke="#E090AB" stroke-width=".6"/>
+            <path d="M3 4 C9 22 16 36 24 48 L30 42 C22 30 15 16 10 3Z" fill="url(#cRibbon)" stroke="#E090AB" stroke-width=".6"/>
+            <circle r="4.5" fill="#F0A6BF" stroke="#DE82A1" stroke-width=".8"/>
+          </g>
+          <g transform="translate(294 258) scale(-1 1) rotate(-16)">
+            <path d="M0 0 C-22 -15 -36 -4 -25 9 C-16 18 -5 11 0 4Z" fill="url(#cRibbon)" stroke="#E090AB" stroke-width="1"/>
+            <path d="M-2 4 C-6 22 -12 38 -18 52 L-7 55 C0 38 5 22 5 5Z" fill="url(#cRibbon)" stroke="#E090AB" stroke-width=".6"/>
+            <path d="M3 4 C9 22 16 36 24 48 L30 42 C22 30 15 16 10 3Z" fill="url(#cRibbon)" stroke="#E090AB" stroke-width=".6"/>
+            <circle r="4.5" fill="#F0A6BF" stroke="#DE82A1" stroke-width=".8"/>
+          </g>
+
+          <!-- 顶部大蝴蝶结 -->
+          <g filter="url(#cGlowF)">
+            <path d="M180 158 C132 124 98 138 114 168 C127 191 160 180 180 166Z" fill="url(#cRibbon)" stroke="#DF87A5" stroke-width="1.1"/>
+            <path d="M180 158 C228 124 262 138 246 168 C233 191 200 180 180 166Z" fill="url(#cRibbon)" stroke="#DF87A5" stroke-width="1.1"/>
+            <path d="M180 162 C152 142 128 148 136 166 C142 179 162 175 180 168Z" fill="#FFF" opacity=".3"/>
+            <path d="M180 162 C208 142 232 148 224 166 C218 179 198 175 180 168Z" fill="#FFF" opacity=".3"/>
+            <ellipse cx="180" cy="163" rx="12" ry="10" fill="#F2AEC6" stroke="#D97F9F" stroke-width="1"/>
+            <path d="M175 160 q5-4 10 0" fill="none" stroke="#FFF" stroke-width="1.6" opacity=".75"/>
+          </g>
+
+          <!-- 水彩星星闪光 -->
+          <g fill="#FFF" opacity=".95">
+            <path d="M96 190 q1.4-6 2-11 q.6 5 2 11 q-5 1.4-11 2 q6 .6 11 2 q-1.4 5-2 11 q-.6-5-2-11 q-5-.6-11-2 q6-1.4 11-2Z"/>
+            <path d="M266 196 q1.2-5 1.8-9 q.5 4 1.8 9 q-4 1.2-9 1.8 q5 .5 9 1.8 q-1.2 4-1.8 9 q-.5-4-1.8-9 q-4-.5-9-1.8 q5-1.2 9-1.8Z"/>
+            <path d="M180 252 q1-4 1.5-7.5 q.5 3.5 1.5 7.5 q-3.5 1-7.5 1.5 q4 .5 7.5 1.5 q-1 3.5-1.5 7.5 q-.5-4-1.5-7.5 q-3.5-.5-7.5-1.5 q4-1 7.5-1.5Z"/>
+          </g>
+        </svg>
         <div class="cake-sparkles">
           <i style="left:2%;top:16%;--s:15px;--d:3.1s;--dl:0s">✦</i>
           <i style="left:14%;top:2%;--s:10px;--d:2.6s;--dl:.6s">✦</i>
@@ -3898,45 +4035,6 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
           <i style="left:94%;top:78%;--s:15px;--d:3.2s;--dl:.9s">✦</i>
           <i style="left:28%;top:-10%;--s:8px;--d:2.5s;--dl:1.7s">✦</i>
           <i style="left:76%;top:88%;--s:10px;--d:3s;--dl:.5s">✦</i>
-        </div>
-        <svg class="cake-branches" viewBox="0 0 368 130" aria-hidden="true">
-          <defs>
-            <g id="bf"><ellipse cx="0" cy="-6" rx="4.2" ry="6" fill="#F6C3D4"/><ellipse cx="0" cy="-6" rx="4.2" ry="6" fill="#F9D3DF" transform="rotate(72)"/><ellipse cx="0" cy="-6" rx="4.2" ry="6" fill="#F6C3D4" transform="rotate(144)"/><ellipse cx="0" cy="-6" rx="4.2" ry="6" fill="#F9D3DF" transform="rotate(216)"/><ellipse cx="0" cy="-6" rx="4.2" ry="6" fill="#F6C3D4" transform="rotate(288)"/><circle r="2.8" fill="#F7D891"/></g>
-            <g id="bb2"><path d="M0 0c-7-4-9-12-3-17 5-4 10 1 8 8z" fill="#F1A9C0"/><path d="M-2 2c-3 5-2 9 1 12" stroke="#9FC79A" stroke-width="2" fill="none"/></g>
-          </defs>
-          <g fill="none" stroke="#A6C9A0" stroke-width="2.4" stroke-linecap="round">
-            <path d="M184 120 C148 118 118 106 94 84 C76 68 58 60 36 58"/>
-            <path d="M184 120 C220 118 250 106 274 84 C292 68 310 60 332 58"/>
-            <path d="M120 98 C104 88 96 74 94 60"/>
-            <path d="M248 98 C264 88 272 74 274 60"/>
-            <path d="M70 64 C58 54 52 44 50 32"/>
-            <path d="M298 64 C310 54 316 44 318 32"/>
-          </g>
-          <g fill="#A9CFA2"><ellipse cx="128" cy="94" rx="7" ry="3.4" transform="rotate(-32 128 94)"/><ellipse cx="240" cy="94" rx="7" ry="3.4" transform="rotate(32 240 94)"/><ellipse cx="78" cy="70" rx="6" ry="3" transform="rotate(-48 78 70)"/><ellipse cx="290" cy="70" rx="6" ry="3" transform="rotate(48 290 70)"/></g>
-          <use href="#bf" x="36" y="58"/><use href="#bf" x="94" y="60"/><use href="#bf" x="274" y="60"/><use href="#bf" x="332" y="58"/>
-          <use href="#bf" x="160" y="112" width="14"/><use href="#bf" x="208" y="112"/>
-          <use href="#bb2" x="50" y="32"/><use href="#bb2" x="318" y="32"/><use href="#bb2" x="112" y="76"/><use href="#bb2" x="256" y="76"/>
-        </svg>
-        <div class="cake-plate"><div class="plate-lace"></div></div>
-        <div class="cake-layer layer-base">
-          <div class="cream-top"></div>
-          <div class="ribbon-band"></div>
-          <div class="ribbon-bow"><i></i><i></i><b></b></div>
-          <i class="fruit strawberry" style="bottom:26px;left:36px"></i>
-          <i class="fruit blueberry" style="bottom:40px;left:118px"></i>
-          <i class="fruit strawberry" style="bottom:24px;left:196px"></i>
-          <i class="fruit blueberry" style="bottom:46px;left:222px"></i>
-        </div>
-        <div class="cake-layer layer-mid">
-          <div class="cream-top"></div>
-          <i class="fruit blueberry" style="bottom:16px;left:28px"></i>
-          <i class="fruit strawberry" style="bottom:20px;left:132px"></i>
-          <i class="fruit blueberry" style="bottom:14px;left:158px"></i>
-        </div>
-        <div class="cake-layer layer-top">
-          <div class="cream-top"></div>
-          <i class="fruit strawberry" style="bottom:9px;left:12px"></i>
-          <i class="fruit blueberry" style="bottom:12px;left:80px"></i>
         </div>
         <div class="big-candle"></div>
         <div class="big-flame" id="flame" title="吹蜡烛"></div>
