@@ -7160,7 +7160,7 @@ const BGM_MAP = {
   game:'assets/audio/bird.mp3'
 };
 const BGM = {
-  el:null, src:'', live:false, timer:0, seq:0, watch:0, tries:0,
+  el:null, src:'', live:false, timer:0, seq:0, watch:0, tries:0, v:0,
   init(){
     if(this.el) return;
     const el0 = $('#bgm'); if(!el0) return;
@@ -7177,14 +7177,16 @@ const BGM = {
     el.addEventListener('error', ()=>{ this.retry(); });
   },
   /* 换一个新的 audio 元素重拉：切歌瞬间被 CDN 掐断的旧元素会永远停在 readyState=0，
-     换新元素从头拉一次最干净，也不会影响正在播的其它音轨。 */
-  fresh(src){
+     换新元素从头拉一次最干净，也不会影响正在播的其它音轨。
+     bust 给 URL 加个随机参数：同一条挂死的请求会把后续同 URL 的请求全堵在后面，
+     加参数等于换一条新请求，绕开堵点。 */
+  fresh(src, bust){
     const old = this.el; if(!old) return;
     const el = document.createElement('audio');
     el.id = old.id || 'bgm'; el.loop = true; el.preload = 'auto'; el.volume = 0;
     if(old.parentNode) old.parentNode.replaceChild(el, old);
     this.el = el; this.bind(el);
-    el.src = src;
+    el.src = bust ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + bust : src;
     const p = el.play(); if(p && p.catch) p.catch(()=>{});
   },
   /* 自愈重试：换新元素重新拉，最多 3 次 */
@@ -7194,7 +7196,7 @@ const BGM = {
     if(el.readyState > 1) return;
     this.tries++;
     clearTimeout(this.watch);
-    this.fresh(this.src);
+    this.fresh(this.src, ++this.v);
     this.ramp(BGM_VOL, 700);
     this.watchdog(++this.seq);
   },
@@ -7266,7 +7268,7 @@ const MP_PRESETS = [
   {name:'多幸运',   artist:'你的歌单', src:'assets/audio/duoxingyun.mp3'}
 ];
 const PLAYER = {
-  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'', fetched:false, tries:0, watch:0,
+  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'', fetched:false, tries:0, watch:0, v:0,
   init(){
     if(this.ready) return;
     this.el = $('#bgm-player'); if(!this.el) return;
@@ -7310,14 +7312,15 @@ const PLAYER = {
     el.addEventListener('canplay', ()=>{ this.tries = 0; if(this.on && this.active && el.paused){ const p=el.play(); if(p&&p.catch) p.catch(()=>{}); } });
     el.addEventListener('error', ()=>{ this.retry(); });
   },
-  /* 换一个新的 audio 元素重拉：老元素被掐断后会永远停在 readyState=0 */
-  fresh(src){
+  /* 换一个新的 audio 元素重拉：老元素被掐断后会永远停在 readyState=0。
+     bust 给 URL 加随机参数：同一条挂死的请求会堵住后续同 URL 的请求，加参数才能绕开。 */
+  fresh(src, bust){
     const old = this.el; if(!old) return;
     const el = document.createElement('audio');
     el.id = old.id || 'bgm-player'; el.loop = true; el.preload = 'auto'; el.volume = old.volume;
     if(old.parentNode) old.parentNode.replaceChild(el, old);
     this.el = el; this.bind(el);
-    el.src = src;
+    el.src = bust ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + bust : src;
     const p = el.play(); if(p && p.catch) p.catch(()=>{});
   },
   /* 自愈重试：换新元素重新拉，最多 3 次 */
@@ -7329,7 +7332,7 @@ const PLAYER = {
     if(!src) return;
     this.tries++;
     clearTimeout(this.watch);
-    this.fresh(src);
+    this.fresh(src, ++this.v);
     this.watchdog();
   },
   watchdog(){
@@ -7413,7 +7416,7 @@ const PLAYER = {
     if(el && this.on){
       /* 预取那一次可能已经卡死（networkState=0 表示压根没开始加载），立刻换新元素 */
       if(el.error || (el.readyState === 0 && el.networkState === 0)){
-        this.fresh(el.getAttribute('src') || MP_PRESETS[this.i].src);
+        this.fresh(el.getAttribute('src') || MP_PRESETS[this.i].src, ++this.v);
       } else {
         const p = el.play(); if(p && p.catch) p.catch(()=>{});
       }
