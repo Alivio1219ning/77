@@ -1668,13 +1668,12 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs-char.crouch .gs-char-pose{transform:translateY(10px);transition-duration:.16s}
 .gs-char.crouch .px-avatar{animation:none}
 
-/* Sitting：隐藏腿部像素块 + translateY 抬高，让裙摆刚好落在椅面上 */
+/* Sitting【零裁切物理就坐】：绝不 clip-path / 隐藏 DOM 裁腿 —— 整个人保持完整，
+   只用 translateY 抬到坐垫高度，下半身交给「桌子 / 靠背 / 蕾丝软垫」的前景 z-index 自然遮挡。 */
 .gs-char.sitting{cursor:default}
-/* Sitting：整体 translateY 抬到椅面 + clip-path 裁掉图片下半部（隐藏双腿），裙摆正好落在椅面 */
 .gs-char.sitting .gs-char-float{animation:none}
-.gs-char.sitting .gs-char-pose{transform:translateY(calc(-1 * var(--sit-rise,52px))) scaleY(.94)}
-.gs-char.sitting .px-avatar{animation:none;translate:0 0;rotate:0deg;scale:1 1;
-  clip-path:inset(0 0 var(--leg-cut,14%) 0)}
+.gs-char.sitting .gs-char-pose{transform:translateY(calc(-1 * var(--sit-rise,52px)))}
+.gs-char.sitting .px-avatar{animation:none;translate:0 0;rotate:0deg;scale:1 1}
 
 /* Zzz 像素气泡：坐下后头顶循环冒出 */
 .gs-zzz{position:absolute;right:0;top:-4px;width:48px;height:56px;display:none;pointer-events:none;z-index:33}
@@ -3854,6 +3853,32 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .duo-tables{position:absolute;inset:0;pointer-events:none}
 .duo-table{position:absolute;width:158px;transform:translateX(-50%);opacity:.94}
 .duo-table svg{display:block;width:100%;height:auto;shape-rendering:crispEdges}
+
+/* ==========================================================================================
+   通用「就坐系统」：大尺寸圆桌 / 长条桌 + 对坐木椅 + 物理遮挡前景（零裁切）
+   层级铁律：椅子(--z 低) < 角色(depthZ) < 占用时抬高的桌子前沿 / 靠背 / 蕾丝软垫
+   ========================================================================================== */
+.sit-furn-layer{position:absolute;inset:0;pointer-events:none}
+.sit-chair,.sit-table,.sit-front{position:absolute;transform:translateX(-50%);
+  transform-origin:50% 100%;pointer-events:none;will-change:z-index}
+.sit-chair svg,.sit-table svg,.sit-front svg{display:block;width:100%;height:auto;overflow:visible}
+/* 桌子前沿遮挡条：平时压在桌子自身层，坐下时 JS 抬到角色之上，挡住腰部以下 */
+.sit-front{transition:z-index 0s;opacity:.99}
+/* 蕾丝软垫：没有桌子挡腿时，盖在膝盖处的粉色小软垫，同样抬到角色之上 */
+.sit-lace{position:absolute;width:96px;height:34px;transform:translateX(-50%);pointer-events:none;
+  display:none;z-index:1}
+.sit-lace.on{display:block}
+.sit-lace svg{display:block;width:100%;height:100%}
+/* 就坐提示：头顶极简手写小牌 */
+.seat-hint{position:absolute;z-index:690;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--hand);font-size:14px;letter-spacing:.06em;color:#7C5A6B;
+  padding:4px 12px;border-radius:12px;background:rgba(255,252,248,.94);
+  border:1px solid rgba(218,183,196,.7);box-shadow:0 3px 10px rgba(140,108,120,.20);
+  pointer-events:none;opacity:0;transition:opacity .22s}
+.seat-hint.on{opacity:1}
+.seat-hint b{color:#B4637E;font-weight:600}
+/* 房间卧床：被子 z-index 由 JS 抬到角色之上，只露头与上半身 */
+#game-stage.room-rest .room-quilt{transition:opacity .45s ease}
 .duo-petal{position:absolute;top:-8%;width:12px;height:12px;border-radius:0 100% 0 100%;
   background:#F7B9D0;opacity:.9;animation:duoPetalFall linear infinite}
 @keyframes duoPetalFall{0%{transform:translateY(-10px) rotate(0);opacity:0}
@@ -5132,14 +5157,112 @@ const DUO_TABLE_SVG = `<svg viewBox="0 0 160 96" xmlns="http://www.w3.org/2000/s
 <rect x="52" y="52" width="9" height="34" fill="#7A5636"/><rect x="99" y="52" width="9" height="34" fill="#7A5636"/>
 <rect x="42" y="52" width="76" height="4" fill="#6B4B30"/></svg>`;
 function duoTablesHTML(sceneId){
-  /* 图书馆的桌椅由 SOLID_PROPS 里的 readTable / readDesk 实体承载（可交互、可站立），
-     这里的 deco 装饰桌椅若再加一层会与实体书架 shelfL/shelfR 及桌子重叠、被书架盖住，
-     故图书馆不再叠加装饰桌椅；咖啡馆保留两张错开的装饰小桌。 */
-  const sets = sceneId==='cafe'    ? [[32,16],[70,16]] : [];
-  if(!sets.length) return '';
-  return `<div class="duo-tables">`+sets.map(s=>
-    `<div class="duo-table" style="left:${s[0]}%;bottom:${s[1]}%">${DUO_TABLE_SVG}</div>`).join('')+`</div>`;
+  /* 旧装饰小桌已由下方的「大尺寸就坐家具」全面取代，此处不再叠加以免重叠 */
+  return '';
 }
+
+/* ============================================================ 大尺寸就坐家具（咖啡店 / 图书馆） ============================================================
+   每套 = 一张桌 + 对坐木椅；坐标彼此分离，绝不挤在同一点。
+   层级：椅子 z 低于桌子；人物落座后桌子前沿抬到人物之上，物理遮住腰部以下（零裁切）。
+   x/y 均为舞台百分比（y 是脚底纵深线，越大越靠前）；w 为像素宽，按舞台等比缩放。 */
+const SIT_FURNITURE = {
+  cafe:[
+    {id:'cafeRoundA', type:'round', x:59, y:84, w:196,
+     chairs:[
+       {id:'cafeA1', x:51, y:90, face:'right', rise:46},
+       {id:'cafeA2', x:67, y:90, face:'left',  rise:46}
+     ]},
+    {id:'cafeRoundB', type:'round', x:84, y:83, w:186,
+     chairs:[
+       {id:'cafeB1', x:76, y:89, face:'right', rise:46},
+       {id:'cafeB2', x:92, y:89, face:'left',  rise:46}
+     ]}
+  ],
+  library:[
+    {id:'libLong', type:'long', x:54, y:86, w:360,
+     chairs:[
+       {id:'lib1', x:42, y:91, face:'right', rise:48},
+       {id:'lib2', x:54, y:92, face:'left',  rise:48},
+       {id:'lib3', x:66, y:91, face:'left',  rise:48}
+     ]}
+  ]
+};
+/* 一次渲染：桌子、椅子、桌子前沿遮挡条、蕾丝软垫。全部带 data 属性供就坐时动态调 z-index。 */
+function sitFurnitureHTML(sceneId){
+  const list=SIT_FURNITURE[sceneId]; if(!list||!list.length) return '';
+  const wood='#8E6E4E', wood2='#B68F62', wood3='#D3B088', dark='rgba(74,54,40,.62)';
+  const chairSVG=`<svg viewBox="0 0 80 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="40" cy="107" rx="26" ry="4" fill="rgba(60,42,30,.22)"/>
+    <rect x="17" y="70" width="7" height="36" rx="2" fill="${wood}"/>
+    <rect x="56" y="70" width="7" height="36" rx="2" fill="${wood}"/>
+    <path d="M15 70 Q40 64 65 70 L63 79 Q40 74 17 79 Z" fill="${wood2}" stroke="${dark}" stroke-width="1.2"/>
+    <path d="M15 68 Q40 62 65 68 L65 72 Q40 66 15 72 Z" fill="${wood3}"/>
+    <rect x="18" y="14" width="8" height="56" rx="3" fill="${wood}"/>
+    <rect x="54" y="14" width="8" height="56" rx="3" fill="${wood}"/>
+    <rect x="20" y="18" width="40" height="44" rx="6" fill="${wood2}" stroke="${dark}" stroke-width="1.3"/>
+    <rect x="24" y="22" width="32" height="36" rx="5" fill="none" stroke="${dark}" stroke-width="1" opacity=".45"/>
+    <path d="M20 12 Q40 7 60 12 L60 17 Q40 12 20 17 Z" fill="${wood3}" stroke="${dark}" stroke-width="1"/>
+  </svg>`;
+  const roundSVG=`<svg viewBox="0 0 200 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="100" cy="126" rx="78" ry="5" fill="rgba(60,42,30,.20)"/>
+    <path d="M92 74 h16 l-3 48 h-10 Z" fill="${wood}"/>
+    <ellipse cx="100" cy="122" rx="30" ry="4" fill="${wood}"/>
+    <ellipse cx="100" cy="74" rx="86" ry="26" fill="${wood}" stroke="${dark}" stroke-width="1.6"/>
+    <ellipse cx="100" cy="70" rx="86" ry="26" fill="${wood3}" stroke="${dark}" stroke-width="1.2"/>
+    <ellipse cx="100" cy="70" rx="76" ry="21" fill="${wood2}" opacity=".55"/>
+    <path d="M22 70 Q100 44 178 70 Q100 60 22 70 Z" fill="#FFF8F0" opacity=".85"/>
+    <path d="M26 71 Q100 96 174 71" fill="none" stroke="#EFE0CF" stroke-width="2" opacity=".8"/>
+    <rect x="78" y="55" width="24" height="16" rx="2" fill="#F6EAD5" stroke="${dark}" stroke-width="1"/>
+    <path d="M82 58 h16 M82 62 h16" stroke="#C9B592" stroke-width="1"/>
+    <ellipse cx="130" cy="62" rx="8" ry="3" fill="#FBF5E9" stroke="${dark}" stroke-width="1"/>
+    <path d="M122 62 h16 l-2 8 h-12 Z" fill="#FBF5E9" stroke="${dark}" stroke-width="1"/>
+    <circle cx="130" cy="56" r="1.6" fill="#F7D8E2"/>
+  </svg>`;
+  const longSVG=`<svg viewBox="0 0 360 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="180" cy="124" rx="150" ry="5" fill="rgba(60,42,30,.20)"/>
+    <rect x="34" y="76" width="12" height="44" rx="3" fill="${wood}"/>
+    <rect x="314" y="76" width="12" height="44" rx="3" fill="${wood}"/>
+    <rect x="${34}" y="72" width="292" height="12" rx="3" fill="${wood}" stroke="${dark}" stroke-width="1.4"/>
+    <rect x="36" y="68" width="288" height="10" rx="3" fill="${wood3}" stroke="${dark}" stroke-width="1.1"/>
+    <rect x="36" y="68" width="288" height="3" rx="1.5" fill="#FFF6E7" opacity=".7"/>
+    <rect x="70" y="50" width="26" height="16" rx="2" fill="#9E6C48" stroke="${dark}" stroke-width="1"/>
+    <rect x="104" y="53" width="22" height="13" rx="2" fill="#7E5A44" stroke="${dark}" stroke-width="1"/>
+    <rect x="236" y="50" width="28" height="16" rx="2" fill="#A87C57" stroke="${dark}" stroke-width="1"/>
+    <ellipse cx="300" cy="60" rx="9" ry="3" fill="#FBF5E9" stroke="${dark}" stroke-width="1"/>
+    <path d="M291 60 h18 l-2 9 h-14 Z" fill="#FBF5E9" stroke="${dark}" stroke-width="1"/>
+  </svg>`;
+  let out='<div class="sit-furn-layer">';
+  list.forEach(g=>{
+    const isRound=g.type==='round', svg=isRound?roundSVG:longSVG;
+    const frontH=isRound?26:18;
+    /* 桌子本体 */
+    out+=`<div class="sit-table" data-table="${g.id}" style="left:${g.x}%;bottom:${100-g.y}%;width:${g.w}px;z-index:${depthZ(g.y)-1}">${svg}</div>`;
+    /* 桌子前沿遮挡条：坐下时抬到人物之上 */
+    out+=`<div class="sit-front" data-front="${g.id}" style="left:${g.x}%;bottom:${100-g.y+ (isRound?2:1)}%;width:${g.w*(isRound?.86:.98)}px;height:${frontH}px;z-index:${depthZ(g.y)}">
+      <svg viewBox="0 0 200 30" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M0 2 Q100 -4 200 2 L200 20 Q100 30 0 20 Z" fill="${wood}" stroke="${dark}" stroke-width="1.5"/>
+        <path d="M0 3 Q100 -3 200 3 L200 8 Q100 2 0 8 Z" fill="${wood3}"/>
+        <path d="M6 18 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0 q6 8 12 0"
+              fill="none" stroke="#FFF6E9" stroke-width="2" opacity=".85"/>
+      </svg></div>`;
+    /* 对坐木椅：静止时 z 严格低于所属桌子；坐下时由 raiseSeatCover 临时抬高靠背做物理遮挡 */
+    const tableZ=depthZ(g.y)-1;
+    g.chairs.forEach(c=>{
+      const chairZ=Math.min(depthZ(c.y)-3, tableZ-2);
+      out+=`<div class="sit-chair" data-chair="${c.id}" data-group="${g.id}" data-rest-z="${chairZ}" style="left:${c.x}%;bottom:${100-c.y}%;width:76px;z-index:${chairZ}">${chairSVG}</div>`;
+    });
+  });
+  out+='<div class="sit-lace" id="sitLace"><svg viewBox="0 0 96 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+    +'<path d="M6 6 Q48 -2 90 6 L90 24 Q48 34 6 24 Z" fill="#F8DCE6" stroke="#E0A9BC" stroke-width="1.4"/>'
+    +'<path d="M6 6 Q48 -2 90 6" fill="none" stroke="#FFF9FB" stroke-width="2"/>'
+    +'<path d="M10 24 q5 8 10 0 q5 8 10 0 q5 8 10 0 q5 8 10 0 q5 8 10 0 q5 8 10 0 q5 8 10 0 q5 8 10 0" fill="none" stroke="#FFF9FB" stroke-width="2"/>'
+    +'</svg></div>';
+  out+='</div>';
+  return out;
+}
+/* 所有可坐椅子的扁平索引（就近提示 / 空格就坐用） */
+function sitSeats(sceneId){ const out=[]; (SIT_FURNITURE[sceneId]||[]).forEach(g=>
+  g.chairs.forEach(c=>out.push({...c, group:g.id}))); return out; }
 function companionPropsHTML(kind){
   let out='';
   if(kind==='swing' || kind==='walk'){
@@ -8460,6 +8583,8 @@ function roomBed(){
     sceneLater(()=>{
       const q=charEl(); if(!q || !S.inRoom) return;
       q.classList.remove('jump-bed'); q.classList.add('in-bed');
+      /* 物理遮挡：把粉色被子的 z-index 抬到角色之上，盖住身体、只露头与上半身（角色零裁切） */
+      const quilt=$('#roomQuilt'); if(quilt) quilt.style.zIndex=String(depthZ(S.charY)+3);
       const mate=$('#companion'); if(mate) mate.classList.add('on-bed');
       S.roomRest=true;
       const bg=gameGet(); bump('action:bed',1,bg); gameSet(bg);   /* 小屋点床休息 · 每日任务 */
@@ -8485,6 +8610,7 @@ function wakeFromBed(auto){
     }
   }
   const mate=$('#companion'); if(mate) mate.classList.remove('on-bed');
+  const quilt=$('#roomQuilt'); if(quilt) quilt.style.removeProperty('z-index');
   const v=$('#gsVignette'); if(v) v.classList.remove('room-dim');
   const st=$('#game-stage'); if(st) st.classList.remove('room-rest');
   const veil=$('#roomDimVeil'); if(veil){ veil.classList.remove('on'); veil.onclick=null; }
@@ -8974,6 +9100,8 @@ function bump(check, n, g){
   });
 }
 function addMat(g,key,n=1){
+  /* 星碎统一走 addStar：一次写齐三处账本并同步刷新进度条，绝不让 quest.shards 与钱包脱节 */
+  if(key==='star'){ addStar(n,g); return; }
   g.materials[key]=(g.materials[key]||0)+n;
   g.totals[key]=(g.totals[key]||0)+n;
   /* 在【樱花小径】里每完成一次收集就记一笔，用于解锁【星空图书馆】 */
@@ -8992,13 +9120,43 @@ function withGame(fn){ const g=gameGet(); fn(g); gameSet(g); return g; }
    30 颗星碎 → 点亮一张藏起来的五瓣花星图 → 解锁并自动穿上【星蕾月白】。
    所有进度都写在 game_save.quest 里，刷新 / 锁屏 / 换设备都还在原位。 */
 const QUEST_TOTAL = 30;
+/* 【星碎唯一真相】game_save 里星碎被记在三处（materials 钱包 / totals 累计 / quest.shards 主线）。
+   旧代码只读会被 Math.min(30) 截断、且常常漏记账的 quest.shards，于是「收了 96 颗，进度条却是 0」。
+   现在进度条一律读这个函数取真实累计值：三处取最大，从不被 30 封顶。 */
+function starCollected(g){
+  const s=g||gameGet();
+  return Math.max(0,(s.totals&&s.totals.star)||0,(s.materials&&s.materials.star)||0,
+                   (s.quest&&s.quest.shards)||0);
+}
+/* 【统一的增加星碎入口】三个账本一次写齐 → 落盘 → 立刻同步刷新右上角进度条（同步，不排队）。
+   任何要给星碎的地方都走这里，保证「加星碎」与「刷新 UI」永远成对发生。 */
+function addStar(n=1, g){
+  const s=g||gameGet(), k=Math.max(0,Math.round(Number(n)||0));
+  if(!k) return s;
+  s.materials.star=(s.materials.star||0)+k;
+  s.totals.star=(s.totals.star||0)+k;
+  if(curScene() && curScene().id==='path') s.stats.pathCollects=(s.stats.pathCollects||0)+1;
+  if(s.totals.star>=30) unlockAchievement('star_30',s);
+  bump('collect:star',k,s);
+  if(!s.quest) s.quest={shards:0,pathFirst:false,done:false,finaleSeen:false};
+  if(!S.inRoom && curScene() && curScene().id==='path') s.quest.pathFirst=true;
+  s.quest.shards=Math.max(s.quest.shards||0,starCollected(s));   // 真实累计，不封顶
+  gainToast(k,'star');
+  checkUnlocks(s);
+  gameSet(s);
+  const chip=$('#hudQuest');
+  if(chip){ chip.classList.remove('grow','pop'); void chip.offsetWidth; chip.classList.add('grow','pop'); }
+  updateQuestUI();                                                // ★ 同步渲染进度条
+  if(starCollected(s)>=QUEST_TOTAL && !s.quest.done) setTimeout(()=>questComplete(),1000);
+  return s;
+}
 const QUEST_STAGES = [
   { id:1, short:'找到第一颗星碎了 ✦',
     text:'前往樱花小径，寻找发光的星星 ✦',
-    meta:g=>`星碎 ${Math.min(QUEST_TOTAL,(g.quest&&g.quest.shards)||0)} / 30 · 长按 / 连点 / 向上拖` },
+    meta:g=>`星碎 ${Math.min(QUEST_TOTAL,starCollected(g))} / 30 · 长按 / 连点 / 向上拖` },
   { id:2, short:'星碎又多了一颗 ✦',
-    text:g=>`星碎还不够，去其他场景看看吧\n（当前 ${Math.min(QUEST_TOTAL,(g.quest&&g.quest.shards)||0)}/30）`,
-    meta:g=>`还差 ${QUEST_TOTAL-Math.min(QUEST_TOTAL,(g.quest&&g.quest.shards)||0)} 颗 · 小喵会替你带路` },
+    text:g=>`星碎还不够，去其他场景看看吧\n（当前 ${Math.min(QUEST_TOTAL,starCollected(g))}/30）`,
+    meta:g=>`还差 ${QUEST_TOTAL-Math.min(QUEST_TOTAL,starCollected(g))} 颗 · 小喵会替你带路` },
   { id:3, short:'星图点亮了 ✦',
     text:'星图已点亮！去小屋里换上生日套装吧。',
     meta:'星蕾月白 · 已经穿在你身上了' },
@@ -9024,8 +9182,9 @@ function setQuestMeta(el,text){
 /* 便签 + 顶部收集槽：唯一的状态出口，任何收集 / 换装后都走这里 */
 function updateQuestUI(force){
   const g=gameGet(), q=g.quest||{}, st=QUEST_STAGES[questStageIndex(g)];
-  const shards=Math.max(0,Math.min(QUEST_TOTAL,q.shards||0));
-  const pct=Math.round(shards/QUEST_TOTAL*1000)/10;
+  /* 唯一真相：真实累计星碎（96 就是 96），百分比严格 Math.min((星碎/30)*100,100) → 满格 */
+  const shards=starCollected(g);
+  const pct=Math.min((shards/QUEST_TOTAL)*100,100);
   const text=typeof st.text==='function'?st.text(g):st.text;
   const meta=typeof st.meta==='function'?st.meta(g):st.meta;
   currentQuest={id:st.id,text,meta,progress:shards,done:shards>=QUEST_TOTAL};
@@ -9074,15 +9233,15 @@ function updateQuestUI(force){
 function addQuestShard(n=1){
   const g=gameGet();
   if(!g.quest) g.quest={shards:0,pathFirst:false,done:false,finaleSeen:false};
-  if(g.quest.done) return;
-  g.quest.shards=Math.max(0,Math.min(QUEST_TOTAL,(g.quest.shards||0)+n));
+  /* 从真实账本回填 quest.shards（不再 Math.min(30) 截断、也不重复累加），杜绝 96→0 的错位 */
+  g.quest.shards=starCollected(g);
   if(!S.inRoom && curScene() && curScene().id==='path') g.quest.pathFirst=true;
   const full=g.quest.shards>=QUEST_TOTAL;
   gameSet(g);
   const chip=$('#hudQuest');
   if(chip){ chip.classList.remove('grow','pop'); void chip.offsetWidth; chip.classList.add('grow','pop'); }
-  updateHUD();
-  if(full) setTimeout(()=>questComplete(), 1000);
+  updateQuestUI();                          /* 同步刷新右上角进度条 */
+  if(full && !g.quest.done) setTimeout(()=>questComplete(), 1000);
 }
 function questComplete(){
   const g=gameGet();
@@ -9233,6 +9392,7 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-char" id="character"><div class="gs-char-shadow" aria-hidden="true"></div><div class="gs-char-lift"><div class="gs-char-ground"><div class="gs-char-float"><div class="gs-char-pose"><div id="gameAvatar"></div></div></div></div><div class="gs-float-stars" aria-hidden="true"><i>✦</i><i>✦</i><i>✦</i><i>✦</i><i>✦</i></div></div><div class="rug-thought" aria-hidden="true"><div class="rug-thought-body"><i></i><i></i><i></i></div></div><div class="gs-zzz"><i>z</i><i>z</i><i>z</i></div></div>
 <div class="gs-carry-front" id="carryFront"></div>
 <div class="gs-fg" id="fgLayer"></div>
+<div class="seat-hint" id="seatHint">按空格 <b>坐下</b></div>
 <div class="gs-near-hint hidden" id="nearHint"></div>
 <div class="gs-collect hidden" id="collectTip"><div class="cc-text" id="collectTipText"></div><div class="cc-bar"><i id="collectTipBar"></i></div></div>
 <div class="room-tip" id="roomTip"></div>
@@ -9365,6 +9525,8 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
    所有动画回调都登记在 sceneTimers；切场景时连同 DOM 一并撤销，旧场景的动画绝不会打到新场景上。 */
 let sceneTimers = [];
 let sitting = false, swingActive = false, benchTimer = null;
+/* 通用就坐：当前占用的椅子 id（null=没坐）。与 sitting 分开，便于精确管理遮挡层 */
+let seatedChairId = null;
 function sceneLater(fn, ms){
   const id = setTimeout(()=>{
     sceneTimers = sceneTimers.filter(t=>t!==id);
@@ -9456,7 +9618,8 @@ function renderScene(sceneId){
     : sc.id==='cafe' ? cafeDecoHTML()
     : sc.id==='station' ? stationDecoHTML()
     : sc.id==='carriage' ? carriageDecoHTML() : '')
-    + duoTablesHTML(sc.id);      /* 图书馆 3 对 / 咖啡馆 2 对木质桌椅，常驻场景 */
+    + duoTablesHTML(sc.id)
+    + sitFurnitureHTML(sc.id);   /* 大尺寸圆桌 / 长条桌 + 对坐木椅，常驻场景 */
   bindCafeDeco();                                /* 咖啡馆：墙上便签的悬停/点击 */
   const fg=$('#fgLayer'); if(fg) fg.innerHTML = sc.id==='carriage' ? carriageFgHTML() : '';
   $('#gsVignette').classList.toggle('night', !!sc.night);
@@ -9523,7 +9686,7 @@ function renderScene(sceneId){
   renderDepthProps();      /* 场景实体（床 / 长椅 / 吧台 / 树 / 门）与固定 z-index */
   syncDepthVisual();       /* 角色 z-index 与脚底 y 对齐 */
   startMainLoop();         /* 唤醒常驻主循环（休眠时由按键或场景切换重新排队） */
-  updateOrbs(); updateCompanion(); updateNearHint();
+  updateOrbs(); updateCompanion(); updateNearHint(); updateSeatHint();
   /* 首次进花庭：成就只走顶部极小 Toast，不再有居中大白框 */
   const g=gameGet();
   if(!g.visited.includes(sc.id)){
@@ -9873,6 +10036,8 @@ function updateHUD(pop){
   const g=gameGet();
   $('#hudSteps').textContent=`小脚步 ${g.steps.left} / ${g.steps.cap}`;
   $('#hudStar').textContent=`✦ 星碎 ${g.materials.star||0}`;
+  /* 旧存档补账：钱包里早已攒够 30 颗，但 quest.shards 没同步 → 补一次点亮，绝不再让进度停在 0 */
+  if(starCollected(g)>=QUEST_TOTAL && g.quest && !g.quest.done) setTimeout(()=>questComplete(),0);
   $('#btnSound').textContent = g.sound?'♪ 声音 开':'♪ 声音 关';
   if(pop){ const el=$('#hudStar'); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
   renderCommissions(g);
@@ -10027,6 +10192,74 @@ function typeSvgText(text){
   step();
 }
 
+/* ---------- 通用就坐：30px 就近提示 → 空格坐下 → 物理遮挡 → 方向键起身（零裁切） ---------- */
+/* 返回距离角色脚下 30px 内最近的一把椅子（角色 x/y 均为舞台百分比，x 换算成 px 判定） */
+function nearSeat(){
+  const sc=curScene(); if(!sc || sitting || swingActive) return null;
+  const list=sitSeats(sc.id); if(!list.length) return null;
+  const st=$('#game-stage'), w=(st&&st.clientWidth)||1000, h=(st&&st.clientHeight)||400;
+  let best=null, bd=30;                                  /* 触发半径：30px */
+  list.forEach(s=>{
+    const dx=(S.charX-s.x)/100*w, dy=(S.charY-s.y)/100*h;
+    const d=Math.hypot(dx,dy);
+    if(d<bd){ bd=d; best=s; }
+  });
+  return best;
+}
+/* 头顶「按空格坐下」提示：跟随角色 x，贴在其头顶上方 */
+function updateSeatHint(){
+  const hint=$('#seatHint'); if(!hint) return;
+  const s=nearSeat();
+  if(!s){ hint.classList.remove('on'); return; }
+  hint.style.left=S.charX+'%';
+  hint.style.bottom='calc('+Math.max(0,100-S.charY).toFixed(1)+'% + var(--char-h,132px) + 16px)';
+  hint.classList.add('on');
+}
+/* 抬起遮挡层：桌子前沿 / 椅子靠背 z 高于人物 → 物理挡住腰部以下，人物本身不裁切 */
+function raiseSeatCover(seat){
+  if(!seat) return;
+  const z=depthZ(S.charY)+2;
+  const front=$(`.sit-front[data-front="${seat.group}"]`);
+  if(front){ front.dataset.baseZ=front.style.zIndex; front.style.zIndex=String(z); }
+  const chair=$(`.sit-chair[data-chair="${seat.id}"]`);
+  if(chair){ chair.dataset.baseZ=chair.style.zIndex; chair.style.zIndex=String(z-1); }
+  /* 前方无桌子遮挡时（没有对应 front），用粉色蕾丝软垫盖住膝盖 */
+  const lace=$('#sitLace');
+  if(lace){
+    if(front){ lace.classList.remove('on'); }
+    else{
+      lace.style.left=seat.x+'%';
+      lace.style.bottom='calc('+(100-seat.y+1).toFixed(1)+'% + 8px)';
+      lace.style.zIndex=String(z);
+      lace.classList.add('on');
+    }
+  }
+}
+function clearSeatCover(){
+  $$('.sit-front[data-base-z]').forEach(el=>{ el.style.zIndex=el.dataset.baseZ; delete el.dataset.baseZ; });
+  $$('.sit-chair[data-base-z]').forEach(el=>{ el.style.zIndex=el.dataset.baseZ; delete el.dataset.baseZ; });
+  const lace=$('#sitLace'); if(lace) lace.classList.remove('on');
+  const hint=$('#seatHint'); if(hint) hint.classList.remove('on');
+}
+/* 空格就坐：瞬间吸附到椅子中心、转身面向桌子、整体上移到坐垫高度 */
+function sitOnChair(seat){
+  const c=charEl(); if(!c || !seat) return;
+  standUp();                                   /* 先清掉旧状态，避免叠加 */
+  clearWindowPose(); wakeFromBed(true); clearRugRest();
+  const st=$('#game-stage'), h=(st&&st.clientHeight)||400;
+  S.charX=seat.x; S.charY=seat.y;
+  c.style.left=S.charX+'%';
+  c.classList.remove('travel','walking','crouch','touch','spin','swinging');
+  c.style.setProperty('--sit-rise', seat.rise+'px');
+  S.facing=seat.face; syncFacing();            /* 自动转身面向桌子 */
+  c.classList.add('sitting');
+  sitting=true; swingActive=false; seatedChairId=seat.id;
+  withGame(g=>{ g.charX=S.charX; g.charY=S.charY; });
+  syncDepthVisual();                            /* 角色 z-index 按落座点动态计算 */
+  raiseSeatCover(seat);                         /* 桌子前沿 / 蕾丝垫抬到角色之上 */
+  startBench();
+  say('小喵','坐稳啦。脚下软软的，头发被风轻轻吹起 ✦');
+}
 /* ---------- 特殊交互：坐下 / 起身 / 摸动物 / 荡秋千 ---------- */
 function sitAt(sp){
   const c=charEl(); if(!c) return;
@@ -10051,7 +10284,8 @@ function standUp(){
   const st=$('#game-stage'); if(st) st.classList.remove('rug-rest','seated');
   const m=$('#companion'); if(m) m.classList.remove('circling');
   const a=$('#gsArt'); if(a) a.classList.remove('swinging','bottle-drag');
-  sitting=false; swingActive=false;
+  sitting=false; swingActive=false; seatedChairId=null;
+  clearSeatCover();
   clearBenchTimer();
 }
 function jiggle(sel, cls, ms){
@@ -10249,11 +10483,11 @@ const SOLID_PROPS={
   library:[
     {id:'shelfL',    type:'shelf',  box:[10,50,24,80]},
     {id:'shelfR',    type:'shelf',  box:[77,50,91,80]},
-    {id:'readTable', type:'longTable', box:[41,72,60,82], top:[42,73,59,82], surface:32},
-    {id:'readDesk',  type:'longTable', box:[62,73,75,82], top:[63,74,74,82], surface:30},
-    {id:'chairA',    type:'chair',  box:[36,74,42,82]},
-    {id:'chairB',    type:'chair',  box:[57,74,63,82]},
-    {id:'chairC',    type:'chair',  box:[73,75,79,82]}
+    /* 大尺寸长条桌：碰撞面与 sitFurnitureHTML 的 libLong 对齐；绘制交给家具层，实体只透明占位 */
+    {id:'readTable', type:'longTable', box:[42,80,66,86], top:[43,81,65,86], surface:36},
+    {id:'chairA',    type:'chair',  box:[38,86,46,92]},
+    {id:'chairB',    type:'chair',  box:[50,87,58,93]},
+    {id:'chairC',    type:'chair',  box:[62,86,70,92]}
   ],
   station:[
     {id:'stBench',   type:'bench',  box:[26,70,46,82], top:[28,71,44,82], surface:34},
@@ -10266,8 +10500,9 @@ const SOLID_PROPS={
   ],
   cafe:[
     {id:'bar',       type:'bar',    box:[9,60,39,80],  top:[10,61,38,80], surface:42},
-    {id:'cafeTable', type:'table',  box:[50,72,67,82], top:[51,73,66,82], surface:32},
-    {id:'cafeDesk',  type:'table',  box:[73,73,87,82], top:[74,74,86,82], surface:30}
+    /* 两套独立大圆桌：碰撞面对齐 sitFurnitureHTML 的 cafeRoundA/B，绘制交给家具层 */
+    {id:'cafeTable', type:'table',  box:[51,78,67,84], top:[52,79,66,84], surface:34},
+    {id:'cafeDesk',  type:'table',  box:[76,77,92,83], top:[77,78,91,83], surface:34}
   ]
 };
 const depthProps=()=>SOLID_PROPS[(curScene()||{}).id]||[];
@@ -10277,6 +10512,10 @@ function depthPropArt(type){
   const sh='<ellipse cx="50" cy="96" rx="43" ry="5" fill="rgba(62,47,38,.16)"/>';
   const W='#8E6E4E', W2='#AE8962', W3='#C9A67C', IN='rgba(78,58,42,.55)';
   const head=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${sh}`;
+  /* 桌 / 椅的可视化已整体交给大尺寸 sitFurnitureHTML 家具层；
+     这些实体只保留碰撞与站立面，故画成透明，避免两套桌椅在同一坐标重叠成「玩具积木」。 */
+  if(type==='table'||type==='longTable'||type==='chair')
+    return head+'<rect width="100" height="100" fill="none"/>'+'</svg>';
   switch(type){
     case 'bed': return head+`
       <rect x="3" y="34" width="7" height="62" rx="3" fill="${W2}"/>
@@ -10815,6 +11054,13 @@ function onSpaceDown(){
   /* 对话中：空格只推进/收起对白，不会让小人突然起跳 */
   if(ndState){ advanceNpcDialog(); return; }
   /* 靠近 NPC 时空格改为「说话」，走开一点再跳 */
+  /* 坐在椅子上：空格先起身（与按方向键一致），不再起跳 */
+  if(sitting && seatedChairId){ standUp(); say('小喵','站起来啦，继续逛逛 ✦'); return; }
+  /* 站在椅子附近（30px 内）：空格 = 坐下 */
+  if(phys.isGrounded && !sitting){
+    const nse=nearSeat();
+    if(nse){ sitOnChair(nse); return; }
+  }
   if(phys.isGrounded && !sitting){
     const nn=npcNearHere();
     if(nn){ talkToNpc(nn); return; }
@@ -10879,6 +11125,7 @@ function physicsStep(){
 function renderPhysics(){
   const c=charEl(); if(!c) return;
   syncDepthVisual();                       /* 每帧按脚底 y 刷新角色 z-index 与纵深位移 */
+  updateSeatHint();                        /* 走到椅子 30px 内 → 头顶弹「按空格坐下」 */
   const lift=c.querySelector('.gs-char-lift');
   if(lift) lift.style.transform='translateY('+(-phys.y).toFixed(1)+'px)';
   const k=Math.min(1,phys.y/145);
@@ -14007,6 +14254,30 @@ if(typeof window!=='undefined'){
     height:phys.y,vy:phys.vy,grounded:phys.isGrounded,standingOn,area:depthArea()});
   window.__depthAreas = () => WALK_AREAS;
   window.__depthProps = id => (id?SOLID_PROPS[id]:depthProps()).map(p=>({...p}));
+  /* 星碎进度：真实累计 / 百分比 / DOM 宽度，供回归验证 96/30 满格 */
+  window.__starProgress = () => {
+    const g=gameGet(), raw=starCollected(g), pct=Math.min((raw/QUEST_TOTAL)*100,100);
+    const fill=$('#hudQuestFill');
+    return {raw, pct, text:$('#hudQuestNum')?$('#hudQuestNum').textContent:null,
+            width:fill?fill.style.width:null, shards:(g.quest&&g.quest.shards)||0,
+            materials:(g.materials&&g.materials.star)||0, totals:(g.totals&&g.totals.star)||0};
+  };
+  window.__addStar = n => addStar(n);
+  /* 就坐系统：椅子清单 / 就近 / 就坐 / 起身 / 遮挡层 z 值 */
+  window.__sitSeats  = () => sitSeats(curScene().id).map(s=>({...s}));
+  window.__setChar   = (x,y) => { S.charX=x; S.charY=y; syncDepthVisual(); updateSeatHint(); return {x:S.charX,y:S.charY}; };
+  window.__nearSeat  = () => { const s=nearSeat(); return s?s.id:null; };
+  window.__sit       = id => { const s=sitSeats(curScene().id).find(q=>q.id===id); if(s) sitOnChair(s); return window.__sitState(); };
+  window.__sitState  = () => {
+    const c=charEl(), front=$('.sit-front[data-base-z]'), lace=$('#sitLace');
+    return {sitting, chair:seatedChairId, x:S.charX, y:S.charY,
+            charZ:c?c.style.zIndex:null, rise:c?c.style.getPropertyValue('--sit-rise'):null,
+            clip:c?getComputedStyle(c.querySelector('.px-avatar')||c).clipPath:null,
+            frontZ:front?front.style.zIndex:null, laceOn:lace?lace.classList.contains('on'):false,
+            hint:$('#seatHint')?$('#seatHint').classList.contains('on'):false};
+  };
+  window.__stand      = () => { standUp(); return window.__sitState(); };
+  window.__furniture  = () => $$('.sit-furn-layer > div').map(el=>({cls:el.className,left:el.style.left,bottom:el.style.bottom,z:el.style.zIndex}));
   window.__depthZ     = y => depthZ(y);
   window.__depthBox   = (x,y) => charBox(x,y);
   window.__aabb       = (a,b) => aabbOverlap(a,b);
