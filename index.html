@@ -465,38 +465,178 @@ button{cursor:pointer;border:0;background:none}
 /* ============================================================
    占卜页
    ============================================================ */
-#screen-fortune{background:radial-gradient(ellipse at 50% 30%,#EFF3F1,#E4EAE9 55%,#F1E9E4 100%)}
-.fortune-scene{position:relative;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:74px 18px 50px}
-.fortune-title{font-family:var(--hand);font-size:38px;color:#7E786F;margin:0 0 4px;letter-spacing:.12em}
-.fortune-sub{font-size:15px;color:var(--ink-faint);letter-spacing:.28em;margin-bottom:38px;text-align:center;word-break:break-word;overflow-wrap:anywhere}
-.fortune-bottle{position:relative;width:130px;height:190px;cursor:pointer;transition:transform .6s;animation:floaty 5s ease-in-out infinite}
+/* ============================================================
+   占卜页 · 魔法手账内页：水彩晕染 + 蕾丝 + 许愿瓶 + 签文卡
+   ============================================================ */
+#screen-fortune{background:
+  radial-gradient(ellipse 70% 50% at 18% 12%,rgba(255,224,232,.85),transparent 70%),
+  radial-gradient(ellipse 60% 45% at 86% 22%,rgba(214,233,242,.8),transparent 72%),
+  radial-gradient(ellipse 80% 55% at 50% 92%,rgba(255,244,220,.85),transparent 75%),
+  linear-gradient(155deg,#FFF7FA 0%,#F4F8FA 42%,#FDF9F1 100%)}
+.fortune-scene{position:relative;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:74px 18px 50px;overflow:hidden}
+/* 四周淡雅白色蕾丝包边 */
+.fortune-scene::before{content:"";position:absolute;inset:10px;z-index:0;pointer-events:none;border-radius:20px;
+  border:2px solid rgba(255,255,255,.75);
+  background:
+    radial-gradient(circle at 12px 12px,rgba(255,255,255,.9) 5px,transparent 6px) top left/24px 24px repeat-x,
+    radial-gradient(circle at 12px 12px,rgba(255,255,255,.9) 5px,transparent 6px) bottom left/24px 24px repeat-x,
+    radial-gradient(circle at 12px 12px,rgba(255,255,255,.9) 5px,transparent 6px) top left/24px 24px repeat-y,
+    radial-gradient(circle at 12px 12px,rgba(255,255,255,.9) 5px,transparent 6px) top right/24px 24px repeat-y;
+  -webkit-mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:12px;
+  box-shadow:inset 0 0 0 1px rgba(230,200,214,.35)}
+
+/* 飘落花瓣 + 星光粒子 */
+.ft-fall{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.ft-petal{position:absolute;top:-8%;font-size:17px;color:rgba(240,160,190,.75);
+  animation:ftPetalFall linear infinite;filter:drop-shadow(0 2px 3px rgba(220,150,180,.25))}
+@keyframes ftPetalFall{0%{transform:translate(0,-10%) rotate(0);opacity:0}
+  10%{opacity:.85}50%{transform:translate(28px,55vh) rotate(180deg)}90%{opacity:.7}
+  100%{transform:translate(-12px,110vh) rotate(360deg);opacity:0}}
+.ft-spark{position:absolute;top:-6%;width:4px;height:4px;border-radius:50%;
+  background:#FFF3C8;box-shadow:0 0 8px 2px rgba(255,224,150,.9);
+  animation:ftSparkFall linear infinite}
+@keyframes ftSparkFall{0%{transform:translateY(0);opacity:0}15%{opacity:.9}
+  85%{opacity:.6}100%{transform:translateY(108vh);opacity:0}}
+
+.fortune-title{position:relative;z-index:3;font-family:var(--hand);font-size:44px;color:#A4708A;margin:0 0 4px;
+  letter-spacing:.14em;text-shadow:0 2px 0 #fff,0 0 18px rgba(232,170,196,.5)}
+.fortune-sub{position:relative;z-index:3;font-family:var(--serif);font-size:15px;color:#9C8B7E;letter-spacing:.24em;
+  margin-bottom:30px;text-align:center;word-break:break-word;overflow-wrap:anywhere}
+.fortune-sub::before,.fortune-sub::after{content:"✦";margin:0 12px;color:#E1B6C6}
+
+/* ===== 魔法许愿瓶（核心视觉焦点） ===== */
+.fortune-bottle{position:relative;z-index:3;width:146px;height:206px;cursor:pointer;transition:transform .6s;animation:floaty 5s ease-in-out infinite}
 @keyframes floaty{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
-.fortune-bottle:hover{filter:drop-shadow(0 0 16px rgba(230,200,140,.5))}
-.fb-glass{position:absolute;inset:0;border:2px solid rgba(180,202,208,.9);border-radius:44% 44% 20% 20%/32% 32% 12% 12%;
-  background:linear-gradient(115deg,rgba(255,255,255,.8),rgba(214,228,236,.28) 48%,rgba(255,255,255,.62));
-  box-shadow:inset -9px 0 18px rgba(255,255,255,.8),inset 8px 0 14px rgba(190,212,220,.28),0 14px 28px rgba(130,150,160,.2)}
-.fb-neck{position:absolute;top:-24px;left:44px;width:42px;height:28px;border:2px solid rgba(180,202,208,.9);border-radius:6px;background:rgba(255,255,255,.65)}
-.fb-cork{position:absolute;top:-32px;left:40px;width:50px;height:13px;border-radius:4px;background:linear-gradient(#E0CBA9,#C6AC88)}
-.fb-star{position:absolute;font-size:14px;color:#E3C58C;text-shadow:0 0 10px rgba(240,210,150,.9);animation:twinkle 3.2s ease-in-out infinite}
-.fortune-bottle.used{cursor:default;filter:saturate(.6)}
-.flying-star{position:fixed;z-index:700;font-size:24px;color:#E6C88F;text-shadow:0 0 18px rgba(240,210,150,1);
+.fortune-bottle:hover{filter:drop-shadow(0 0 18px rgba(240,205,150,.65))}
+.fb-glass{position:absolute;inset:0;border:2px solid rgba(196,220,226,.9);
+  border-radius:46% 46% 22% 22%/34% 34% 14% 14%;
+  background:
+    linear-gradient(115deg,rgba(255,255,255,.9) 0%,rgba(226,240,244,.35) 26%,rgba(255,255,255,.25) 50%,rgba(206,228,236,.4) 74%,rgba(255,255,255,.75) 100%),
+    linear-gradient(180deg,rgba(255,240,246,.55),rgba(228,242,246,.3));
+  box-shadow:
+    inset -12px 0 22px rgba(255,255,255,.9),inset 11px 0 18px rgba(170,204,214,.32),
+    inset 0 -14px 22px rgba(200,222,230,.35),inset 0 8px 16px rgba(255,255,255,.7),
+    0 16px 30px rgba(130,150,160,.25)}
+.fb-glass::after{content:"";position:absolute;left:18px;top:26px;width:16px;height:64px;
+  border-radius:50%;background:linear-gradient(rgba(255,255,255,.85),rgba(255,255,255,0));
+  transform:rotate(12deg);filter:blur(1px)}
+.fb-neck{position:absolute;top:-26px;left:50px;width:46px;height:30px;border:2px solid rgba(196,220,226,.9);
+  border-radius:7px;background:linear-gradient(90deg,rgba(255,255,255,.8),rgba(220,236,242,.5),rgba(255,255,255,.75))}
+.fb-cork{position:absolute;top:-34px;left:46px;width:54px;height:14px;border-radius:5px;
+  background:linear-gradient(#E6D2B2,#C9AF8C);box-shadow:0 3px 6px rgba(150,120,90,.25),inset 0 1px 0 rgba(255,255,255,.6)}
+/* 瓶口粉色丝带 */
+.fb-ribbon{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:80px;height:56px;z-index:5;pointer-events:none}
+.fb-ribbon .rb-knot{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;
+  background:linear-gradient(150deg,#FBD9E4,#E697B3);border:1px solid rgba(214,126,156,.7);box-shadow:0 2px 4px rgba(170,100,130,.25)}
+.fb-ribbon .rb-loop{position:absolute;top:2px;width:26px;height:20px;border:2px solid #EEA9C2;
+  background:rgba(255,235,242,.5)}
+.fb-ribbon .rb-loop.l{left:12px;border-radius:60% 20% 55% 35%;transform:rotate(-18deg)}
+.fb-ribbon .rb-loop.r{right:12px;border-radius:20% 60% 35% 55%;transform:rotate(18deg)}
+.fb-ribbon .rb-tail{position:absolute;top:18px;width:10px;height:34px;
+  background:linear-gradient(#F3BDD0,#E694B0);border-radius:0 0 5px 5px;transform-origin:top center}
+.fb-ribbon .rb-tail.l{left:32px;animation:fbTailL 2.6s ease-in-out infinite alternate}
+.fb-ribbon .rb-tail.r{right:32px;animation:fbTailR 2.9s ease-in-out infinite alternate}
+@keyframes fbTailL{from{transform:rotate(6deg)}to{transform:rotate(-8deg)}}
+@keyframes fbTailR{from{transform:rotate(-6deg)}to{transform:rotate(8deg)}}
+/* 瓶内金色浮动小星星 */
+.fb-star{position:absolute;font-size:17px;color:#F0CB7E;
+  text-shadow:0 0 6px #FFF0BC,0 0 14px rgba(240,200,120,.95),0 0 22px rgba(255,220,140,.6);
+  animation:fbStarFloat var(--sd,3s) ease-in-out infinite;transform-origin:center}
+@keyframes fbStarFloat{0%,100%{transform:translateY(3px) rotate(0) scale(.9);opacity:.75}
+  50%{transform:translateY(-9px) rotate(18deg) scale(1.15);opacity:1}}
+/* 瓶底蕾丝杯垫 + 小白花绿叶 */
+.fb-coaster{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);width:120px;height:22px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,255,255,.95) 40%,rgba(244,222,232,.85) 70%,transparent 72%);
+  box-shadow:0 6px 12px rgba(150,120,130,.18)}
+.fb-coaster::after{content:"";position:absolute;inset:-3px;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.9) 0 8deg,transparent 8deg 18deg);
+  -webkit-mask:radial-gradient(circle,transparent 58%,#000 60%,#000 78%,transparent 80%);
+  mask:radial-gradient(circle,transparent 58%,#000 60%,#000 78%,transparent 80%)}
+.fb-bloom{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);width:150px;height:34px;z-index:2;pointer-events:none}
+.fb-bloom i{position:absolute;bottom:0;font-size:12px;color:#F4B9CC;text-shadow:0 0 5px rgba(240,170,195,.6)}
+.fb-bloom i:nth-child(1){left:6px;bottom:2px;transform:rotate(-16deg)}
+.fb-bloom i:nth-child(2){left:24px;bottom:8px;color:#F7C9D8}
+.fb-bloom i:nth-child(3){right:24px;bottom:8px;color:#F7C9D8;transform:rotate(12deg)}
+.fb-bloom i:nth-child(4){right:6px;bottom:2px;transform:rotate(16deg)}
+.fb-bloom b{position:absolute;bottom:2px;width:20px;height:9px;border-radius:60% 10% 60% 10%;
+  background:linear-gradient(90deg,#BFD8B4,#8FBF92);transform:rotate(-24deg)}
+.fb-bloom b:nth-of-type(1){left:14px} .fb-bloom b:nth-of-type(2){right:14px;transform:rotate(24deg) scaleX(-1)}
+.fortune-bottle.used{cursor:default;filter:saturate(.72)}
+
+.flying-star{position:fixed;z-index:700;font-size:26px;color:#F3D48F;text-shadow:0 0 18px rgba(250,215,140,1),0 0 30px rgba(255,230,160,.7);
   transition:transform 1.05s cubic-bezier(.2,.7,.3,1),opacity 1s;pointer-events:none}
-.fortune-card{position:relative;z-index:2;width:100%;max-width:min(500px,92vw);margin-top:36px;min-height:210px;text-align:center;overflow:hidden;
-  background:linear-gradient(160deg,rgba(255,253,248,.94),rgba(250,241,232,.9));
-  border:1px solid var(--gold);border-radius:18px;
-  box-shadow:0 16px 40px rgba(150,130,110,.16);transform-origin:center top}
+
+/* ===== 签文卡（繁复手账风） ===== */
+.fortune-card{position:relative;z-index:4;width:100%;max-width:min(520px,92vw);margin-top:48px;min-height:230px;
+  text-align:center;overflow:visible;
+  background:linear-gradient(160deg,rgba(255,252,253,.96),rgba(255,244,248,.94) 55%,rgba(253,247,238,.95));
+  border:2px solid rgba(233,182,199,.85);border-radius:20px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.9),0 0 0 4px rgba(240,205,215,.55),
+    0 18px 46px rgba(200,140,165,.28),0 0 40px rgba(244,190,208,.35);
+  transform-origin:center top}
 .fortune-card.reveal{animation:cardUnfold 1s cubic-bezier(.2,.8,.3,1) both}
 @keyframes cardUnfold{from{opacity:0;transform:perspective(900px) rotateX(-70deg) scale(.7)}to{opacity:1;transform:none}}
-.fortune-card::before{content:"";position:absolute;inset:7px;border:1px dashed rgba(217,198,165,.6);border-radius:12px;pointer-events:none}
-.fortune-card::after{content:"✦  ✦  ✦";position:absolute;left:0;right:0;bottom:8px;font-size:12.5px;color:#D8C4A0;letter-spacing:1em}
-.fortune-card .fc-inner{padding:30px 34px 34px}
-.fc-tag{font-family:var(--hand);font-size:30px;color:#A98D63;letter-spacing:.14em;margin-bottom:12px}
-.fc-text{font-size:15px;line-height:2.35;color:#655C54;min-height:110px;text-align:left;word-break:break-word;overflow-wrap:anywhere}
-.fc-yiji{margin-top:14px;font-size:15.5px;color:#A08C6C;letter-spacing:.1em}
-.caret{display:inline-block;width:7px;background:#C9AE7F;animation:blink .8s steps(1) infinite}
+/* 外层粉色波浪蕾丝 + 内层香槟金细线 */
+.fortune-card::before{content:"";position:absolute;inset:6px;border:1.5px dashed rgba(230,166,187,.75);border-radius:15px;pointer-events:none}
+.fortune-card::after{content:"";position:absolute;inset:12px;border:1px solid rgba(217,198,165,.85);border-radius:11px;pointer-events:none}
+/* 顶部双层蝴蝶结 */
+.fc-bow{position:absolute;left:50%;top:-22px;transform:translateX(-50%);width:84px;height:38px;z-index:6;pointer-events:none}
+.fc-bow i{position:absolute;top:1px;width:40px;height:29px;border:1px solid rgba(214,126,156,.7);
+  background:linear-gradient(150deg,#F9CBD9,#EC9DB6);box-shadow:inset 0 2px 5px rgba(255,255,255,.7),0 3px 6px rgba(170,100,120,.25)}
+.fc-bow i.l{left:1px;border-radius:62% 22% 58% 38%;transform:rotate(-16deg)}
+.fc-bow i.r{right:1px;border-radius:22% 62% 38% 58%;transform:rotate(16deg)}
+.fc-bow b{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#FFE0EA,#E694B0);border:1px solid rgba(214,126,156,.8)}
+.fc-bow s{position:absolute;top:24px;width:12px;height:24px;background:linear-gradient(#F2B7CA,#E694B0);
+  border-radius:0 0 6px 6px}
+.fc-bow s.l{left:24px;transform:rotate(10deg)} .fc-bow s.r{right:24px;transform:rotate(-10deg)}
+/* 四角金色复古藤蔓角标 */
+.fc-corner{position:absolute;z-index:6;width:30px;height:30px;color:#CBAE74;font-size:20px;line-height:1;pointer-events:none;
+  text-shadow:0 0 6px rgba(220,185,120,.5)}
+.fc-corner::after{content:"";position:absolute;width:12px;height:7px;border-top:1.5px solid #CBAE74;border-radius:50%}
+.fc-corner.tl{left:9px;top:9px} .fc-corner.tl::after{left:16px;top:14px;transform:rotate(-30deg)}
+.fc-corner.tr{right:9px;top:9px;transform:scaleX(-1)} .fc-corner.tr::after{left:16px;top:14px;transform:rotate(-30deg)}
+.fc-corner.bl{left:9px;bottom:9px;transform:scaleY(-1)} .fc-corner.bl::after{left:16px;top:14px;transform:rotate(-30deg)}
+.fc-corner.br{right:9px;bottom:9px;transform:scale(-1)} .fc-corner.br::after{left:16px;top:14px;transform:rotate(-30deg)}
+/* 周边蔓延花枝 */
+.fc-vine{position:absolute;z-index:5;width:120px;height:90px;pointer-events:none}
+.fc-vine.vl{left:-46px;bottom:-26px;transform:rotate(6deg)}
+.fc-vine.vr{right:-46px;top:-30px;transform:rotate(184deg)}
+.fc-vine .stem{position:absolute;left:20px;bottom:8px;width:70px;height:64px;
+  border-left:2px solid #A9C99F;border-bottom:2px solid transparent;border-radius:0 0 0 60%}
+.fc-vine .leaf{position:absolute;width:17px;height:9px;border-radius:60% 10% 60% 10%;
+  background:linear-gradient(90deg,#BAD5AF,#8FBF92)}
+.fc-vine .leaf.a{left:18px;bottom:30px;transform:rotate(-30deg)}
+.fc-vine .leaf.b{left:34px;bottom:46px;transform:rotate(-52deg)}
+.fc-vine .leaf.c{left:52px;bottom:56px;transform:rotate(-70deg)}
+.fc-vine .bud{position:absolute;font-size:11px;color:#F2AEC5;text-shadow:0 0 5px rgba(240,170,195,.7)}
+.fc-vine .bud.a{left:12px;bottom:52px} .fc-vine .bud.b{left:44px;bottom:66px;color:#F7CBD9}
+
+.fortune-card .fc-inner{padding:42px 40px 38px;position:relative;z-index:2}
+.fc-tag{position:relative;display:inline-block;font-family:var(--hand);font-size:36px;color:#B4637F;letter-spacing:.14em;
+  margin-bottom:16px;text-shadow:0 2px 0 #fff,0 0 12px rgba(232,170,196,.45)}
+.fc-tag::before,.fc-tag::after{content:"✦";position:absolute;top:6px;font-size:18px;color:#E3B25F;text-shadow:0 0 8px rgba(240,200,120,.8)}
+.fc-tag::before{left:-26px} .fc-tag::after{right:-26px}
+.fc-text{font-family:var(--serif);font-size:18px;line-height:2;color:#5C5346;min-height:110px;text-align:center;
+  word-break:break-word;overflow-wrap:anywhere;margin:0 auto;max-width:430px}
+.fc-yiji{margin-top:22px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.fc-yiji .yi-pill,.fc-yiji .ji-pill{display:inline-block;padding:7px 18px;border-radius:20px;
+  font-family:var(--serif);font-size:16px;letter-spacing:.06em}
+.fc-yiji .yi-pill{color:#7E9A6B;background:linear-gradient(150deg,#F4FBF0,#E7F3DF);border:1px solid rgba(160,195,140,.7)}
+.fc-yiji .ji-pill{color:#B47585;background:linear-gradient(150deg,#FFF4F7,#FBE6ED);border:1px solid rgba(226,164,184,.8)}
+.caret{display:inline-block;width:8px;height:1em;vertical-align:-2px;background:#D89AB0;animation:blink .8s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-.fortune-note{margin-top:22px;font-size:15.5px;color:var(--ink-faint);letter-spacing:.1em;min-height:22px;width:100%;max-width:min(500px,92vw);text-align:center;word-break:break-word;overflow-wrap:anywhere;padding:0 4px}
-.fortune-history{margin-top:16px;font-family:var(--hand);font-size:17px;color:#A99C89;width:100%;max-width:min(500px,92vw);text-align:center;word-break:break-word;overflow-wrap:anywhere}
+.fortune-note{position:relative;z-index:3;margin-top:26px;font-family:var(--serif);font-size:14.5px;color:#A9A19A;
+  letter-spacing:.08em;min-height:22px;width:100%;max-width:min(520px,92vw);text-align:center;
+  word-break:break-word;overflow-wrap:anywhere;padding:0 10px}
+.fortune-note::before,.fortune-note::after{content:"";display:inline-block;vertical-align:middle;
+  width:38px;height:1px;background:linear-gradient(90deg,transparent,rgba(203,178,152,.7));margin:0 10px}
+.fortune-note::after{background:linear-gradient(90deg,rgba(203,178,152,.7),transparent)}
+.fortune-history{margin-top:14px;font-family:var(--hand);font-size:16px;color:#B0A08E;width:100%;max-width:min(520px,92vw);
+  text-align:center;word-break:break-word;overflow-wrap:anywhere;position:relative;z-index:3}
 
 /* ============================================================
    博客页 · 千禧年 Web 1.0 高密度网格
@@ -4245,17 +4385,26 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 <section class="screen" id="screen-fortune">
   <button class="btn small float-back" data-back>← 回书桌</button>
   <div class="fortune-scene">
+    <div class="ft-fall" aria-hidden="true"><span class="ft-petal" style="left:6%;animation-duration:9.0s;animation-delay:0.0s;font-size:13px">✿</span><span class="ft-petal" style="left:23%;animation-duration:10.7s;animation-delay:1.1s;font-size:16px">✿</span><span class="ft-petal" style="left:40%;animation-duration:12.4s;animation-delay:2.2s;font-size:19px">✿</span><span class="ft-petal" style="left:57%;animation-duration:14.1s;animation-delay:3.3s;font-size:13px">✿</span><span class="ft-petal" style="left:74%;animation-duration:15.8s;animation-delay:4.4s;font-size:16px">✿</span><span class="ft-petal" style="left:91%;animation-duration:9.0s;animation-delay:5.5s;font-size:19px">✿</span><span class="ft-petal" style="left:8%;animation-duration:10.7s;animation-delay:6.6s;font-size:13px">✿</span><span class="ft-petal" style="left:25%;animation-duration:12.4s;animation-delay:0.0s;font-size:16px">✿</span><span class="ft-petal" style="left:42%;animation-duration:14.1s;animation-delay:1.1s;font-size:19px">✿</span><span class="ft-petal" style="left:59%;animation-duration:15.8s;animation-delay:2.2s;font-size:13px">✿</span><span class="ft-petal" style="left:76%;animation-duration:9.0s;animation-delay:3.3s;font-size:16px">✿</span><span class="ft-petal" style="left:93%;animation-duration:10.7s;animation-delay:4.4s;font-size:19px">✿</span><span class="ft-petal" style="left:10%;animation-duration:12.4s;animation-delay:5.5s;font-size:13px">✿</span><span class="ft-petal" style="left:27%;animation-duration:14.1s;animation-delay:6.6s;font-size:16px">✿</span><span class="ft-petal" style="left:44%;animation-duration:15.8s;animation-delay:0.0s;font-size:19px">✿</span><span class="ft-petal" style="left:61%;animation-duration:9.0s;animation-delay:1.1s;font-size:13px">✿</span><span class="ft-spark" style="left:11%;animation-duration:6.0s;animation-delay:0.0s"></span><span class="ft-spark" style="left:34%;animation-duration:7.3s;animation-delay:0.9s"></span><span class="ft-spark" style="left:57%;animation-duration:8.6s;animation-delay:1.8s"></span><span class="ft-spark" style="left:80%;animation-duration:9.9s;animation-delay:2.7s"></span><span class="ft-spark" style="left:3%;animation-duration:6.0s;animation-delay:3.6s"></span><span class="ft-spark" style="left:26%;animation-duration:7.3s;animation-delay:4.5s"></span><span class="ft-spark" style="left:49%;animation-duration:8.6s;animation-delay:0.0s"></span><span class="ft-spark" style="left:72%;animation-duration:9.9s;animation-delay:0.9s"></span><span class="ft-spark" style="left:95%;animation-duration:6.0s;animation-delay:1.8s"></span><span class="ft-spark" style="left:18%;animation-duration:7.3s;animation-delay:2.7s"></span><span class="ft-spark" style="left:41%;animation-duration:8.6s;animation-delay:3.6s"></span><span class="ft-spark" style="left:64%;animation-duration:9.9s;animation-delay:4.5s"></span><span class="ft-spark" style="left:87%;animation-duration:6.0s;animation-delay:0.0s"></span><span class="ft-spark" style="left:10%;animation-duration:7.3s;animation-delay:0.9s"></span></div>
     <h1 class="fortune-title">星语占卜</h1>
     <div class="fortune-sub">ONE  STAR  A  DAY · 每天只能抽一次</div>
     <div class="fortune-bottle" id="fortuneBottle">
       <div class="fb-glass"></div><div class="fb-neck"></div><div class="fb-cork"></div>
-      <div class="fb-star" style="left:34px;bottom:26px">✦</div><div class="fb-star" style="left:66px;bottom:44px;animation-delay:.8s">✦</div>
-      <div class="fb-star" style="left:48px;bottom:76px;animation-delay:1.5s">✦</div><div class="fb-star" style="left:80px;bottom:20px;animation-delay:2.1s">✦</div>
-      <div class="fb-star" style="left:26px;bottom:62px;animation-delay:2.7s">✦</div>
+      <div class="fb-ribbon"><i class="rb-loop l"></i><i class="rb-loop r"></i><i class="rb-tail l"></i><i class="rb-tail r"></i><i class="rb-knot"></i></div>
+      <div class="fb-star" style="left:38px;bottom:30px;--sd:2.4s;animation-delay:0.0s">✦</div><div class="fb-star" style="left:74px;bottom:50px;--sd:2.9s;animation-delay:0.6s">✧</div><div class="fb-star" style="left:56px;bottom:84px;--sd:3.4s;animation-delay:1.2s">✦</div><div class="fb-star" style="left:92px;bottom:24px;--sd:3.9s;animation-delay:1.8s">✧</div><div class="fb-star" style="left:28px;bottom:66px;--sd:2.4s;animation-delay:2.4s">✦</div><div class="fb-star" style="left:64px;bottom:108px;--sd:2.9s;animation-delay:0.0s">✧</div>
+      <div class="fb-coaster"></div>
+      <div class="fb-bloom"><b></b><i>✿</i><i>✿</i><i>✿</i><i>✿</i><b></b></div>
     </div>
-    <div class="fortune-card hidden" id="fortuneCard"><div class="fc-inner">
-      <div class="fc-tag" id="fcTag"></div><div class="fc-text" id="fcText"></div><div class="fc-yiji" id="fcYiji"></div>
-    </div></div>
+    <div class="fortune-card hidden" id="fortuneCard">
+      <div class="fc-bow"><i class="l"></i><i class="r"></i><s class="l"></s><s class="r"></s><b></b></div>
+      <span class="fc-corner tl">❧</span><span class="fc-corner tr">❧</span>
+      <span class="fc-corner bl">❧</span><span class="fc-corner br">❧</span>
+      <div class="fc-vine vl"><div class="stem"></div><i class="leaf a"></i><i class="leaf b"></i><i class="leaf c"></i><span class="bud a">✿</span><span class="bud b">✿</span></div>
+      <div class="fc-vine vr"><div class="stem"></div><i class="leaf a"></i><i class="leaf b"></i><i class="leaf c"></i><span class="bud a">✿</span><span class="bud b">✿</span></div>
+      <div class="fc-inner">
+        <div class="fc-tag" id="fcTag"></div><div class="fc-text" id="fcText"></div><div class="fc-yiji" id="fcYiji"></div>
+      </div>
+    </div>
     <div class="fortune-note" id="fortuneNote">点一下瓶子，看看今天星星说什么</div>
     <div class="fortune-history" id="fortuneHistory"></div>
   </div>
@@ -5947,7 +6096,7 @@ function showFortuneResult(idx, instant){
   card.classList.remove('fly','reveal'); void card.offsetWidth;
   if(instant) card.classList.add('reveal');
   else { card.classList.add('fly'); setTimeout(()=>card.classList.remove('fly'),1120); }
-  $('#fcTag').textContent=`【${f.tag}】`; $('#fcYiji').textContent=`宜：${f.yi}　/　忌：${f.ji}`;
+  $('#fcTag').textContent=`【${f.tag}】`; $('#fcYiji').innerHTML=`<span class="yi-pill">宜：${f.yi}</span><span class="ji-pill">忌：${f.ji}</span>`;
   $('#fortuneBottle').classList.add('used');
   $('#fortuneNote').textContent='今天已经抽过啦，星星说过了就不重复，明天再来 ✦';
   const el=$('#fcText'); el.textContent='';
