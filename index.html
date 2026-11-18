@@ -7152,12 +7152,12 @@ function initWelcomeText(){
    ============================================================================================================================== */
 const BGM_VOL = 0.34;
 const BGM_MAP = {
-  gate:'assets/audio/duoxingyun.mp3',
-  desk:'assets/audio/duoxingyun.mp3',
-  fortune:'assets/audio/duoxingyun.mp3',
-  letter:'assets/audio/nvhai.mp3',
-  cake:'assets/audio/birthday.mp3',
-  game:'assets/audio/bird.mp3'
+  gate:'assets/audio/preset-lucky.mp3',
+  desk:'assets/audio/preset-lucky.mp3',
+  fortune:'assets/audio/preset-lucky.mp3',
+  letter:'assets/audio/preset-girl.mp3',
+  cake:'assets/audio/preset-birthday.mp3',
+  game:'assets/audio/preset-bird.mp3'
 };
 const BGM = {
   el:null, src:'', live:false, timer:0, seq:0, watch:0, tries:0, v:0,
@@ -7263,9 +7263,9 @@ function bgmRoute(screen){
    ------------------------------------------------ */
 const MP_ON_KEY='77_player_on', MP_COVER_KEY='77_player_cover', MP_TIP_KEY='77_upload_tip_seen';
 const MP_PRESETS = [
-  {name:'特别的人', artist:'方大同',   src:'assets/audio/tebieder.mp3'},
-  {name:'女孩',     artist:'你的歌单', src:'assets/audio/nvhai.mp3'},
-  {name:'多幸运',   artist:'你的歌单', src:'assets/audio/duoxingyun.mp3'}
+  {name:'特别的人', artist:'方大同',   src:'assets/audio/preset-special.mp3'},
+  {name:'女孩',     artist:'你的歌单', src:'assets/audio/preset-girl.mp3'},
+  {name:'多幸运',   artist:'你的歌单', src:'assets/audio/preset-lucky.mp3'}
 ];
 const PLAYER = {
   el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'', fetched:false, tries:0, watch:0, v:0,
