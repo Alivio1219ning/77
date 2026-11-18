@@ -957,9 +957,8 @@ button{cursor:pointer;border:0;background:none}
 .welcome-foot{margin-top:9px;padding-left:4px;font-size:12px;letter-spacing:.12em;color:#C0B4A6}
 .welcome-art{flex:0 0 62px;height:62px;opacity:.86}
 .welcome-art svg{width:100%;height:100%;display:block}
-/* 留言板：卡片固定 400px，flex 严格控高
-   —— 消息区自己滚动（flex:1 + overflow-y:auto），底部输入区 flex-shrink:0 永远钉在卡片最底部 */
-.chat-card{flex:0 0 auto;height:400px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+/* 留言板：不写死高度——flex:1 吃掉中栏剩余空间（正好填掉 Tags 下方的空板），消息区自己滚动 */
+.chat-card{flex:1 1 400px;min-height:400px;display:flex;flex-direction:column;overflow:hidden}
 .chat-card .w1-body{padding:0;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}
 .chat-list{flex:1 1 auto;height:auto;min-height:0;overflow-y:auto;padding:13px 12px;background:#FFFDFA;
   display:flex;flex-direction:column;scroll-behavior:smooth;scrollbar-width:thin;overflow-x:hidden}
@@ -1119,7 +1118,7 @@ button{cursor:pointer;border:0;background:none}
   .bb-caption h1{font-size:26px}
   .bb-mark{right:10px;top:10px;width:64px;height:64px;font-size:10px}
   .bb-mark b{font-size:15px}
-  .chat-card{height:330px}
+  .chat-card{flex:0 0 330px;min-height:330px}
   .post-row{grid-template-columns:88px minmax(0,1fr) 26px 18px;gap:5px;padding:7px 8px}
   .post-date{font-size:13px}
   .pm-paper{width:92%;height:78%;padding:32px 24px 44px}
