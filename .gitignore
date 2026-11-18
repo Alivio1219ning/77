@@ -1,0 +1,12 @@
+# 本地临时文件（部署不需要）
+_*
+!_index.html
+*.tmp
+*.bak
+*.log
+*.old
+*~
+
+# 系统
+.DS_Store
+Thumbs.db
