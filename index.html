@@ -7160,19 +7160,48 @@ const BGM_MAP = {
   game:'assets/audio/bird.mp3'
 };
 const BGM = {
-  el:null, src:'', live:false, timer:0, seq:0, watch:0,
+  el:null, src:'', live:false, timer:0, seq:0, watch:0, tries:0,
   init(){
     if(this.el) return;
-    this.el = $('#bgm'); if(!this.el) return;
-    this.el.volume = 0;
-    const el = this.el;
+    const el0 = $('#bgm'); if(!el0) return;
+    this.el = el0; this.el.volume = 0;
     /* 浏览器要求先有一次交互：之后任何点击/按键都补一次播放 */
-    const kick = ()=>{ if(this.live && el.paused) el.play().then(()=>this.ramp(BGM_VOL, 500)).catch(()=>{}); };
+    const kick = ()=>{ const el=this.el; if(this.live && el && el.paused){ const p=el.play(); if(p&&p.catch) p.catch(()=>{}); } };
     ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev, kick, {passive:true}));
+    this.bind(this.el);
+  },
+  bind(el){
     /* 数据到位就自动续上（被浏览器自动暂停、或上次请求被掐断后） */
-    el.addEventListener('canplay', ()=>{ if(this.live && el.paused){ const p=el.play(); if(p&&p.catch) p.catch(()=>{}); } });
-    /* 媒体请求出错时自愈一次 */
-    el.addEventListener('error', ()=>{ this.revive(); });
+    el.addEventListener('canplay', ()=>{ this.tries = 0; if(this.live && el.paused){ const p=el.play(); if(p&&p.catch) p.catch(()=>{}); } });
+    /* 媒体请求出错时自愈 */
+    el.addEventListener('error', ()=>{ this.retry(); });
+  },
+  /* 换一个新的 audio 元素重拉：切歌瞬间被 CDN 掐断的旧元素会永远停在 readyState=0，
+     换新元素从头拉一次最干净，也不会影响正在播的其它音轨。 */
+  fresh(src){
+    const old = this.el; if(!old) return;
+    const el = document.createElement('audio');
+    el.id = old.id || 'bgm'; el.loop = true; el.preload = 'auto'; el.volume = 0;
+    if(old.parentNode) old.parentNode.replaceChild(el, old);
+    this.el = el; this.bind(el);
+    el.src = src;
+    const p = el.play(); if(p && p.catch) p.catch(()=>{});
+  },
+  /* 自愈重试：换新元素重新拉，最多 3 次 */
+  retry(){
+    const el = this.el;
+    if(!el || !this.src || !this.live || this.tries >= 3) return;
+    if(el.readyState > 1) return;
+    this.tries++;
+    clearTimeout(this.watch);
+    this.fresh(this.src);
+    this.ramp(BGM_VOL, 700);
+    this.watchdog(++this.seq);
+  },
+  /* 看门狗：切歌后 2.5 秒还没数据就自愈 */
+  watchdog(gen){
+    clearTimeout(this.watch);
+    this.watch = setTimeout(()=>{ if(gen === this.seq) this.retry(); }, 2500);
   },
   /* 音量缓动：同一时刻只有一个计时器，永远朝目标走，杜绝音量卡在 0 */
   ramp(to, ms){
@@ -7188,19 +7217,6 @@ const BGM = {
       }, 40);
     });
   },
-  /* 兜底：拿不到音频数据时重新拉一次（CDN 掐断 Range 请求时最有效） */
-  revive(){
-    const el = this.el; if(!el || !this.src || !this.live) return;
-    if(el.readyState > 1) return;
-    try{ el.load(); }catch(e){}
-    const p = el.play(); if(p && p.catch) p.catch(()=>{});
-    this.ramp(BGM_VOL, 600);
-  },
-  /* 看门狗：切歌后 3 秒还没数据就自愈 */
-  watchdog(gen){
-    clearTimeout(this.watch);
-    this.watch = setTimeout(()=>{ if(gen === this.seq) this.revive(); }, 3000);
-  },
   play(src){
     if(!this.el || !src) return;
     this.live = true;
@@ -7211,7 +7227,7 @@ const BGM = {
       this.watchdog(gen);
       return;
     }
-    this.src = src;
+    this.src = src; this.tries = 0;
     const swap = ()=>{
       /* 只换 src，不调 load()：load() 会掐断正在进行的媒体请求，
          在 CDN 上表现为永远 readyState=0（听得见却没数据）。 */
@@ -7250,7 +7266,7 @@ const MP_PRESETS = [
   {name:'多幸运',   artist:'你的歌单', src:'assets/audio/duoxingyun.mp3'}
 ];
 const PLAYER = {
-  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'', fetched:false,
+  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'', fetched:false, tries:0, watch:0,
   init(){
     if(this.ready) return;
     this.el = $('#bgm-player'); if(!this.el) return;
@@ -7276,12 +7292,7 @@ const PLAYER = {
     const fi=$('#mpFile'); if(fi) fi.onchange = e=> this.takeSong(e.target.files && e.target.files[0]);
     const cv=$('#mpCover'); if(cv) cv.onclick = ()=>{ const f=$('#mpCoverFile'); if(f) f.click(); };
     const cf=$('#mpCoverFile'); if(cf) cf.onchange = e=> this.takeCover(e.target.files && e.target.files[0]);
-    this.el.addEventListener('timeupdate', ()=>this.paintTime());
-    this.el.addEventListener('play', ()=>this.paint(true));
-    this.el.addEventListener('pause', ()=>this.paint(false));
-    /* 数据到位自动续播；请求被掐断就重拉一次 */
-    this.el.addEventListener('canplay', ()=>{ if(this.on && this.active && this.el.paused){ const p=this.el.play(); if(p&&p.catch) p.catch(()=>{}); } });
-    this.el.addEventListener('error', ()=>{ this.revive(); });
+    this.bind(this.el);
     const rg=$('#mpRange');
     if(rg) rg.addEventListener('input', ()=>{
       const d = this.el.duration;
@@ -7290,6 +7301,40 @@ const PLAYER = {
     });
     this.paint(false);
     this.paintTime();
+  },
+  bind(el){
+    el.addEventListener('timeupdate', ()=>this.paintTime());
+    el.addEventListener('play', ()=>this.paint(true));
+    el.addEventListener('pause', ()=>this.paint(false));
+    /* 数据到位自动续播；请求被掐断就换新元素重拉 */
+    el.addEventListener('canplay', ()=>{ this.tries = 0; if(this.on && this.active && el.paused){ const p=el.play(); if(p&&p.catch) p.catch(()=>{}); } });
+    el.addEventListener('error', ()=>{ this.retry(); });
+  },
+  /* 换一个新的 audio 元素重拉：老元素被掐断后会永远停在 readyState=0 */
+  fresh(src){
+    const old = this.el; if(!old) return;
+    const el = document.createElement('audio');
+    el.id = old.id || 'bgm-player'; el.loop = true; el.preload = 'auto'; el.volume = old.volume;
+    if(old.parentNode) old.parentNode.replaceChild(el, old);
+    this.el = el; this.bind(el);
+    el.src = src;
+    const p = el.play(); if(p && p.catch) p.catch(()=>{});
+  },
+  /* 自愈重试：换新元素重新拉，最多 3 次 */
+  retry(){
+    const el = this.el;
+    if(!el || !this.on || !this.active || this.tries >= 3) return;
+    if(el.readyState > 1) return;
+    const src = (this.custom && this.custom.src) ? this.custom.src : MP_PRESETS[this.i].src;
+    if(!src) return;
+    this.tries++;
+    clearTimeout(this.watch);
+    this.fresh(src);
+    this.watchdog();
+  },
+  watchdog(){
+    clearTimeout(this.watch);
+    this.watch = setTimeout(()=>{ this.retry(); }, 2500);
   },
   track(){ return this.custom || MP_PRESETS[this.i]; },
   paint(playing){
@@ -7316,6 +7361,7 @@ const PLAYER = {
     try{ localStorage.setItem(MP_ON_KEY,'1'); }catch(e){}
     this.ensureSrc();
     const p = this.el.play(); if(p && p.catch) p.catch(()=>{});
+    this.tries = 0; this.watchdog();
   },
   /* 第一次进博客页时才给音频元素分配音源 */
   ensureSrc(){
@@ -7332,16 +7378,14 @@ const PLAYER = {
   },
   /* 兜底：请求被掐断时重拉一次 */
   revive(){
-    const el = this.el; if(!el || !this.on || !this.active) return;
-    if(el.readyState > 1) return;
-    try{ el.load(); }catch(e){}
-    const p = el.play(); if(p && p.catch) p.catch(()=>{});
+    this.retry();
   },
   toggle(){
     if(!this.el) return;
     if(this.el.paused){ this.start(); }
     else{
       this.on = false; this.el.pause();
+      clearTimeout(this.watch);
       try{ localStorage.setItem(MP_ON_KEY,'0'); }catch(e){}
     }
   },
@@ -7352,6 +7396,7 @@ const PLAYER = {
     this.custom = null;
     this.el.src = MP_PRESETS[this.i].src;
     this.paint(false); this.paintTime();
+    this.tries = 0; this.watchdog();
   },
   step(dir){
     if(!this.el) return;
@@ -7363,10 +7408,11 @@ const PLAYER = {
     this.active = true;
     if(!this.ready) this.init();
     this.ensureSrc();
-    if(this.el && this.on){ const p=this.el.play(); if(p && p.catch) p.catch(()=>{}); }
+    if(this.el && this.on){ const p=this.el.play(); if(p && p.catch) p.catch(()=>{}); this.tries = 0; this.watchdog(); }
   },
   leave(){
     this.active = false;
+    clearTimeout(this.watch);
     if(this.el && !this.el.paused) this.el.pause();
   },
   takeSong(f){
