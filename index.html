@@ -7250,14 +7250,17 @@ const MP_PRESETS = [
   {name:'多幸运',   artist:'你的歌单', src:'assets/audio/duoxingyun.mp3'}
 ];
 const PLAYER = {
-  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'',
+  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'', fetched:false,
   init(){
     if(this.ready) return;
     this.el = $('#bgm-player'); if(!this.el) return;
     this.ready = true;
     this.el.loop = true;
     this.el.volume = 0.5;
-    /* 音频不预载：进博客页才拉，避免每次打开首页都白下 4MB */
+    /* 音频延后预取：进博客页才响，但用户一有动作就开始在后台备好，进页面立刻有声 */
+    const kick=()=>this.prefetch();
+    ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev, kick, {passive:true, once:true}));
+    setTimeout(kick, 6000);
     const img = $('#mpCoverImg');
     if(img) this.defCover = img.getAttribute('src') || '';
     try{
@@ -7320,9 +7323,16 @@ const PLAYER = {
     if(el.getAttribute('src')) return;
     el.src = (this.custom && this.custom.src) ? this.custom.src : MP_PRESETS[this.i].src;
   },
+  /* 后台预取：只把音频拉下来，不出声（不在博客页时不会响） */
+  prefetch(){
+    if(this.fetched) return;
+    this.fetched = true;
+    const el = this.el; if(!el || el.getAttribute('src')) return;
+    el.src = MP_PRESETS[this.i].src;
+  },
   /* 兜底：请求被掐断时重拉一次 */
   revive(){
-    const el = this.el; if(!el || !this.on) return;
+    const el = this.el; if(!el || !this.on || !this.active) return;
     if(el.readyState > 1) return;
     try{ el.load(); }catch(e){}
     const p = el.play(); if(p && p.catch) p.catch(()=>{});
