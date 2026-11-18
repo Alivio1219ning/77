@@ -752,11 +752,11 @@ button{cursor:pointer;border:0;background:none}
   padding:6px 11px;border-bottom:1px solid #ECD9DE;
   background:linear-gradient(90deg,#FCEEF3 0%,#FFF7EF 26%,#FDEFF6 50%,#FFF7EF 74%,#FCEEF3 100%);
   font-family:var(--serif);font-size:14px;letter-spacing:.24em;color:#8C7A70;white-space:nowrap}
-/* 标题两侧：微光小星 + 细长波浪丝带装饰（同时补齐卡片上两角星星） */
-.w1-band::before,.w1-band::after{font-size:12px;color:#D9B7C6;letter-spacing:-2px;
+/* 标题两侧：只留一颗微光小星，删掉丑陋的紫色波浪丝带 */
+.w1-band::before,.w1-band::after{font-size:12px;color:#E0C3CF;letter-spacing:0;
   text-shadow:0 1px 0 rgba(255,255,255,.85)}
-.w1-band::before{content:"✦∿∿"}
-.w1-band::after{content:"∿∿✦"}
+.w1-band::before{content:"✦"}
+.w1-band::after{content:"✦"}
 .w1-band.has-act{justify-content:space-between}
 .w1-band.has-act::before{letter-spacing:0}
 .w1-band .band-t{display:flex;align-items:center;gap:6px}
@@ -957,12 +957,13 @@ button{cursor:pointer;border:0;background:none}
 .welcome-foot{margin-top:9px;padding-left:4px;font-size:12px;letter-spacing:.12em;color:#C0B4A6}
 .welcome-art{flex:0 0 62px;height:62px;opacity:.86}
 .welcome-art svg{width:100%;height:100%;display:block}
-/* 留言板：固定 350px，消息贴底，上方留白＝更早的留言 */
-.chat-card{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
-.chat-card .w1-body{padding:0;display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
-.chat-list{flex:1 1 auto;height:auto;min-height:320px;overflow-y:auto;padding:9px;background:#FFFDFA;
+/* 留言板：卡片固定 400px，flex 严格控高
+   —— 消息区自己滚动（flex:1 + overflow-y:auto），底部输入区 flex-shrink:0 永远钉在卡片最底部 */
+.chat-card{flex:0 0 auto;height:400px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.chat-card .w1-body{padding:0;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}
+.chat-list{flex:1 1 auto;height:auto;min-height:0;overflow-y:auto;padding:13px 12px;background:#FFFDFA;
   display:flex;flex-direction:column;scroll-behavior:smooth;scrollbar-width:thin;overflow-x:hidden}
-.chat-inner{margin-top:auto;display:flex;flex-direction:column}
+.chat-inner{margin-top:0;display:flex;flex-direction:column}
 /* 标签云：Web 1.0 的老朋友 */
 .tag-cloud{display:flex;flex-wrap:wrap;gap:5px}
 .tag{font-size:14px;line-height:1.7;padding:1px 7px;border:1px solid rgba(217,198,165,.72);
@@ -971,20 +972,30 @@ button{cursor:pointer;border:0;background:none}
 .tag.s{font-size:13px;color:#AA9C87}
 .tag:hover{background:#FFF6E6;color:#8A6A46}
 .chat-empty{font-size:15px;color:#B4ACA4;text-align:center;padding:24px 8px;line-height:2}
-.tree-msg{padding:5px 8px 6px;margin:0 0 5px;background:#fff;border:1px solid rgba(217,198,165,.34);
-  border-left:3px solid #EBD8D8}
-.tree-msg.self{border-left-color:#D9C6A5;background:#FFFCF4}
-.tree-msg .tm-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+/* 便签纸：淡粉纸面 + 轻微倾斜 + 右上角极淡小星（没有生硬的实线边框） */
+.tree-msg{position:relative;padding:16px;margin:0 0 16px;background:#FFF9F9;border:none;
+  border-radius:4px;box-shadow:2px 4px 10px rgba(0,0,0,.03);transform:rotate(-.5deg)}
+.tree-msg.self{background:#FFF9F9}
+.tree-msg::after{content:"✦";position:absolute;top:9px;right:13px;font-size:15px;line-height:1;
+  color:#F7E1E1;pointer-events:none}
+.tree-msg .tm-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-right:26px}
 .tree-msg .tm-name{font-size:16px;color:#8C7B6B;letter-spacing:.02em}
+.tree-msg.self .tm-name{color:#A8798C}
 .tree-msg .tm-time{font-size:13px;color:#B7AFA6;white-space:nowrap;font-variant-numeric:tabular-nums}
-.tree-msg .tm-content{font-size:17px;line-height:1.8;color:#5F5850;word-break:break-word;margin-top:2px}
-.tree-input{display:flex;align-items:stretch;border-top:1px solid rgba(217,198,165,.45);background:#FFFDF7}
-.tree-input input{flex:1;min-width:0;padding:9px 11px;border:0;background:transparent;outline:none;font-size:17px}
+.tree-msg .tm-content{font-size:17px;line-height:1.8;color:#5F5850;word-break:break-word;margin-top:4px}
+/* 输入区：固定在最底部，永不被消息挤出卡片 */
+.tree-input{display:flex;align-items:center;gap:9px;padding:9px 12px 11px;
+  border-top:1px solid rgba(217,198,165,.3);background:#FFFDF7;flex:0 0 auto}
+.tree-input input{flex:1;min-width:0;padding:8px 2px 9px;border:none;border-bottom:1px dashed #EFC9CE;
+  background:transparent;outline:none;font-size:17px;color:#4A4453}
 .tree-input input::placeholder{color:#C3B9AC}
-.tree-input .px-btn{border:0;border-left:1px solid rgba(217,198,165,.6);box-shadow:none;padding:0 14px;font-size:14.5px}
+.tree-input .px-btn{flex:0 0 auto;border:none;border-radius:9px;background:#F7E1E1;color:#8C6A76;
+  box-shadow:none;padding:9px 18px;font-size:14.5px;font-weight:400}
+.tree-input .px-btn:hover{background:#F2D5D7;color:#7A5764}
 .tree-count{font-size:13px;color:#B4ACA4;letter-spacing:.06em}
-.chat-note{padding:5px 10px 14px;border-top:1px dashed rgba(217,198,165,.5);background:#FFFCF5;
-  font-size:13px;letter-spacing:.06em;color:#BFB3A2;display:flex;justify-content:space-between;gap:8px}
+.chat-note{padding:5px 12px 7px;border-top:1px dashed rgba(217,198,165,.5);background:#FFFCF5;
+  font-size:13px;letter-spacing:.06em;color:#BFB3A2;display:flex;justify-content:space-between;gap:8px;
+  flex:0 0 auto}
 
 /* 关于本站（Web 1.0 招牌信息盒） */
 .about-box{display:flex;flex-direction:column;gap:0}
@@ -1108,7 +1119,7 @@ button{cursor:pointer;border:0;background:none}
   .bb-caption h1{font-size:26px}
   .bb-mark{right:10px;top:10px;width:64px;height:64px;font-size:10px}
   .bb-mark b{font-size:15px}
-  .chat-list{height:300px}
+  .chat-card{height:330px}
   .post-row{grid-template-columns:88px minmax(0,1fr) 26px 18px;gap:5px;padding:7px 8px}
   .post-date{font-size:13px}
   .pm-paper{width:92%;height:78%;padding:32px 24px 44px}
@@ -1811,15 +1822,9 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   animation:softGlowFade 1.5s ease forwards}
 @keyframes softGlowFade{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
 
-/* ---------- 树洞：像真实纸张一样轻微错落（静态，绝无消失/模糊动画） ---------- */
-.tree-msg{margin-left:var(--jitter,0px);
-  box-shadow:1px 2px 0 rgba(190,175,158,.14),2px 4px 8px rgba(160,140,120,.05)}
-.tree-msg:nth-child(5n+1){transform:rotate(-.42deg)}
-.tree-msg:nth-child(5n+2){transform:rotate(.32deg)}
-.tree-msg:nth-child(5n+3){transform:rotate(-.18deg) translateX(2px)}
-.tree-msg:nth-child(5n+4){transform:rotate(.46deg)}
-.tree-msg:nth-child(5n){transform:rotate(-.3deg) translateX(-2px)}
-.tree-msg.self{transform:rotate(.28deg)}
+/* ---------- 树洞：便签纸轻微错落（静态，绝无消失/模糊动画） ----------
+   倾斜角统一写死 -0.5deg（见 .tree-msg），这里只补一点水平抖动，不再覆盖 transform */
+.tree-msg{margin-left:var(--jitter,0px)}
 
 /* ==========================================================================================
    一、像素小人：贴地基准 + 全套动作帧
@@ -4809,11 +4814,11 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
           <h3 class="w1-band has-act"><span class="band-t">Chat · 树洞留言板</span><span class="tree-count" id="treeCount"></span></h3>
           <div class="w1-body">
             <div class="chat-list" id="treeList"></div>
+            <div class="chat-note"><span class="cn-mark">✦</span><span id="chatTotal"></span></div>
             <div class="tree-input">
               <input id="treeInput" maxlength="200" placeholder="想说点什么？留在这里，永远不会消失。">
               <button class="px-btn" id="treeSend">留下</button>
             </div>
-            <div class="chat-note"><span class="cn-mark">✦</span><span id="chatTotal"></span></div>
           </div>
         </section>
 
@@ -7018,10 +7023,14 @@ function maybeSpawnGuest(){
   renderTree(true);
   setTimeout(()=>toast('树洞里来了一位新客人 ✦'), 400);
 }
-function renderTree(scrollBottom=false){
-  const list=getTree().slice().sort((a,b)=>a.ts-b.ts);
+function renderTree(scrollTop=false){
+  /* 强制按时间倒序排列（最新的在最前）；时间不可解析时退回 .reverse() */
+  const raw=getTree().slice();
+  const stamp=m=>{ const v=(m&&(m.ts!=null?m.ts:(m.time!=null?m.time:0))); const d=new Date(v); return isNaN(d.getTime())?0:d.getTime(); };
+  let list=raw.slice().sort((a,b)=>stamp(b)-stamp(a));
+  if(!list.length || list.every(m=>stamp(m)===0)) list=raw.reverse();
   const box=$('#treeList'); box.innerHTML='';
-  /* 内层容器 + margin-top:auto：消息贴着底部像聊天窗，上方留白就是更早的留言 */
+  /* 内层容器：最新在最上（第一条就是最新留言），不再用 margin-top:auto 顶出大片死白 */
   const inner=document.createElement('div'); inner.className='chat-inner';
   list.forEach(m=>{
     const d=document.createElement('div'); d.className='tree-msg'+(m.type==='self'?' self':'');
@@ -7036,10 +7045,10 @@ function renderTree(scrollBottom=false){
   });
   box.appendChild(inner);
   $('#treeCount').textContent=`共 ${list.length} 条 · 永久留存`;
-  if(scrollBottom) requestAnimationFrame(()=>{
-    /* 平滑滚到最底部；jsdom 等无 scrollTo 的环境退回直接赋值 */
-    if(typeof box.scrollTo==='function') box.scrollTo({top:box.scrollHeight,behavior:'smooth'});
-    else box.scrollTop=box.scrollHeight;
+  if(scrollTop) requestAnimationFrame(()=>{
+    /* 最新在最上面：渲染后回到顶部 */
+    if(typeof box.scrollTo==='function') box.scrollTo({top:0,behavior:'smooth'});
+    else box.scrollTop=0;
   });
 }
 function sendTreeMsg(){
