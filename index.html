@@ -7220,8 +7220,9 @@ const BGM = {
   play(src){
     if(!this.el || !src) return;
     this.live = true;
-    const el = this.el, gen = ++this.seq;
+    const gen = ++this.seq;
     if(this.src === src){
+      const el = this.el;
       if(el.paused){ const p = el.play(); if(p && p.catch) p.catch(()=>{}); }
       this.ramp(BGM_VOL, 600);
       this.watchdog(gen);
@@ -7229,14 +7230,13 @@ const BGM = {
     }
     this.src = src; this.tries = 0;
     const swap = ()=>{
-      /* 只换 src，不调 load()：load() 会掐断正在进行的媒体请求，
-         在 CDN 上表现为永远 readyState=0（听得见却没数据）。 */
-      el.src = src; el.volume = 0;
-      const p = el.play(); if(p && p.catch) p.catch(()=>{});
+      /* 换新元素切歌：老元素在切歌瞬间被 CDN 掐断后会永远停在 readyState=0，
+         换成新元素从头拉一次，永远是最干净的状态。 */
+      this.fresh(src);
       if(gen === this.seq) this.ramp(BGM_VOL, 700);
       this.watchdog(gen);
     };
-    if(!el.paused) this.ramp(0, 220).then(()=>{ if(gen === this.seq) swap(); });
+    if(this.el && !this.el.paused) this.ramp(0, 220).then(()=>{ if(gen === this.seq) swap(); });
     else swap();
   },
   pause(){
@@ -7394,7 +7394,8 @@ const PLAYER = {
     const n = MP_PRESETS.length;
     this.i = ((i % n) + n) % n;
     this.custom = null;
-    this.el.src = MP_PRESETS[this.i].src;
+    /* 换新元素切歌：老元素被掐断后会永远停在 readyState=0 */
+    this.fresh(MP_PRESETS[this.i].src);
     this.paint(false); this.paintTime();
     this.tries = 0; this.watchdog();
   },
@@ -7421,8 +7422,7 @@ const PLAYER = {
     if(old && old.indexOf('blob:') === 0){ try{ URL.revokeObjectURL(old); }catch(e){} }
     const url = URL.createObjectURL(f);
     this.custom = { name:(f.name || '私藏').replace(/\.[^.]+$/,'').slice(0,40), artist:'你的私藏', src:url };
-    this.el.src = url;
-    this.el.loop = true;
+    this.fresh(url);
     this.paint(false); this.paintTime();
     this.start();
     try{
