@@ -706,6 +706,7 @@ button{cursor:pointer;border:0;background:none}
   background:rgba(255,253,248,.7);font-size:13.5px;letter-spacing:.1em;color:#A2937F}
 .blog-strip b{font-weight:400;color:#8E7A5F}
 .blog-strip .bs-dot{color:#D6C6AC}
+.blog-strip .bs-quiet{margin-left:auto;font-size:12.5px;letter-spacing:.18em;color:#C5B7A3}
 
 /* ---------- 2. 通用卡片：双层边框（外浅粉 / 内香槟金细虚线）+ 渐变波浪标题栏 ---------- */
 .w1-card{position:relative;background:#fff;
@@ -752,17 +753,14 @@ button{cursor:pointer;border:0;background:none}
   align-items:center;justify-content:center;overflow:hidden}
 #profileAvatar .px-avatar{width:74px;height:auto;animation:none;filter:none}
 #profileAvatar .pf-img{display:block;width:100%;height:100%;object-fit:cover}
-.pf-hint{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:3px 0;text-align:center;
-  font-size:12.5px;letter-spacing:.16em;color:#FFFAF2;background:rgba(122,101,84,.58);
-  opacity:0;transition:opacity .18s ease}
-.profile-frame:hover .pf-hint{opacity:1}
+.profile-frame:hover{border-color:#E2C49B;box-shadow:0 0 0 1px #fff inset,0 0 0 3px rgba(250,232,232,.9),0 4px 16px rgba(202,170,140,.26)}
+.profile-frame:active{transform:translateY(1px)}
 .profile-name{font-family:var(--hand);font-size:26px;line-height:1.3;text-align:center;color:#7A6C5D;
   max-width:100%;padding:0 6px;border-bottom:1px dashed transparent;outline:none;transition:.18s}
 .profile-sign{font-size:14.5px;line-height:1.85;text-align:center;color:#8C847D;max-width:100%;
   padding:1px 6px;border-bottom:1px dashed transparent;outline:none;transition:.18s}
-.profile-name:hover,.profile-sign:hover{border-bottom-color:rgba(217,198,165,.9);background:#FFFCF5}
+.profile-name:hover,.profile-sign:hover{border-bottom-color:rgba(217,198,165,.9);background:#FFFCF5;cursor:pointer}
 .profile-name:focus,.profile-sign:focus{border-bottom-color:var(--gold);background:#FFFBF2;color:#6F6255}
-.pf-edit-tip{font-size:12.5px;letter-spacing:.1em;color:#C2B5A2}
 .profile-meta{display:grid;grid-template-columns:repeat(3,1fr);width:100%;
   border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
 .profile-meta>div{padding:5px 0 4px;text-align:center;border-right:1px solid var(--line-soft)}
@@ -849,18 +847,88 @@ button{cursor:pointer;border:0;background:none}
 .mini-form-toggle:active{transform:translate(1px,1px);box-shadow:none}
 .mini-form-now{font-family:var(--serif);font-size:12px;letter-spacing:.08em;color:#B4A28C}
 
+/* ---------- 3.2c 音乐播放器：贴在网格纸上的粉色便签 ---------- */
+.mp-card{background:linear-gradient(180deg,#FFFDFE 0%,#FFFAFB 100%);border-radius:3px;
+  border:1px solid #F7E1E1;outline:1px dashed #F3CBD9;outline-offset:-4px;
+  box-shadow:0 3px 10px rgba(214,170,185,.13),inset 0 0 0 3px rgba(255,255,255,.92)}
+/* 右上角：纯 CSS 画的粉色回形针 */
+.mp-clip{position:absolute;right:9px;top:-10px;width:13px;height:32px;z-index:6;pointer-events:none;
+  border:2px solid #F2A6BC;border-radius:8px;border-bottom-color:transparent;
+  transform:rotate(13deg);box-shadow:-1px 1px 0 rgba(255,255,255,.9)}
+.mp-clip::before{content:"";position:absolute;left:1.5px;top:5px;width:5px;height:21px;
+  border:1.6px solid #F8C3D2;border-radius:6px;border-bottom-color:transparent}
+.mp-head{display:flex;align-items:center;gap:6px;padding:7px 32px 6px 11px;
+  background:linear-gradient(90deg,#FFF4F7 0%,#FDF0F8 48%,#FFF7F1 100%);
+  border-bottom:1px dashed #F4CCDA}
+.mp-note{font-size:13.5px;line-height:1;color:#E489A6;transform:translateY(-1px)}
+.mp-now{font-family:var(--serif);font-size:11.5px;letter-spacing:.26em;color:#B98A9B}
+.mp-dots{margin-left:auto;display:flex;gap:3px;font-style:normal}
+.mp-dots b{width:4px;height:4px;border-radius:50%;background:#F5B9CA;display:block}
+.mp-body{padding:9px 10px 11px}
+.mp-cover{position:relative;width:100%;height:140px;overflow:hidden;cursor:pointer;
+  border:1px solid #F3DAE2;background:#FDF7F9;
+  box-shadow:inset 0 0 0 4px #fff,inset 0 0 16px rgba(196,150,162,.26),0 1px 3px rgba(186,150,160,.14)}
+.mp-cover img{width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .5s ease,filter .4s ease}
+.mp-cover:hover img{transform:scale(1.035);filter:brightness(1.05)}
+.mp-cover::after{content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),inset 0 -22px 26px -18px rgba(160,120,135,.35)}
+.mp-title{margin-top:9px;font-family:var(--hand);font-size:16px;line-height:1.5;color:#C4708C;
+  text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em}
+.mp-artist{margin-top:1px;font-size:12px;line-height:1.6;color:#BCAFB6;text-align:center;letter-spacing:.08em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 进度条：细杆 + 圆润亮粉滑块 */
+.mp-range{-webkit-appearance:none;appearance:none;display:block;width:100%;height:5px;
+  margin:10px 0 0;border-radius:3px;outline:none;cursor:pointer;
+  background:linear-gradient(90deg,#F58FB4 0%,#F9B7CE var(--mp-p,0%),#F4E4E9 var(--mp-p,0%),#F4E4E9 100%)}
+.mp-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;
+  background:radial-gradient(circle at 33% 28%,#FFD8E5,#EE6E97 72%);
+  border:1.6px solid #fff;box-shadow:0 1px 5px rgba(228,110,150,.55);cursor:pointer}
+.mp-range::-moz-range-thumb{width:12px;height:12px;border-radius:50%;border:1.6px solid #fff;
+  background:radial-gradient(circle at 33% 28%,#FFD8E5,#EE6E97 72%);box-shadow:0 1px 5px rgba(228,110,150,.55)}
+.mp-ctrl{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:11px}
+.mp-btn{position:relative;width:30px;height:27px;padding:0;display:flex;align-items:center;justify-content:center;
+  border:1px solid #F6CEDA;border-radius:5px;cursor:pointer;color:#E187A6;
+  background:linear-gradient(180deg,#FFFDFE 0%,#FDF0F5 100%);
+  box-shadow:inset 0 1px 0 #fff,1px 1px 0 rgba(240,190,205,.35);transition:.16s ease}
+.mp-btn svg{width:13px;height:13px;display:block}
+.mp-btn:hover{border-color:#EFB3C6;background:linear-gradient(180deg,#FFF 0%,#FCE4EE 100%);
+  color:#D96A90;transform:translateY(-1px);box-shadow:0 3px 8px rgba(228,140,170,.22),inset 0 1px 0 #fff}
+.mp-btn:active{transform:translateY(0);box-shadow:none}
+.mp-btn.play{width:34px;height:30px;color:#D96A90;border-color:#F3C2D2}
+.mp-btn.play svg{width:15px;height:15px}
+.mp-btn .ico-pause{display:none}
+.mp-card.playing .mp-btn .ico-play{display:none}
+.mp-card.playing .mp-btn .ico-pause{display:block}
+/* 无痕上传：悬停才浮出一行极小的提示 */
+.mp-upload .mp-tip{position:absolute;right:-2px;bottom:calc(100% + 7px);white-space:nowrap;
+  font-size:10.5px;letter-spacing:.04em;color:#B0768D;background:#FFF9FB;border:1px solid #F7D8E2;
+  padding:2px 7px;border-radius:9px;opacity:0;pointer-events:none;transform:translateY(3px);
+  transition:opacity .2s ease,transform .2s ease;box-shadow:0 2px 7px rgba(214,160,182,.2);z-index:12}
+.mp-upload:hover .mp-tip{opacity:1;transform:translateY(0)}
+/* 封面被点开选图时的柔光，代替一切文字提示 */
+.mp-cover.picking{box-shadow:inset 0 0 0 4px #fff,0 0 0 2px #F3C2D2,0 0 16px rgba(240,170,194,.55)}
+
 /* ---------- 3.3 欢迎 + 留言板 ---------- */
-.welcome-body{display:flex;gap:10px;align-items:flex-start}
-.welcome-txt{flex:1;min-width:0;font-size:18px;line-height:1.9;color:#6B625A}
-.welcome-txt .wb-lead{font-family:var(--hand);font-size:18px;color:#8A7458;line-height:1.6;margin-bottom:4px}
-.welcome-txt em{font-style:normal;color:#B08E62;background:linear-gradient(180deg,transparent 62%,rgba(247,225,225,.9) 62%)}
-.welcome-art{flex:0 0 66px;height:66px}
+.welcome-body{display:flex;gap:12px;align-items:flex-start;padding:14px 13px 12px}
+.welcome-main{flex:1;min-width:0}
+/* 静默可编辑：平时就是一段普通文字，悬停才透出一点可以改的暗示 */
+.welcome-txt{font-size:16px;line-height:2;color:#4A3B2E;letter-spacing:.02em;
+  padding:1px 4px 2px;border-bottom:1px dashed transparent;border-radius:3px;outline:none;
+  cursor:text;white-space:pre-wrap;word-break:break-word;
+  transition:background .22s ease,box-shadow .22s ease,border-color .22s ease}
+.welcome-txt:hover{background:#FFFCF4;border-bottom-color:rgba(219,190,150,.75);
+  box-shadow:0 0 12px rgba(247,225,225,.55)}
+.welcome-txt:focus{background:#FFFAF0;border-bottom-color:#E2C69F;
+  box-shadow:0 0 0 3px rgba(247,225,225,.7),0 2px 12px rgba(228,196,150,.18);color:#453626}
+.welcome-foot{margin-top:9px;padding-left:4px;font-size:12px;letter-spacing:.12em;color:#C0B4A6}
+.welcome-art{flex:0 0 62px;height:62px;opacity:.86}
 .welcome-art svg{width:100%;height:100%;display:block}
 /* 留言板：固定 350px，消息贴底，上方留白＝更早的留言 */
-.chat-card{flex:0 0 auto;display:flex;flex-direction:column}
-.chat-card .w1-body{padding:0;display:flex;flex-direction:column}
-.chat-list{flex:0 0 auto;height:430px;min-height:430px;overflow-y:scroll;padding:9px;background:#FFFDFA;
-  display:flex;flex-direction:column;scroll-behavior:smooth;scrollbar-width:thin}
+.chat-card{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.chat-card .w1-body{padding:0;display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.chat-list{flex:1 1 auto;height:auto;min-height:320px;overflow-y:auto;padding:9px;background:#FFFDFA;
+  display:flex;flex-direction:column;scroll-behavior:smooth;scrollbar-width:thin;overflow-x:hidden}
 .chat-inner{margin-top:auto;display:flex;flex-direction:column}
 /* 标签云：Web 1.0 的老朋友 */
 .tag-cloud{display:flex;flex-wrap:wrap;gap:5px}
@@ -882,7 +950,7 @@ button{cursor:pointer;border:0;background:none}
 .tree-input input::placeholder{color:#C3B9AC}
 .tree-input .px-btn{border:0;border-left:1px solid rgba(217,198,165,.6);box-shadow:none;padding:0 14px;font-size:14.5px}
 .tree-count{font-size:13px;color:#B4ACA4;letter-spacing:.06em}
-.chat-note{padding:4px 9px;border-top:1px dashed rgba(217,198,165,.5);background:#FFFCF5;
+.chat-note{padding:5px 10px 14px;border-top:1px dashed rgba(217,198,165,.5);background:#FFFCF5;
   font-size:13px;letter-spacing:.06em;color:#BFB3A2;display:flex;justify-content:space-between;gap:8px}
 
 /* 关于本站（Web 1.0 招牌信息盒） */
@@ -4077,6 +4145,8 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 </style>
 </head>
 <body>
+<audio id="bgm" preload="auto" loop></audio>
+<audio id="bgm-player" preload="auto" loop></audio>
 
 <!-- ============ 门禁 ============ -->
 <section class="screen" id="screen-gate">
@@ -4553,8 +4623,8 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
       <span>今天 <b id="bsToday">—</b></span><span class="bs-dot">|</span>
       <span>手账 <b id="bsPosts">0</b> 篇</span><span class="bs-dot">|</span>
       <span>留言 <b id="bsMsgs">0</b> 条</span><span class="bs-dot">|</span>
-      <span>星碎 <b id="bsStars">0</b> 颗</span><span class="bs-dot">|</span>
-      <span>本页自有记忆，关掉浏览器也不会消失</span>
+      <span>星碎 <b id="bsStars">0</b> 颗</span>
+      <span class="bs-quiet">时间在这里慢下来</span>
     </div>
 
     <!-- ---------- 2. 三列网格 ---------- -->
@@ -4566,14 +4636,12 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
           <h3 class="w1-band">Profile · 名片</h3>
           <div class="w1-body">
             <div class="pf-box">
-              <div class="profile-frame" id="profileFrame" title="点击更换头像">
+              <div class="profile-frame" id="profileFrame">
                 <div id="profileAvatar"></div>
-                <span class="pf-hint">点击更换</span>
               </div>
               <input type="file" id="avatarFile" accept="image/*" class="hidden">
               <div class="profile-name" id="profileName" contenteditable="true" spellcheck="false">77</div>
               <div class="profile-sign" id="profileSign" contenteditable="true" spellcheck="false">慢慢来，好汤都是慢火熬的。</div>
-              <div class="pf-edit-tip">↑ 轻点昵称与签名就能改</div>
               <div class="profile-meta">
                 <div><b id="pPostCount">0</b><span>篇手账</span></div>
                 <div><b id="pAchCount">0</b><span>枚成就</span></div>
@@ -4583,14 +4651,49 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
           </div>
         </section>
 
+        <section class="w1-card mp-card" id="musicCard">
+          <span class="mp-clip" aria-hidden="true"></span>
+          <div class="mp-head">
+            <span class="mp-note" aria-hidden="true">♪</span>
+            <span class="mp-now">NOW PLAYING</span>
+            <i class="mp-dots" aria-hidden="true"><b></b><b></b><b></b></i>
+          </div>
+          <div class="mp-body">
+            <div class="mp-cover" id="mpCover">
+              <img id="mpCoverImg" alt="" src="data:image/jpeg;base64,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">
+            </div>
+            <div class="mp-title" id="mpTitle">特别的人</div>
+            <div class="mp-artist" id="mpArtist">方大同</div>
+            <input type="range" class="mp-range" id="mpRange" min="0" max="1000" value="0" step="1" aria-label="播放进度">
+            <div class="mp-ctrl">
+              <button class="mp-btn" id="mpPrev" type="button" aria-label="上一首">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 5v14L8 12z" fill="currentColor" fill-opacity=".18"/><path d="M6 5v14"/></svg>
+              </button>
+              <button class="mp-btn play" id="mpPlay" type="button" aria-label="播放">
+                <svg class="ico-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M9 6.5v11l8.5-5.5z" fill="currentColor" fill-opacity=".28"/></svg>
+                <svg class="ico-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9.5 6.5v11M14.5 6.5v11"/></svg>
+              </button>
+              <button class="mp-btn" id="mpNext" type="button" aria-label="下一首">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14l10-7z" fill="currentColor" fill-opacity=".18"/><path d="M18 5v14"/></svg>
+              </button>
+              <button class="mp-btn mp-upload" id="mpUpload" type="button" aria-label="上传本地音乐">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="12" r="7.4"/><circle cx="12" cy="12" r="2.1"/><path d="M17.4 8.4v3.4a2.4 2.4 0 0 1-4.8 0V9.2" stroke-linecap="round"/></svg>
+                <span class="mp-tip">换一首私藏的歌</span>
+              </button>
+            </div>
+          </div>
+        </section>
+        <input type="file" id="mpFile" accept="audio/*" style="display:none">
+        <input type="file" id="mpCoverFile" accept="image/*" style="display:none">
+
         <section class="w1-card">
           <h3 class="w1-band">Little Room · 小房间</h3>
           <div class="w1-body" style="padding:9px 9px 8px">
             <div class="mini-room duo" id="miniRoom">
               <div class="mini-win"><i></i><i></i><i></i><i></i><b></b></div>
               <div class="mini-rug"></div>
-              <div class="mini-char duo-player" id="miniChar" title="点一下"></div>
-              <div class="mini-char duo-npc" id="miniNpc" title="点一下"></div>
+              <div class="mini-char duo-player" id="miniChar"></div>
+              <div class="mini-char duo-npc" id="miniNpc"></div>
               <div class="mini-mate" id="miniMate"></div>
               <div class="mini-say" id="miniSay">今天也见面啦 ✦</div>
               <div class="mini-hearts" id="miniHearts"></div>
@@ -4618,20 +4721,35 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
         <section class="w1-card">
           <h3 class="w1-band">Welcome · 欢迎</h3>
           <div class="w1-body welcome-body">
-            <div class="welcome-txt">
-              <div class="wb-lead" id="bannerLead">欢迎来到 77 的小天地。</div>
-              这里放着我的手账、树洞留言，还有一个可以走进去的小游戏。
-              不用赶时间，<em>随便翻开哪一页都可以</em>。
-              <div style="margin-top:5px;font-size:13px;letter-spacing:.1em;color:#B4ACA4">最后更新 <span id="bsUpdated">—</span></div>
+            <div class="welcome-main">
+              <div class="welcome-txt" id="welcomeText" contenteditable="true" spellcheck="false">这里是你的小空间，随便写点什么都可以！</div>
+              <div class="welcome-foot">最后更新 <span id="bsUpdated">—</span></div>
             </div>
             <div class="welcome-art" aria-hidden="true">
               <svg viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="33" cy="33" r="26" fill="#FDF7EC"/>
-                <circle cx="33" cy="33" r="13" fill="#F7E4C6" opacity=".9"/>
-                <g stroke="#DCC49A" stroke-width="1.2" stroke-linecap="round" opacity=".75">
-                  <path d="M33 6v6M33 54v6M6 33h6M54 33h6M14 14l4 4M48 48l4 4M52 14l-4 4M18 48l-4 4"/>
+                <g fill="none" stroke="#EFCFDA" stroke-width=".9" opacity=".75">
+                  <circle cx="33" cy="33" r="26" stroke-dasharray="1.4 4.2"/>
+                  <circle cx="33" cy="33" r="21" stroke-dasharray=".9 3.6" opacity=".7"/>
                 </g>
-                <path d="M33 26l1.9 4.8 4.8 1.9-4.8 1.9L33 39.4l-1.9-4.8-4.8-1.9 4.8-1.9z" fill="#E3C89D"/>
+                <g transform="translate(33 33)" opacity=".62">
+                  <g fill="#FCE6ED" stroke="#E6C3D0" stroke-width=".7">
+                    <ellipse cx="0" cy="-9.6" rx="4.6" ry="8.6"/>
+                    <ellipse cx="0" cy="-9.6" rx="4.6" ry="8.6" transform="rotate(60)"/>
+                    <ellipse cx="0" cy="-9.6" rx="4.6" ry="8.6" transform="rotate(120)"/>
+                    <ellipse cx="0" cy="-9.6" rx="4.6" ry="8.6" transform="rotate(180)"/>
+                    <ellipse cx="0" cy="-9.6" rx="4.6" ry="8.6" transform="rotate(240)"/>
+                    <ellipse cx="0" cy="-9.6" rx="4.6" ry="8.6" transform="rotate(300)"/>
+                  </g>
+                  <circle r="4.1" fill="#FFF8FA" stroke="#E8C6D2" stroke-width=".7"/>
+                  <g fill="#E9C3D1" opacity=".85">
+                    <circle cx="0" cy="-1.9" r=".75"/><circle cx="0" cy="1.9" r=".75"/>
+                    <circle cx="-1.9" cy="0" r=".75"/><circle cx="1.9" cy="0" r=".75"/>
+                  </g>
+                </g>
+                <g fill="#EFD3DC" opacity=".8">
+                  <circle cx="12" cy="16" r="1"/><circle cx="54" cy="20" r=".9"/>
+                  <circle cx="15" cy="50" r=".9"/><circle cx="51" cy="49" r="1"/>
+                </g>
               </svg>
             </div>
           </div>
@@ -4645,7 +4763,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
               <input id="treeInput" maxlength="200" placeholder="想说点什么？留在这里，永远不会消失。">
               <button class="px-btn" id="treeSend">留下</button>
             </div>
-            <div class="chat-note"><span>✦ 全部留言存在这台设备的本地存档里</span><span id="chatTotal"></span></div>
+            <div class="chat-note"><span class="cn-mark">✦</span><span id="chatTotal"></span></div>
           </div>
         </section>
 
@@ -4677,7 +4795,7 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
           <h3 class="w1-band">Updates · 最近</h3>
           <div class="w1-body">
             <ul class="upd-list" id="updList"></ul>
-            <div class="upd-foot">— 日志来自本地存档 —</div>
+            <div class="upd-foot">✦</div>
           </div>
         </section>
 
@@ -6017,6 +6135,7 @@ function renderRoute(name, state){
   $('#ribbonNav').classList.toggle('hidden', target==='gate' || target==='game');
   $$('#ribbonNav [data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav===target));
   S.screen = target;
+  if(typeof bgmRoute==='function') bgmRoute(target);
   window.scrollTo(0,0);
   if(target==='letter') onEnterLetter();
   if(target==='cake') onEnterCake();
@@ -6619,7 +6738,6 @@ function refreshProfile(soft){
   /* 手账页大标题与欢迎语也跟着昵称走，改名之后整页统一 */
   const nn=(g.profile && g.profile.name) || '77';
   if($('#bannerTitle')) $('#bannerTitle').textContent = nn+' 的星蕾手账';
-  if($('#bannerLead')) $('#bannerLead').textContent = '欢迎来到 '+nn+' 的小天地。';
   if($('#profileSign')) $('#profileSign').textContent = (g.profile && g.profile.sign) || '慢慢来，好汤都是慢火熬的。';
   if($('#pPostCount')) $('#pPostCount').textContent = getPosts().length;
   if($('#pAchCount')) $('#pAchCount').textContent = (g.achievements||[]).length;
@@ -6708,7 +6826,7 @@ function postDateParts(ts){
 function renderPosts(){
   const posts=getPosts().slice().sort((a,b)=>b.ts-a.ts);
   const box=$('#postList'); if(!box) return;
-  if(!posts.length){ box.innerHTML='<div class="empty-note">还没有手账。点右上角「✎ 写下今天」，留一页给今天吧。</div>'; return; }
+  if(!posts.length){ box.innerHTML='<div class="empty-note">还没有手账。留一页给今天吧。</div>'; return; }
   box.innerHTML = posts.map(p=>{
     const {date,time}=postDateParts(p.ts);
     return `<article class="post-item" data-id="${esc(p.id)}">
@@ -6906,7 +7024,7 @@ function initBlog(){
   const ts=$('#treeSend'); if(ts) ts.onclick=sendTreeMsg;
   const ti=$('#treeInput');
   if(ti) ti.addEventListener('keydown',e=>{ if(e.key==='Enter') sendTreeMsg(); });
-  /* 头像：悬停提示「点击更换」，点击唤起本地选图 */
+  /* 头像：悬停只让边框变金发亮，点一下唤起本地选图（页面不写任何提示） */
   const pf=$('#profileFrame'), af=$('#avatarFile');
   if(pf && af) pf.onclick=()=>af.click();
   if(af) af.onchange=handleAvatarFile;
@@ -6937,7 +7055,258 @@ function initBlog(){
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape'){ const md=$('#postModal'); if(md && md.classList.contains('on')) closePostModal(); }
   });
+  initWelcomeText(); BGM.init(); PLAYER.init();
 }
+
+/* ========================================================== 静默可编辑的欢迎语 ==========================================================
+   没有任何「点击可编辑」字样：悬停时文字微微发亮、光标变成输入态，失焦即存进 77_welcome_text。
+   ============================================================================================================================== */
+const WELCOME_KEY='77_welcome_text';
+const WELCOME_DEFAULT='这里是你的小空间，随便写点什么都可以！';
+function initWelcomeText(){
+  const el=$('#welcomeText'); if(!el) return;
+  let saved='';
+  try{ saved=localStorage.getItem(WELCOME_KEY)||''; }catch(e){}
+  el.textContent = saved.trim() || WELCOME_DEFAULT;
+  let before = el.textContent;
+  el.addEventListener('focus', ()=>{ before = el.textContent; });
+  el.addEventListener('keydown', ev=>{
+    if(ev.key==='Enter'){ ev.preventDefault(); el.blur(); }
+    if(ev.key==='Escape'){ el.textContent=before; el.blur(); }
+  });
+  el.addEventListener('paste', ev=>{
+    ev.preventDefault();
+    const t=((ev.clipboardData||window.clipboardData).getData('text')||'').replace(/\s+/g,' ');
+    try{ document.execCommand('insertText', false, t); }catch(e){}
+  });
+  el.addEventListener('blur', ()=>{
+    const v = el.textContent.replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();
+    const val = v || WELCOME_DEFAULT;
+    el.textContent = val;
+    try{ localStorage.setItem(WELCOME_KEY, val); }catch(e){}
+  });
+}
+
+/* ========================================================== 背景音乐：一块屏幕一支曲子 ==========================================================
+   封面 / 书桌 / 星语占卜 = 多幸运；火漆信 = 女孩；生日蛋糕 = birthday；小游戏 = bird；
+   博客页交给页面里的粉色播放器（默认「特别的人」）。
+   浏览器禁止无交互自动播放：首次点击或按键时补一次 play，之后切页都是安静地淡出淡入。
+   ============================================================================================================================== */
+const BGM_VOL = 0.34;
+const BGM_MAP = {
+  gate:'assets/audio/duoxingyun.mp3',
+  desk:'assets/audio/duoxingyun.mp3',
+  fortune:'assets/audio/duoxingyun.mp3',
+  letter:'assets/audio/nvhai.mp3',
+  cake:'assets/audio/birthday.mp3',
+  game:'assets/audio/bird.mp3'
+};
+const BGM = {
+  el:null, src:'', live:false, timer:0, seq:0,
+  init(){
+    if(this.el) return;
+    this.el = $('#bgm'); if(!this.el) return;
+    this.el.volume = 0;
+    const el = this.el;
+    /* 浏览器要求先有一次交互：之后任何点击/按键都补一次播放 */
+    const kick = ()=>{ if(this.live && el.paused) el.play().then(()=>this.ramp(BGM_VOL, 500)).catch(()=>{}); };
+    ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev, kick, {passive:true}));
+  },
+  /* 音量缓动：同一时刻只有一个计时器，永远朝目标走，杜绝音量卡在 0 */
+  ramp(to, ms){
+    return new Promise(res=>{
+      if(!this.el){ res(); return; }
+      clearInterval(this.timer);
+      const el = this.el, from = el.volume, t0 = Date.now();
+      if(Math.abs(from-to) < 0.01 && ms <= 0){ el.volume = to; res(); return; }
+      this.timer = setInterval(()=>{
+        const k = Math.min(1, (Date.now()-t0)/ms);
+        el.volume = Math.max(0, Math.min(1, from + (to-from)*k));
+        if(k >= 1){ clearInterval(this.timer); this.timer = 0; el.volume = to; res(); }
+      }, 40);
+    });
+  },
+  play(src){
+    if(!this.el || !src) return;
+    this.live = true;
+    const el = this.el, gen = ++this.seq;
+    if(this.src === src){
+      if(el.paused){ const p = el.play(); if(p && p.catch) p.catch(()=>{}); }
+      this.ramp(BGM_VOL, 600);
+      return;
+    }
+    this.src = src;
+    const swap = ()=>{
+      el.src = src; el.load(); el.volume = 0;
+      const p = el.play(); if(p && p.catch) p.catch(()=>{});
+      if(gen === this.seq) this.ramp(BGM_VOL, 700);
+    };
+    if(!el.paused) this.ramp(0, 220).then(()=>{ if(gen === this.seq) swap(); });
+    else swap();
+  },
+  pause(){
+    this.live = false;
+    if(!this.el) return;
+    const el = this.el, gen = ++this.seq;
+    this.ramp(0, 320).then(()=>{ if(gen !== this.seq) return; try{ el.pause(); }catch(e){} });
+  }
+};
+function bgmRoute(screen){
+  try{
+    if(screen === 'blog'){ BGM.pause(); PLAYER.enter(); return; }
+    PLAYER.leave();
+    if(BGM_MAP[screen]) BGM.play(BGM_MAP[screen]); else BGM.pause();
+  }catch(e){}
+}
+
+/* ------------------------------------------------ 博客页：浅粉手账风播放器 ------------------------------------------------
+   预设三首都能听；点唱针图标换成自己的歌（Object URL，只在本次会话有效），点封面换相框里的画。
+   全部无痕：悬停才浮出一行极小的提示，页面上没有任何「点击上传」字样。
+   ------------------------------------------------ */
+const MP_ON_KEY='77_player_on', MP_COVER_KEY='77_player_cover', MP_TIP_KEY='77_upload_tip_seen';
+const MP_PRESETS = [
+  {name:'特别的人', artist:'方大同',   src:'assets/audio/tebieder.mp3'},
+  {name:'女孩',     artist:'你的歌单', src:'assets/audio/nvhai.mp3'},
+  {name:'多幸运',   artist:'你的歌单', src:'assets/audio/duoxingyun.mp3'}
+];
+const PLAYER = {
+  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'',
+  init(){
+    if(this.ready) return;
+    this.el = $('#bgm-player'); if(!this.el) return;
+    this.ready = true;
+    this.el.loop = true;
+    this.el.volume = 0.5;
+    this.el.src = MP_PRESETS[0].src;
+    const img = $('#mpCoverImg');
+    if(img) this.defCover = img.getAttribute('src') || '';
+    try{
+      this.on = localStorage.getItem(MP_ON_KEY) !== '0';
+      const c = localStorage.getItem(MP_COVER_KEY);
+      if(c && img){ this.cover = c; img.src = c; }
+    }catch(e){}
+    const play=$('#mpPlay'), prev=$('#mpPrev'), next=$('#mpNext'), up=$('#mpUpload');
+    if(play) play.onclick = ()=>this.toggle();
+    if(prev) prev.onclick = ()=>this.step(-1);
+    if(next) next.onclick = ()=>this.step(1);
+    if(up) up.onclick = ()=>{ const f=$('#mpFile'); if(f) f.click(); };
+    const fi=$('#mpFile'); if(fi) fi.onchange = e=> this.takeSong(e.target.files && e.target.files[0]);
+    const cv=$('#mpCover'); if(cv) cv.onclick = ()=>{ const f=$('#mpCoverFile'); if(f) f.click(); };
+    const cf=$('#mpCoverFile'); if(cf) cf.onchange = e=> this.takeCover(e.target.files && e.target.files[0]);
+    this.el.addEventListener('timeupdate', ()=>this.paintTime());
+    this.el.addEventListener('play', ()=>this.paint(true));
+    this.el.addEventListener('pause', ()=>this.paint(false));
+    const rg=$('#mpRange');
+    if(rg) rg.addEventListener('input', ()=>{
+      const d = this.el.duration;
+      if(d && isFinite(d)) this.el.currentTime = d * (rg.value/1000);
+      this.paintTime();
+    });
+    this.paint(false);
+    this.paintTime();
+  },
+  track(){ return this.custom || MP_PRESETS[this.i]; },
+  paint(playing){
+    const t = this.track();
+    if($('#mpTitle'))  $('#mpTitle').textContent  = t ? t.name   : '';
+    if($('#mpArtist')) $('#mpArtist').textContent = t ? t.artist : '';
+    if($('#mpCoverImg') && !this.cover && this.defCover) $('#mpCoverImg').src = this.defCover;
+    const card = $('#musicCard');
+    if(card){
+      const on = (playing === undefined || playing === null) ? !this.el.paused : !!playing;
+      card.classList.toggle('playing', !!on);
+    }
+  },
+  paintTime(){
+    const el=this.el, rg=$('#mpRange'); if(!el || !rg) return;
+    const d = el.duration;
+    const p = (d && isFinite(d) && d>0) ? Math.min(100, (el.currentTime/d)*100) : 0;
+    rg.value = Math.round(p*10);
+    rg.style.setProperty('--mp-p', p.toFixed(2)+'%');
+  },
+  start(){
+    if(!this.el) return;
+    this.on = true;
+    try{ localStorage.setItem(MP_ON_KEY,'1'); }catch(e){}
+    const p = this.el.play(); if(p && p.catch) p.catch(()=>{});
+  },
+  toggle(){
+    if(!this.el) return;
+    if(this.el.paused){ this.start(); }
+    else{
+      this.on = false; this.el.pause();
+      try{ localStorage.setItem(MP_ON_KEY,'0'); }catch(e){}
+    }
+  },
+  load(i){
+    if(!this.el) return;
+    const n = MP_PRESETS.length;
+    this.i = ((i % n) + n) % n;
+    this.custom = null;
+    this.el.src = MP_PRESETS[this.i].src;
+    this.paint(false); this.paintTime();
+  },
+  step(dir){
+    if(!this.el) return;
+    if(this.custom){ this.custom = null; this.load(dir > 0 ? 0 : MP_PRESETS.length-1); }
+    else this.load(this.i + dir);
+    this.start();
+  },
+  enter(){
+    this.active = true;
+    if(!this.ready) this.init();
+    if(this.el && this.on){ const p=this.el.play(); if(p && p.catch) p.catch(()=>{}); }
+  },
+  leave(){
+    this.active = false;
+    if(this.el && !this.el.paused) this.el.pause();
+  },
+  takeSong(f){
+    if(!f || !this.el) return;
+    const old = this.el.src;
+    if(old && old.indexOf('blob:') === 0){ try{ URL.revokeObjectURL(old); }catch(e){} }
+    const url = URL.createObjectURL(f);
+    this.custom = { name:(f.name || '私藏').replace(/\.[^.]+$/,'').slice(0,40), artist:'你的私藏', src:url };
+    this.el.src = url;
+    this.el.loop = true;
+    this.paint(false); this.paintTime();
+    this.start();
+    try{
+      if(!localStorage.getItem(MP_TIP_KEY)){
+        localStorage.setItem(MP_TIP_KEY,'1');
+        toast('本地音乐仅在本次有效，刷新网页后需重新选择哦。');
+      }
+    }catch(e){}
+  },
+  takeCover(f){
+    if(!f) return;
+    const cv = $('#mpCover'); if(cv) cv.classList.add('picking');
+    const done = ()=>{ if(cv) cv.classList.remove('picking'); };
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        try{
+          const max = 520, r = Math.min(1, max/Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width*r); c.height = Math.round(img.height*r);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          let out = '';
+          try{ out = c.toDataURL('image/jpeg', .84); }catch(e){ out = reader.result; }
+          this.cover = out;
+          if($('#mpCoverImg')) $('#mpCoverImg').src = out;
+          try{ localStorage.setItem(MP_COVER_KEY, out); }catch(e){}
+          toast('封面换好啦 ✦');
+        }catch(e){}
+        done();
+      };
+      img.onerror = done;
+      img.src = reader.result;
+    };
+    reader.onerror = done;
+    reader.readAsDataURL(f);
+  }
+};
 
 /* ========================================================== 小游戏《星蕾环游记》 ==========================================================
    架构：唯一舞台 #game-stage。switchScene() 会先清空舞台内全部 DOM，再由 SCENES[i].art() 重建该场景的
