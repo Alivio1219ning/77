@@ -7160,7 +7160,7 @@ const BGM_MAP = {
   game:'assets/audio/preset-bird.mp3'
 };
 const BGM = {
-  el:null, src:'', live:false, timer:0, seq:0, watch:0, tries:0, v:0,
+  el:null, src:'', live:false, timer:0, seq:0, watch:0, tries:0, v:0, busy:false, blobUrl:'',
   init(){
     if(this.el) return;
     const el0 = $('#bgm'); if(!el0) return;
@@ -7186,18 +7186,42 @@ const BGM = {
     el.id = old.id || 'bgm'; el.loop = true; el.preload = 'auto'; el.volume = 0;
     if(old.parentNode) old.parentNode.replaceChild(el, old);
     this.el = el; this.bind(el);
-    el.src = bust ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + bust : src;
+    el.src = (bust && src.indexOf('blob:') !== 0) ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + bust : src;
     const p = el.play(); if(p && p.catch) p.catch(()=>{});
+  },
+  /* 整段下载兜底：有些网络/CDN 会让媒体元素自己的「分片请求」加载器卡死
+     （响应头回来、正文一个字节不到），改成一次性 fetch 完整文件再交给播放器，
+     绕开分片，音乐照常响。 */
+  async viaBlob(src){
+    if(!src || src.indexOf('blob:') === 0) return;
+    try{
+      const r = await fetch(src, {cache:'default'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const b = await r.blob();
+      if(!this.live || !this.src) return;
+      if(this.blobUrl){ try{ URL.revokeObjectURL(this.blobUrl); }catch(e){} }
+      this.blobUrl = URL.createObjectURL(b);
+      this.fresh(this.blobUrl);
+      this.ramp(BGM_VOL, 700);
+    }catch(e){}
+    this.busy = false;
+    this.watchdog(this.seq);
   },
   /* 自愈重试：换新元素重新拉，最多 6 次（网络抖动时一直救回来） */
   retry(){
     const el = this.el;
-    if(!el || !this.src || !this.live || this.tries >= 6) return;
+    if(!el || !this.src || !this.live || this.tries >= 6 || this.busy) return;
     if(el.readyState > 1) return;
     this.tries++;
     clearTimeout(this.watch);
-    this.fresh(this.src, ++this.v);
-    this.ramp(BGM_VOL, 700);
+    if(this.tries >= 2){
+      /* 直连两次都卡：改用整段下载兜底 */
+      this.busy = true;
+      this.viaBlob(this.src);
+    } else {
+      this.fresh(this.src, ++this.v);
+      this.ramp(BGM_VOL, 700);
+    }
     this.watchdog(++this.seq);
   },
   /* 看门狗：切歌后 2 秒还没数据就自愈；连续失败就放慢频率，别打爆 CDN */
@@ -7232,6 +7256,7 @@ const BGM = {
       return;
     }
     this.src = src; this.tries = 0;
+    if(this.blobUrl){ try{ URL.revokeObjectURL(this.blobUrl); }catch(e){} this.blobUrl = ''; }
     const swap = ()=>{
       /* 换新元素切歌：老元素在切歌瞬间被 CDN 掐断后会永远停在 readyState=0，
          换成新元素从头拉一次，永远是最干净的状态。 */
@@ -7269,7 +7294,7 @@ const MP_PRESETS = [
   {name:'多幸运',   artist:'你的歌单', src:'assets/audio/preset-lucky.mp3'}
 ];
 const PLAYER = {
-  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'', fetched:false, tries:0, watch:0, v:0,
+  el:null, i:0, custom:null, on:true, ready:false, active:false, cover:'', defCover:'', fetched:false, tries:0, watch:0, v:0, busy:false, blobUrl:'',
   init(){
     if(this.ready) return;
     this.el = $('#bgm-player'); if(!this.el) return;
@@ -7321,19 +7346,39 @@ const PLAYER = {
     el.id = old.id || 'bgm-player'; el.loop = true; el.preload = 'auto'; el.volume = old.volume;
     if(old.parentNode) old.parentNode.replaceChild(el, old);
     this.el = el; this.bind(el);
-    el.src = bust ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + bust : src;
+    el.src = (bust && src.indexOf('blob:') !== 0) ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + bust : src;
     const p = el.play(); if(p && p.catch) p.catch(()=>{});
+  },
+  /* 整段下载兜底：绕开媒体元素自己的分片加载器（有些网络会让它卡在 readyState=0） */
+  async viaBlob(src){
+    if(!src || src.indexOf('blob:') === 0) return;
+    try{
+      const r = await fetch(src, {cache:'default'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const b = await r.blob();
+      if(!this.on || !this.active) return;
+      if(this.blobUrl){ try{ URL.revokeObjectURL(this.blobUrl); }catch(e){} }
+      this.blobUrl = URL.createObjectURL(b);
+      this.fresh(this.blobUrl);
+    }catch(e){}
+    this.busy = false;
+    this.watchdog();
   },
   /* 自愈重试：换新元素重新拉，最多 6 次 */
   retry(){
     const el = this.el;
-    if(!el || !this.on || !this.active || this.tries >= 6) return;
+    if(!el || !this.on || !this.active || this.tries >= 6 || this.busy) return;
     if(el.readyState > 1) return;
     const src = (this.custom && this.custom.src) ? this.custom.src : MP_PRESETS[this.i].src;
     if(!src) return;
     this.tries++;
     clearTimeout(this.watch);
-    this.fresh(src, ++this.v);
+    if(this.tries >= 2){
+      this.busy = true;
+      this.viaBlob(src);
+    } else {
+      this.fresh(src, ++this.v);
+    }
     this.watchdog();
   },
   watchdog(){
@@ -7399,6 +7444,7 @@ const PLAYER = {
     const n = MP_PRESETS.length;
     this.i = ((i % n) + n) % n;
     this.custom = null;
+    if(this.blobUrl){ try{ URL.revokeObjectURL(this.blobUrl); }catch(e){} this.blobUrl = ''; }
     /* 换新元素切歌：老元素被掐断后会永远停在 readyState=0 */
     this.fresh(MP_PRESETS[this.i].src);
     this.paint(false); this.paintTime();
