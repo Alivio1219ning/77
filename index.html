@@ -7189,10 +7189,10 @@ const BGM = {
     el.src = bust ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + bust : src;
     const p = el.play(); if(p && p.catch) p.catch(()=>{});
   },
-  /* 自愈重试：换新元素重新拉，最多 3 次 */
+  /* 自愈重试：换新元素重新拉，最多 6 次（网络抖动时一直救回来） */
   retry(){
     const el = this.el;
-    if(!el || !this.src || !this.live || this.tries >= 3) return;
+    if(!el || !this.src || !this.live || this.tries >= 6) return;
     if(el.readyState > 1) return;
     this.tries++;
     clearTimeout(this.watch);
@@ -7200,10 +7200,11 @@ const BGM = {
     this.ramp(BGM_VOL, 700);
     this.watchdog(++this.seq);
   },
-  /* 看门狗：切歌后 2.5 秒还没数据就自愈 */
+  /* 看门狗：切歌后 2 秒还没数据就自愈；连续失败就放慢频率，别打爆 CDN */
   watchdog(gen){
     clearTimeout(this.watch);
-    this.watch = setTimeout(()=>{ if(gen === this.seq) this.retry(); }, 2500);
+    const delay = this.tries >= 3 ? 6000 : 2000;
+    this.watch = setTimeout(()=>{ if(gen === this.seq) this.retry(); }, delay);
   },
   /* 音量缓动：同一时刻只有一个计时器，永远朝目标走，杜绝音量卡在 0 */
   ramp(to, ms){
@@ -7323,10 +7324,10 @@ const PLAYER = {
     el.src = bust ? src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=' + bust : src;
     const p = el.play(); if(p && p.catch) p.catch(()=>{});
   },
-  /* 自愈重试：换新元素重新拉，最多 3 次 */
+  /* 自愈重试：换新元素重新拉，最多 6 次 */
   retry(){
     const el = this.el;
-    if(!el || !this.on || !this.active || this.tries >= 3) return;
+    if(!el || !this.on || !this.active || this.tries >= 6) return;
     if(el.readyState > 1) return;
     const src = (this.custom && this.custom.src) ? this.custom.src : MP_PRESETS[this.i].src;
     if(!src) return;
@@ -7337,7 +7338,8 @@ const PLAYER = {
   },
   watchdog(){
     clearTimeout(this.watch);
-    this.watch = setTimeout(()=>{ this.retry(); }, 2500);
+    const delay = this.tries >= 3 ? 6000 : 2000;
+    this.watch = setTimeout(()=>{ this.retry(); }, delay);
   },
   track(){ return this.custom || MP_PRESETS[this.i]; },
   paint(playing){
