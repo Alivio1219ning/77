@@ -7409,7 +7409,16 @@ const PLAYER = {
     this.active = true;
     if(!this.ready) this.init();
     this.ensureSrc();
-    if(this.el && this.on){ const p=this.el.play(); if(p && p.catch) p.catch(()=>{}); this.tries = 0; this.watchdog(); }
+    const el = this.el;
+    if(el && this.on){
+      /* 预取那一次可能已经卡死（networkState=0 表示压根没开始加载），立刻换新元素 */
+      if(el.error || (el.readyState === 0 && el.networkState === 0)){
+        this.fresh(el.getAttribute('src') || MP_PRESETS[this.i].src);
+      } else {
+        const p = el.play(); if(p && p.catch) p.catch(()=>{});
+      }
+      this.tries = 0; this.watchdog();
+    }
   },
   leave(){
     this.active = false;
