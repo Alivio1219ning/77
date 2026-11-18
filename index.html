@@ -387,7 +387,7 @@ button{cursor:pointer;border:0;background:none}
 /* ============================================================
    蛋糕页
    ============================================================ */
-#screen-cake{background:linear-gradient(165deg,#FFF1F4 0%,#FDF5F3 40%,#FFFCF5 100%)}
+#screen-cake{background:#FFF1F4 url('assets/cake-bg.jpg') center center/cover no-repeat fixed}
 .cake-scene{position:relative;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 18px 46px;overflow:hidden}
 .wash-sky{position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse at 18% 20%,rgba(255,255,255,.78),transparent 42%),
@@ -642,9 +642,9 @@ button{cursor:pointer;border:0;background:none}
    博客页 · 千禧年 Web 1.0 高密度网格
    奶油白 #FDFBF7 + 雾粉网格 + 香槟金 #D9C6A5 细边；方角、紧凑、信息密集
    ============================================================ */
-#screen-blog{background:#FDFBF7}
+#screen-blog{background:#FDFBF7 url('assets/blog-bg.png') center center/cover no-repeat fixed}
 /* 双层粉色网格纸：20px 细格 + 100px 主格，像方格手账纸 */
-#screen-blog::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+#screen-blog::before{content:"";display:none;position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
     linear-gradient(rgba(247,225,225,.55) 1px,transparent 1px),
     linear-gradient(90deg,rgba(247,225,225,.55) 1px,transparent 1px),
@@ -652,7 +652,7 @@ button{cursor:pointer;border:0;background:none}
     linear-gradient(90deg,rgba(232,212,192,.26) 1px,transparent 1px);
   background-size:20px 20px,20px 20px,100px 100px,100px 100px}
 /* 四周墙面散落的半透明水彩光斑 + 花瓣，极淡不抢内容 */
-#screen-blog::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+#screen-blog::after{content:"";display:none;position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
     radial-gradient(ellipse 150px 104px at 3% 11%,rgba(255,190,218,.30),transparent 70%),
     radial-gradient(ellipse 170px 124px at 97% 20%,rgba(255,218,170,.26),transparent 72%),
