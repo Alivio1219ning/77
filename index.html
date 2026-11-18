@@ -2793,15 +2793,32 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs-play-el{position:absolute;transform:translateX(-50%);will-change:left,bottom,transform}
 .gs-play-el.locked{pointer-events:none}
 
-/* ---------- 花庭小池塘 ---------- */
+/* ---------- 花庭小水洼：泥土边缘 + 静态水波 + 反光，不再是塑料贴纸 ---------- */
 .gs-pond{position:absolute;bottom:6.8%;transform:translateX(-50%);width:18%;max-width:230px;height:50px;
-  border-radius:50%;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 40%,#D6F0F5 0%,#B4DFEA 40%,#93C9DA 68%,rgba(147,201,218,0) 71%);
-  box-shadow:inset 0 7px 16px rgba(70,120,140,.20)}
-.gs-pond::before{content:"";position:absolute;inset:-7px -12px;border-radius:50%;
-  border:7px solid rgba(190,214,170,.5);filter:blur(1.5px)}
-.gs-pond::after{content:"";position:absolute;left:16%;top:24%;width:30%;height:24%;border-radius:50%;
-  background:rgba(255,255,255,.6);filter:blur(2.5px)}
+  border-radius:54% 46% 52% 48%/58% 55% 45% 42%;pointer-events:none;
+  /* 不规则轮廓 + 泥土压边 + 由浅到深的水体 + 两圈静态水波 */
+  background:
+    radial-gradient(ellipse at 50% 50%,rgba(255,255,255,0) 40%,rgba(255,255,255,.42) 41%,rgba(255,255,255,0) 44%),
+    radial-gradient(ellipse at 50% 50%,rgba(255,255,255,0) 62%,rgba(255,255,255,.3) 63%,rgba(255,255,255,0) 66%),
+    radial-gradient(ellipse at 46% 38%,#E2F4F7 0%,#BEE2EA 34%,#95CADA 66%,#77B4C9 88%,#6BA7BD 100%);
+  box-shadow:
+    inset 0 5px 12px rgba(58,104,124,.28),
+    inset 0 -3px 8px rgba(255,255,255,.5),
+    0 0 0 3px rgba(150,124,86,.34),
+    0 0 0 6px rgba(176,152,108,.22),
+    0 4px 9px rgba(84,96,60,.24)}
+/* 泥土湿边：不规则棕色软环，压掉「贴纸」硬边 */
+.gs-pond::before{content:"";position:absolute;inset:-8px -13px;
+  border-radius:49% 51% 46% 54%/54% 48% 52% 46%;
+  background:radial-gradient(ellipse at 50% 50%,rgba(122,96,64,0) 52%,rgba(126,101,66,.5) 66%,rgba(150,124,84,.32) 78%,rgba(150,124,84,0) 88%);
+  filter:blur(2px)}
+/* 天光反光：斜置的细长高光，随水波轻轻浮动 */
+.gs-pond::after{content:"";position:absolute;left:18%;top:20%;width:34%;height:20%;border-radius:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.12));
+  transform:rotate(-14deg);filter:blur(1.6px);
+  animation:pondGlint 4.6s ease-in-out infinite}
+@keyframes pondGlint{0%,100%{opacity:.5;transform:rotate(-14deg) translateX(0)}
+  50%{opacity:.9;transform:rotate(-14deg) translateX(5px)}}
 .gs-pond .pd-ripple{position:absolute;left:50%;top:44%;width:16px;height:7px;margin-left:-8px;border-radius:50%;
   border:1.5px solid rgba(255,255,255,.9);opacity:0}
 .gs-pond.splash .pd-ripple{animation:pondRipple .9s ease-out}
@@ -3482,14 +3499,14 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 .gs-home.vine .hg-vine{display:block}
 .gs-home:not(.vine) .hg-wood{display:block}
 .gs-home .hg-vine>svg,.gs-home .hg-wood>svg{display:block;width:100%;height:100%}
-/* 魔法阵：缓慢旋转 + 呼吸明灭 */
-.gs-home .hg-magic-ring{transform-box:fill-box;transform-origin:50% 82%;
-  animation:magicRingSpin 12s linear infinite}
-@keyframes magicRingSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-/* 千纸鹤：停在半空轻轻上下浮动 */
-.gs-home .hg-crane{transform-box:fill-box;transform-origin:50% 50%;
-  animation:craneFloat 2.6s ease-in-out infinite}
-@keyframes craneFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+/* 发光花簇：整簇轻微呼吸缩放 + 根部为轴摇曳，像真在草里生长 */
+.gs-home .hg-bloom{transform-box:fill-box;transform-origin:50% 90%;
+  animation:hgBloomSway 5.2s ease-in-out infinite}
+@keyframes hgBloomSway{0%,100%{transform:rotate(-2deg) scale(.985);opacity:.9}
+  50%{transform:rotate(2deg) scale(1.02);opacity:1}}
+/* 花庭的「回家」牌默认隐去，走近/悬停才浮现，避免出戏 */
+.gs-home.vine .home-tag{opacity:0;transition:opacity .45s ease}
+.gs-home.vine.near .home-tag,.gs-home.vine:hover .home-tag{opacity:.95}
 .gs-home .door-glow{opacity:.5;transition:opacity .65s ease}
 .gs-home.near .door-glow,.gs-home:hover .door-glow{opacity:1}
 .gs-home .door-lamp{opacity:.55;transition:opacity .6s ease}
@@ -3922,25 +3939,28 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
 /* 主角坐上秋千：sitting 裁腿 + 抬到座板；float 层做与秋千同步的旋转 */
 .gs-char.duo-seat{--leg-cut:16%}
 .gs-char.duo-seat .gs-char-pose{transform:translateY(calc(-1 * var(--sit-rise,54px))) scaleY(.95)}
-.gs-char.duo-seat .gs-char-float{animation:duoRider 1.5s ease-in-out infinite alternate}
+/* 两人共用同一条 duoRider（同周期/同缓动/同原点），相位完全一致，不会看起来乱晃 */
+.gs-char.duo-seat .gs-char-float{animation:duoRider 1.5s ease-in-out infinite alternate;
+  transform-origin:50% 50%}
 @keyframes duoRider{from{transform:translateX(-5px) rotate(-4deg)}to{transform:translateX(5px) rotate(4deg)}}
 
-/* 同伴坐上秋千：外层抬到座板、内层 cpt-bob 与秋千同步旋转，同样裁腿 */
+/* 同伴坐上秋千：外层抬到座板、内层 cpt-bob 与主角同参数摆动，同样裁腿 */
 .gs-companion.duo-seat .cpt-bob{animation:duoRider 1.5s ease-in-out infinite alternate;
-  transform-origin:50% 88%}
+  transform-origin:50% 50%}
 .gs-companion.duo-seat img{clip-path:inset(0 0 16% 0)}
 .gs-companion.duo-seat{transform:translateX(-50%) translateY(calc(-1 * var(--sit-rise,54px)))}
 
 /* 座板前景木板：盖住两人脚底，营造“坐进去”的遮挡关系 */
-.duo-seatboard{position:absolute;left:24%;bottom:23%;width:112px;height:16px;
+.duo-seatboard{position:absolute;left:24%;bottom:23%;width:158px;height:16px;
   transform:translateX(-50%);z-index:620;pointer-events:none;
   background:linear-gradient(180deg,#F0D5AE 0%,#DDB98A 55%,#B98E62 100%);
   border:1px solid rgba(120,86,54,.5);border-radius:3px;
   box-shadow:0 5px 7px rgba(90,64,40,.3),inset 0 2px 0 rgba(255,246,225,.7);
   transform-origin:50% 0;animation:duoSeatboardSwing 1.5s ease-in-out infinite alternate}
-.duo-seatboard::before,.duo-seatboard::after{content:"";position:absolute;top:-40px;width:3px;height:42px;
+/* 加宽到与 SVG 座板 126 单位同幅；吊绳同步拉到两侧并延长到抬高后的吊点 */
+.duo-seatboard::before,.duo-seatboard::after{content:"";position:absolute;top:-46px;width:3.4px;height:48px;
   background:linear-gradient(180deg,rgba(201,174,140,0),#C9AE8C)}
-.duo-seatboard::before{left:14px}.duo-seatboard::after{right:14px}
+.duo-seatboard::before{left:24px}.duo-seatboard::after{right:24px}
 @keyframes duoSeatboardSwing{from{transform:translateX(-50%) rotate(-13deg)}to{transform:translateX(-50%) rotate(13deg)}}
 
 @media(max-width:700px){.nd-companion{right:12px;bottom:8px;font-size:13.5px;padding:5px 10px}}
@@ -5576,8 +5596,12 @@ function companionSceneSetup(trip){
         companionState.swinging=true; companionState.seated=true;
         /* 座板中心在场景 SVG x≈287/1200≈24%；两人并排落座（主角略左、同伴略右），
            脚底都强制对齐同一块座板，而不是各站一处悬空 */
-        const SEAT=24;
-        S.charX=SEAT-1.4;
+        /* 座板视觉中心：SVG x287/1200 ≈ 场景 24%。但主角用 margin-left(-44px) 定位、
+           同伴用 translateX(-50%) 定位，两者的 x 参数都要先加 3.3% 锚点补偿才对齐板心，
+           所以这里 SEAT 取 27.3（=24%+3.3%）。实测：charX=23.5 → 视觉中心 x≈295px；
+           companion x=31.1 → x≈399px，板面 275..418px，两人正落左右两半、不再重叠。 */
+        const SEAT=27.3;
+        S.charX=SEAT-3.8;
         const c=$('#character');
         if(c){
           c.classList.remove('travel');          /* 关掉切场景遗留的 left 过渡，避免落座滑行 */
@@ -5585,7 +5609,7 @@ function companionSceneSetup(trip){
           c.style.left=S.charX+'%';
         }
         try{ const g=gameGet(); g.charX=S.charX; gameSet(g); }catch(e){}
-        companionSnap(SEAT+1.4);
+        companionSnap(SEAT+3.8);
         let rise=68;
         try{ rise=riseFor(SWING_SEAT_Y)+14; }catch(e){}
         /* 主角：裁腿 + 抬到座板 + 与秋千同步旋转 */
@@ -7042,10 +7066,15 @@ function artGarden(){
 
   /* ---------- 木秋千（绳子藏进花瀑里） ---------- */
   const swing=`<g id="gsSwing">
-    <path d="M268 74 L266 340 M306 74 L308 340" stroke="#C9AE8C" stroke-width="3.4" opacity=".95"/>
-    <path d="M262 338 h50" stroke="#B9976F" stroke-width="2" opacity=".55"/>
-    <rect x="254" y="340" width="66" height="8" rx="2" fill="#E4CBA8"/>
-    <rect x="254" y="348" width="66" height="3.5" rx="1" fill="#B99B78"/>
+    <!-- 吊点抬高 y74→y34、绳距 38→78：绳子更修长，木板足够并排坐两个 Q 版小人 -->
+    <path d="M248 34 L248 340 M326 34 L326 340" stroke="#C9AE8C" stroke-width="3.6" opacity=".96"/>
+    <path d="M238 34 h98" stroke="#B9976F" stroke-width="4.5" stroke-linecap="round" opacity=".85"/>
+    <circle cx="248" cy="34" r="3" fill="#DEC09B"/><circle cx="326" cy="34" r="3" fill="#DEC09B"/>
+    <path d="M226 338 h122" stroke="#B9976F" stroke-width="2" opacity=".55"/>
+    <!-- 座板 66→126（+91%），中心仍对齐 x287（≈24%），双人落座不用改场景锚点 -->
+    <rect x="224" y="340" width="126" height="9" rx="3" fill="#E4CBA8" stroke="#C9A77F" stroke-width="1"/>
+    <rect x="224" y="349" width="126" height="4" rx="1.5" fill="#B99B78"/>
+    <path d="M232 343 h110" stroke="#F7E4C8" stroke-width="1" opacity=".55"/>
   </g>`;
 
   /* ---------- 藏在右侧花丛深处的复古圆柱邮筒（红粉圆柱 + 投信口 + 顶盖） ---------- */
@@ -9402,40 +9431,74 @@ const STAGE_LAYERS = `<div class="gs-art" id="gsArt"></div>
 <div class="gs-pad left" id="padLeft"><span class="pad-tip">‹</span></div>
 <div class="gs-pad right" id="padRight"><span class="pad-tip">›</span></div>
 <div class="gs-home hidden" id="homeGate" title="回温馨小屋">
-  <!-- 花庭：粉色发光魔法阵 + 停在半空的发光千纸鹤 -->
+  <!-- 花庭：一簇半透明发光的巨大粉色花朵，融进花庭背景（点击仍可回家） -->
   <span class="hg-vine"><svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
-      <radialGradient id="vineGlowG" cx="50%" cy="82%" r="66%">
-        <stop offset="0" stop-color="#FFC9E0" stop-opacity=".9"/>
-        <stop offset="55%" stop-color="#FF9DC9" stop-opacity=".34"/>
-        <stop offset="100%" stop-color="#FF9DC9" stop-opacity="0"/></radialGradient>
-      <radialGradient id="vineLampG">
-        <stop offset="0" stop-color="#FFF4FA" stop-opacity=".95"/>
-        <stop offset="44%" stop-color="#FFD3E8" stop-opacity=".5"/>
-        <stop offset="100%" stop-color="#FFC2DE" stop-opacity="0"/></radialGradient>
-      <linearGradient id="vineCraneG" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#FFF9FC"/><stop offset="50%" stop-color="#FFD6E8"/>
-        <stop offset="100%" stop-color="#FFB8D8"/></linearGradient>
+      <radialGradient id="vineGlowG" cx="50%" cy="82%" r="70%">
+        <stop offset="0" stop-color="#FFD3E8" stop-opacity=".72"/>
+        <stop offset="55%" stop-color="#FFA9CE" stop-opacity=".28"/>
+        <stop offset="100%" stop-color="#FFA9CE" stop-opacity="0"/></radialGradient>
+      <radialGradient id="hgPetal" cx="50%" cy="38%" r="68%">
+        <stop offset="0" stop-color="#FFF7FB" stop-opacity=".96"/>
+        <stop offset="45%" stop-color="#FFD4E8" stop-opacity=".9"/>
+        <stop offset="100%" stop-color="#FFA9CF" stop-opacity=".72"/></radialGradient>
+      <radialGradient id="hgPetal2" cx="50%" cy="36%" r="70%">
+        <stop offset="0" stop-color="#FFF3F9" stop-opacity=".9"/>
+        <stop offset="55%" stop-color="#FFC6DF" stop-opacity=".78"/>
+        <stop offset="100%" stop-color="#FF96C3" stop-opacity=".6"/></radialGradient>
+      <radialGradient id="hgCore">
+        <stop offset="0" stop-color="#FFF9DE"/><stop offset="60%" stop-color="#FFE7A8"/>
+        <stop offset="100%" stop-color="#FFD07E" stop-opacity=".7"/></radialGradient>
+      <filter id="hgSoft" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="2.2"/></filter>
     </defs>
-    <!-- 地面粉色光晕 -->
-    <ellipse class="door-glow" cx="48" cy="82" rx="42" ry="10" fill="url(#vineGlowG)"/>
-    <!-- 地面发光魔法阵：三重粉色圆环 -->
-    <g class="hg-magic-ring">
-      <ellipse cx="48" cy="82" rx="34" ry="9" fill="none" stroke="#FFB2D6" stroke-width="2.4" opacity=".85"/>
-      <ellipse cx="48" cy="82" rx="25" ry="6.5" fill="none" stroke="#FFD0E6" stroke-width="1.6" opacity=".9"/>
-      <ellipse cx="48" cy="82" rx="16" ry="4" fill="none" stroke="#FFE0EE" stroke-width="1.2" opacity=".95"/>
-      <!-- 法阵上的星光符号 -->
-      <path d="M48 76 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6 Z" fill="#FFF2F8"/>
-      <circle cx="28" cy="80" r="1.2" fill="#FFF6FB"/><circle cx="68" cy="80" r="1.2" fill="#FFF6FB"/>
-      <circle cx="36" cy="85" r=".9" fill="#FFE6F1"/><circle cx="60" cy="85" r=".9" fill="#FFE6F1"/>
-    </g>
-    <!-- 停在半空的发光千纸鹤 -->
-    <g class="hg-crane">
-      <circle cx="48" cy="34" r="12" fill="url(#vineLampG)"/>
-      <path d="M48 20 L42 40 L48 46 L54 40 Z" fill="url(#vineCraneG)"/>
-      <path d="M42 40 L48 46 L34 50 L38 42 Z" fill="#FFE2EF"/>
-      <path d="M54 40 L48 46 L62 50 L58 42 Z" fill="#FFE9F4"/>
-      <path d="M48 20 L46 16 L50 16 Z" fill="#FFCFE4"/>
+    <!-- 地面粉绿混色光晕：像花从草里长出来，不再有塑料贴纸感 -->
+    <ellipse class="door-glow" cx="48" cy="84" rx="44" ry="11" fill="url(#vineGlowG)"/>
+    <g class="hg-bloom">
+      <!-- 底层柔光，让整簇花半透明发亮 -->
+      <g filter="url(#hgSoft)" opacity=".55">
+        <circle cx="46" cy="50" r="27" fill="#FFC3DF"/>
+        <circle cx="22" cy="67" r="15" fill="#FFB2D6"/>
+        <circle cx="73" cy="64" r="16" fill="#FFBDDC"/>
+      </g>
+      <!-- 茎叶 -->
+      <path d="M48 86 Q44 66 46 50 M46 86 Q34 76 22 68 M50 86 Q64 76 73 65"
+        stroke="#7FB766" stroke-width="3" fill="none" opacity=".7"/>
+      <path d="M35 72 q-12 -6 -13 -16 q12 2 15 13 Z M62 72 q12 -7 13 -17 q-12 3 -15 14 Z"
+        fill="#8CC473" opacity=".62"/>
+      <!-- 主花（大，五瓣，半透明） -->
+      <g transform="translate(46 47)" opacity=".94">
+        <ellipse cx="0" cy="-15" rx="12" ry="18" fill="url(#hgPetal)"/>
+        <ellipse cx="0" cy="-15" rx="12" ry="18" fill="url(#hgPetal)" transform="rotate(72)"/>
+        <ellipse cx="0" cy="-15" rx="12" ry="18" fill="url(#hgPetal)" transform="rotate(144)"/>
+        <ellipse cx="0" cy="-15" rx="12" ry="18" fill="url(#hgPetal)" transform="rotate(216)"/>
+        <ellipse cx="0" cy="-15" rx="12" ry="18" fill="url(#hgPetal)" transform="rotate(288)"/>
+        <circle r="8" fill="url(#hgCore)"/>
+        <circle r="3.4" fill="#FFF6D2" opacity=".9"/>
+      </g>
+      <!-- 左侧小花 -->
+      <g transform="translate(22 66)" opacity=".88">
+        <ellipse cx="0" cy="-9" rx="7" ry="11" fill="url(#hgPetal2)"/>
+        <ellipse cx="0" cy="-9" rx="7" ry="11" fill="url(#hgPetal2)" transform="rotate(72)"/>
+        <ellipse cx="0" cy="-9" rx="7" ry="11" fill="url(#hgPetal2)" transform="rotate(144)"/>
+        <ellipse cx="0" cy="-9" rx="7" ry="11" fill="url(#hgPetal2)" transform="rotate(216)"/>
+        <ellipse cx="0" cy="-9" rx="7" ry="11" fill="url(#hgPetal2)" transform="rotate(288)"/>
+        <circle r="5" fill="url(#hgCore)"/>
+      </g>
+      <!-- 右侧小花 -->
+      <g transform="translate(73 63)" opacity=".88">
+        <ellipse cx="0" cy="-10" rx="8" ry="12" fill="url(#hgPetal2)"/>
+        <ellipse cx="0" cy="-10" rx="8" ry="12" fill="url(#hgPetal2)" transform="rotate(72)"/>
+        <ellipse cx="0" cy="-10" rx="8" ry="12" fill="url(#hgPetal2)" transform="rotate(144)"/>
+        <ellipse cx="0" cy="-10" rx="8" ry="12" fill="url(#hgPetal2)" transform="rotate(216)"/>
+        <ellipse cx="0" cy="-10" rx="8" ry="12" fill="url(#hgPetal2)" transform="rotate(288)"/>
+        <circle r="5.4" fill="url(#hgCore)"/>
+      </g>
+      <!-- 漂浮的柔光花粉 -->
+      <circle cx="16" cy="44" r="2" fill="#FFF1F8" opacity=".85"/>
+      <circle cx="80" cy="42" r="1.6" fill="#FFF1F8" opacity=".8"/>
+      <circle cx="60" cy="22" r="1.8" fill="#FFF6FB" opacity=".75"/>
+      <circle cx="34" cy="28" r="1.4" fill="#FFF1F8" opacity=".7"/>
     </g>
   </svg></span>
   <!-- 其它场景：金色发光魔法阵 + 停在半空的发光千纸鹤 -->
