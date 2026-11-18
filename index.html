@@ -3633,6 +3633,54 @@ button.gm-btn:hover,button.gm-tab:hover,.gs-panel button:hover{border-color:var(
   30%{opacity:.9}100%{transform:translateY(-64px) scale(1.8);opacity:0}}
 .duo-cup{position:absolute;width:20px;height:17px;border-radius:3px 3px 8px 8px;
   background:#FFF6E8;border:2px solid #B98C62}
+
+/* ==========================================================================
+   纯净同游模式 .duo-pure：荡秋千时画面只留「背景 + 唯一秋千 + 主角 + 同伴」
+   ========================================================================== */
+.gs--garden.duo-pure .gs-npcs,          /* 随机路过的 NPC（小二 / 小八 …） */
+.gs--garden.duo-pure .gs-duck,          /* 地上的小鸭子 */
+.gs--garden.duo-pure .gs-collect,       /* 发光收集点提示 */
+.gs--garden.duo-pure .gs-near-hint,     /* “坐长椅发呆”等交互提示 */
+.gs--garden.duo-pure #homeGate,         /* 回家魔法阵入口：靠左上角返回按钮离开 */
+.gs--garden.duo-pure .gs-mate,          /* 跟班小喵 */
+.gs--garden.duo-pure .gs-mate-trail,
+.gs--garden.duo-pure .gs-play-hint,
+.gs--garden.duo-pure .gs-radar-ring,
+.gs--garden.duo-pure .gs-door-fx,
+.gs--garden.duo-pure .gs-spots,
+.gs--garden.duo-pure #orbsLayer,
+.gs--garden.duo-pure .gs-live,
+.gs--garden.duo-pure .depth-prop.dp-mailbox{display:none !important}
+
+/* ---- 物理落座：主角与同伴脚底抬到座板、裁掉双腿、与秋千同周期摆动 ---- */
+/* 秋千与两人共用 1.5s、同相位、同 transform-origin（吊点），节奏完全一致 */
+.gs-art.swinging #gsSwing{animation:duoSwing 1.5s ease-in-out infinite alternate}
+@keyframes duoSwing{from{transform:rotate(-13deg)}to{transform:rotate(13deg)}}
+
+/* 主角坐上秋千：sitting 裁腿 + 抬到座板；float 层做与秋千同步的旋转 */
+.gs-char.duo-seat{--leg-cut:16%}
+.gs-char.duo-seat .gs-char-pose{transform:translateY(calc(-1 * var(--sit-rise,54px))) scaleY(.95)}
+.gs-char.duo-seat .gs-char-float{animation:duoRider 1.5s ease-in-out infinite alternate}
+@keyframes duoRider{from{transform:translateX(-5px) rotate(-4deg)}to{transform:translateX(5px) rotate(4deg)}}
+
+/* 同伴坐上秋千：外层抬到座板、内层 cpt-bob 与秋千同步旋转，同样裁腿 */
+.gs-companion.duo-seat .cpt-bob{animation:duoRider 1.5s ease-in-out infinite alternate;
+  transform-origin:50% 88%}
+.gs-companion.duo-seat img{clip-path:inset(0 0 16% 0)}
+.gs-companion.duo-seat{transform:translateX(-50%) translateY(calc(-1 * var(--sit-rise,54px)))}
+
+/* 座板前景木板：盖住两人脚底，营造“坐进去”的遮挡关系 */
+.duo-seatboard{position:absolute;left:24%;bottom:23%;width:112px;height:16px;
+  transform:translateX(-50%);z-index:620;pointer-events:none;
+  background:linear-gradient(180deg,#F0D5AE 0%,#DDB98A 55%,#B98E62 100%);
+  border:1px solid rgba(120,86,54,.5);border-radius:3px;
+  box-shadow:0 5px 7px rgba(90,64,40,.3),inset 0 2px 0 rgba(255,246,225,.7);
+  transform-origin:50% 0;animation:duoSeatboardSwing 1.5s ease-in-out infinite alternate}
+.duo-seatboard::before,.duo-seatboard::after{content:"";position:absolute;top:-40px;width:3px;height:42px;
+  background:linear-gradient(180deg,rgba(201,174,140,0),#C9AE8C)}
+.duo-seatboard::before{left:14px}.duo-seatboard::after{right:14px}
+@keyframes duoSeatboardSwing{from{transform:translateX(-50%) rotate(-13deg)}to{transform:translateX(-50%) rotate(13deg)}}
+
 @media(max-width:700px){.nd-companion{right:12px;bottom:8px;font-size:13.5px;padding:5px 10px}}
 
 /* ==========================================================================================
@@ -4849,7 +4897,9 @@ function duoTablesHTML(sceneId){
 function companionPropsHTML(kind){
   let out='';
   if(kind==='swing' || kind==='walk'){
-    for(let i=0;i<14;i++) out+=`<span class="duo-petal" style="left:${(4+i*7)%100}%;animation-duration:${(5+i%5).toFixed(1)}s;animation-delay:${(i*.7).toFixed(1)}s"></span>`;
+    /* swing 同游：四周持续飘落更多粉色樱花瓣，营造浪漫荡秋千氛围 */
+    const petals = kind==='swing' ? 28 : 14;
+    for(let i=0;i<petals;i++) out+=`<span class="duo-petal" style="left:${(i*97)%100}%;top:${(-2-i*3)%30}%;width:${(9+i%4*2)}px;height:${(9+i%4*2)}px;animation-duration:${(4.5+i%6).toFixed(1)}s;animation-delay:${(i*.43).toFixed(1)}s"></span>`;
   }
   if(kind==='sea'){
     out+=`<div class="duo-gull"><svg viewBox="0 0 42 20" xmlns="http://www.w3.org/2000/svg"><path d="M1 12 Q10 2 20 11 Q30 2 41 12" fill="none" stroke="#FFFDF6" stroke-width="3" stroke-linecap="round"/></svg></div>`
@@ -4961,6 +5011,16 @@ function companionApplyDepth(el,y){
 function companionFrameStep(){
   const st=companionState; if(!st) return;
   const el=$('#companionNpc');
+  /* 落座摆动期间冻结坐标：两人稳稳坐在座板上，绝不被跟随 AI 拉走 */
+  if(st.seated && st.swinging && !st.leaving){
+    if(el && Number.isFinite(st.x) && Number.isFinite(st.y)){
+      el.style.left=companionLeftPct(st.x)+'%';
+      companionApplyDepth(el,st.y);
+      el.classList.remove('walking');
+    }
+    companionUpdateHold();
+    return;
+  }
   const tx=Math.max(-9,Math.min(109,companionTargetX()));
   if(typeof st.y!=='number') st.y=S.charY;
   const ty=st.leaving?st.y:companionTargetY();
@@ -5031,12 +5091,25 @@ function companionTap(){
   }});
   openNpcDialog(companionNpcData(),cfg.chat[Math.floor(Math.random()*cfg.chat.length)],acts);
 }
+/* 纯净同游：给舞台加/去 .duo-pure（隐藏小喵/收集点/路人NPC/小鸭/回家门），并清掉座板前景 */
+function companionSetPure(on){
+  const stage=$('#game-stage');
+  if(stage) stage.classList.toggle('duo-pure',!!on);
+  const fg=$('#fgLayer');
+  if(fg){ const sb=fg.querySelector('.duo-seatboard'); if(sb) sb.remove(); }
+}
 function companionClearPoses(){
   const c=$('#character');
-  if(c){ c.classList.remove('cpt-sit','cpt-swing','swinging'); c.style.removeProperty('--swing-rise'); }
+  if(c){
+    c.classList.remove('cpt-sit','cpt-swing','swinging','sitting','duo-seat');
+    c.style.removeProperty('--swing-rise'); c.style.removeProperty('--sit-rise');
+  }
   const art=$('#gsArt'); if(art) art.classList.remove('swinging');
   const el=$('#companionNpc');
-  if(el){ el.classList.remove('cpt-sit','cpt-swing','cpt-on-swing'); el.style.removeProperty('--cpt-swing-rise'); }
+  if(el){
+    el.classList.remove('cpt-sit','cpt-swing','cpt-on-swing','duo-seat');
+    el.style.removeProperty('--cpt-swing-rise'); el.style.removeProperty('--sit-rise');
+  }
 }
 function companionEnd(){
   if(!isCompanionMode || !companionState || companionState.leaving) return;
@@ -5057,6 +5130,7 @@ function companionFinishLeave(){
   companionStopLoop(); companionStopBubbles(); companionStopSceneTicker();
   isCompanionMode=false; companionState=null;
   companionClearPoses();
+  companionSetPure(false);
   const el=$('#companionNpc');
   if(el) el.classList.add('hidden'), el.classList.remove('fading','waving');
   const duo=$('#duoLayer'); if(duo) duo.innerHTML='';
@@ -5109,6 +5183,7 @@ function companionEnterScene(trip){
   if(!isCompanionMode || !companionState) return;
   const idx=(typeof SCENES!=='undefined')?SCENES.findIndex(s=>s.id===trip.dest):-1;
   if(idx<0) return;
+  companionSetPure(false);                  /* 每次入场从干净舞台开始 */
   switchScene(idx,true,trip.at);            /* 邀请直达：不看解锁进度 */
   companionState.phase='walk';
   companionState.x=Math.max(2,trip.at-5);
@@ -5124,27 +5199,51 @@ function companionEnterScene(trip){
 function companionSceneSetup(trip){
   companionStopSceneTicker();
   switch(trip.id){
-    case 'swing':   /* 两人走到秋千旁并排坐下，播放摇晃 + 持续落花 */
+    case 'swing':   /* 纯净同游：两人稳坐唯一秋千，同步摆动 + 持续落花 */
+      /* 立刻进入纯净状态：隐藏小喵 / 收集点 / 路人 NPC / 小鸭 / 回家门 */
+      companionSetPure(true);
       companionWalkTo(24,()=>{
-        if(!companionState) return;
+        if(!companionState || !isCompanionMode) return;
         companionState.swinging=true; companionState.seated=true;
-        companionSnap(32);                       /* 两人并排坐，不与主角重叠 */
-        /* 复用场景自带的秋千坐姿：主角抬到座板高度，同伴外层抬高、内层摇晃 */
-        let rise=46;
-        try{ rise=riseFor(SWING_SEAT_Y); }catch(e){}
+        /* 座板中心在场景 SVG x≈287/1200≈24%；两人并排落座（主角略左、同伴略右），
+           脚底都强制对齐同一块座板，而不是各站一处悬空 */
+        const SEAT=24;
+        S.charX=SEAT-1.4;
         const c=$('#character');
         if(c){
-          c.style.setProperty('--swing-rise',rise+'px');
-          c.classList.add('swinging');
+          c.classList.remove('travel');          /* 关掉切场景遗留的 left 过渡，避免落座滑行 */
+          c.style.transition='none'; void c.offsetWidth;   /* 强制立即定位到座板 */
+          c.style.left=S.charX+'%';
         }
+        try{ const g=gameGet(); g.charX=S.charX; gameSet(g); }catch(e){}
+        companionSnap(SEAT+1.4);
+        let rise=68;
+        try{ rise=riseFor(SWING_SEAT_Y)+14; }catch(e){}
+        /* 主角：裁腿 + 抬到座板 + 与秋千同步旋转 */
+        if(c){
+          c.style.setProperty('--sit-rise',rise+'px');
+          c.style.setProperty('--swing-rise',rise+'px');
+          c.classList.remove('cpt-sit','swinging');
+          c.classList.add('sitting','duo-seat');
+        }
+        /* 场景 SVG 秋千本体开始摆动 */
         const art=$('#gsArt'); if(art) art.classList.add('swinging');
+        /* 同伴：外层抬到座板 + 内层同步旋转 + 裁腿 */
         const el=$('#companionNpc');
         if(el){
+          el.style.setProperty('--sit-rise',rise+'px');
           el.style.setProperty('--cpt-swing-rise',rise+'px');
-          el.classList.add('cpt-on-swing','cpt-swing');
+          el.classList.remove('cpt-swing','cpt-on-swing');
+          el.classList.add('duo-seat');
+        }
+        /* 前景座板盖住两人脚底，制造“坐进去”的遮挡 */
+        const fg=$('#fgLayer');
+        if(fg && !fg.querySelector('.duo-seatboard')){
+          fg.insertAdjacentHTML('beforeend','<div class="duo-seatboard"></div>');
         }
         companionRefreshProps();
-        try{ say('小喵','两个人并排坐上秋千，花瓣一直落 ✦'); }catch(e){}
+        /* 同游纯净态不弹遮脸的对话气泡，只记一笔手帐，画面保持安静唯美 */
+        try{ logMoment('和'+companionState.name+'并排坐在秋千上，花瓣落了一身 ✦'); }catch(e){}
       });
       break;
     case 'walk':    /* 保持跟随，偶尔在长椅 / 小木门旁停一停 */
@@ -9884,8 +9983,9 @@ const SOLID_PROPS={
     {id:'roomDoor',  type:'mirrorDoor', box:[89,44,99,79], back:true, door:true, act:'roomDoor', tip:'出门前先换好衣服 ✦'}
   ],
   garden:[
-    {id:'homeGate',  type:'door',   box:[2,60,10,82],  back:true, door:true, act:'goHome', tip:'回到温馨小屋 ✦'},
-    {id:'swing',     type:'swing',  box:[20,60,32,82], top:[21,70,31,82], surface:40},
+    /* 回家门：仅保留碰撞交互，视觉由 .gs-home 的粉色魔法阵承担（不再叠加木门实体） */
+    {id:'homeGate',  type:'portalGate', box:[2,60,10,82], back:true, door:true, act:'goHome', tip:'回到温馨小屋 ✦'},
+    /* 秋千唯一来源：artGarden 场景 SVG 里的 #gsSwing（可摆动）。实体层不再重复画第二个秋千。 */
     {id:'gardenTree',type:'tree',   box:[43,52,53,82]},
     {id:'bench',     type:'bench',  box:[64,70,86,82], top:[66,71,84,82], surface:36},
     {id:'postbox',   type:'mailbox',box:[89,68,95,82], back:true}
@@ -10138,6 +10238,9 @@ function depthPropArt(type){
       <path d="M15 11 H85" stroke="rgba(255,240,215,.5)" stroke-width="2"/>`+'</svg>';
     case 'mirrorDoor': return head+`
       <!-- 透明碰撞占位：穿衣镜的视觉由 artRoom 的 g0Door 绘制，这里只保留出门碰撞 -->
+      <rect x="0" y="0" width="100" height="100" fill="none"/>`+'</svg>';
+    case 'portalGate': return head+`
+      <!-- 透明碰撞占位：回家入口的视觉由 .gs-home 的半透明粉色光晕魔法阵承担，这里只保留碰撞，绝不再画实体木门 -->
       <rect x="0" y="0" width="100" height="100" fill="none"/>`+'</svg>';
     case 'trainDoor': return head+`
       <rect x="6" y="2" width="88" height="96" rx="5" fill="#3A2418" stroke="${IN}" stroke-width="1.8"/>
