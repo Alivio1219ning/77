@@ -7267,15 +7267,20 @@ function createTrack(getEl, vol){
         return;
       }
       /* 未命中：直接挂原始 URL 流式播放，浏览器边下边播本来就流畅。
-         只有「一段时间过去还是一点数据都没有」才判定 CDN 分片卡死，换成整段 Blob；
-         正常播放时绝不打断，避免换源造成卡顿/断点。 */
+         启动一个「停滞监测」：只有 currentTime 真的卡住不前进才判定分片被掐断，
+         换整段 Blob 无缝续上；正常播放时一次都不打断，绝不制造断点。 */
       el.src = src;
       const p = el.play(); if(p && p.catch) p.catch(()=>{});
       this.ramp(this.vol, 300);
-      this.watch = setTimeout(()=>{
-        if(gen !== this.seq || !this.live || this.cur !== src) return;
-        if(el.readyState >= 2) return; /* 有数据，正常播着，别动它 */
-        /* 真·卡死：整段下载或从已预热缓存取，无缝换上 */
+      let last = el.currentTime, tries = 0, rescued = false;
+      const monitor = ()=>{
+        if(gen !== this.seq || !this.live || this.cur !== src || rescued) return;
+        if(el.paused || el.ended){ /* 暂停中不算卡 */ this.watch = setTimeout(monitor, 1500); return; }
+        if(el.currentTime - last > 0.35){ last = el.currentTime; tries = 0; this.watch = setTimeout(monitor, 1500); return; }
+        /* currentTime 两次采样没动 = 真卡了 */
+        tries++;
+        if(tries < 2){ last = el.currentTime; this.watch = setTimeout(monitor, 1500); return; }
+        rescued = true;
         AudioBank.get(src).then(url=>{
           if(gen !== this.seq || !this.live || this.cur !== src) return;
           if(el.src === url) return;
@@ -7284,7 +7289,8 @@ function createTrack(getEl, vol){
           const q = el.play(); if(q && q.catch) q.catch(()=>{});
           if(at > 0 && isFinite(at)){ try{ el.currentTime = at; }catch(e){} }
         }).catch(()=>{});
-      }, 2500);
+      };
+      this.watch = setTimeout(monitor, 2000);
     },
     /* 浏览器可能因「还没有交互」自动暂停：之后任意一次点击/按键都补一发。 */
     kickOnInteract(){
