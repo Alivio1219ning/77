@@ -7194,13 +7194,21 @@ const AudioBank = {
   /* 预热：能立即同步判断是否已在内存 */
   readyUrl(url){ return (url && this.ready[url]) || null; },
   warm(url){ this.get(url).catch(()=>{}); },
-  /* 页面一进来就把全部曲目拉进内存，之后切页才做得到「立马响」。
-     错峰启动（每首隔 220ms）：避免 5 个大文件同时抢带宽把彼此拖慢。 */
+  /* 后台预热：串行一首一首下（并发=1，绝不和正在播放的歌抢带宽），
+     且跳过已在内存的曲目。每首最多等 20s，避免某首卡住堵死整个队列。 */
   prewarmAll(urls){
     const list = [...new Set(urls)];
     let i = 0;
-    const kick = ()=>{ if(i >= list.length) return; this.warm(list[i++]); setTimeout(kick, 220); };
-    kick();
+    const next = ()=>{
+      while(i < list.length && this.ready[list[i]]) i++;
+      if(i >= list.length) return;
+      const u = list[i++];
+      let done = false;
+      const go = ()=>{ if(done) return; done = true; next(); };
+      this.get(u).then(go, go);
+      setTimeout(go, 20000);
+    };
+    next();
   }
 };
 
@@ -7258,12 +7266,16 @@ function createTrack(getEl, vol){
         this.ramp(this.vol, 260);
         return;
       }
-      /* 未命中：先流式抢首声，再看门狗兜底换 Blob */
+      /* 未命中：直接挂原始 URL 流式播放，浏览器边下边播本来就流畅。
+         只有「一段时间过去还是一点数据都没有」才判定 CDN 分片卡死，换成整段 Blob；
+         正常播放时绝不打断，避免换源造成卡顿/断点。 */
       el.src = src;
       const p = el.play(); if(p && p.catch) p.catch(()=>{});
       this.ramp(this.vol, 300);
       this.watch = setTimeout(()=>{
         if(gen !== this.seq || !this.live || this.cur !== src) return;
+        if(el.readyState >= 2) return; /* 有数据，正常播着，别动它 */
+        /* 真·卡死：整段下载或从已预热缓存取，无缝换上 */
         AudioBank.get(src).then(url=>{
           if(gen !== this.seq || !this.live || this.cur !== src) return;
           if(el.src === url) return;
@@ -7272,7 +7284,7 @@ function createTrack(getEl, vol){
           const q = el.play(); if(q && q.catch) q.catch(()=>{});
           if(at > 0 && isFinite(at)){ try{ el.currentTime = at; }catch(e){} }
         }).catch(()=>{});
-      }, 900);
+      }, 2500);
     },
     /* 浏览器可能因「还没有交互」自动暂停：之后任意一次点击/按键都补一发。 */
     kickOnInteract(){
@@ -7289,19 +7301,34 @@ function createTrack(getEl, vol){
 
 const BGM = createTrack(()=>$('#bgm'), BGM_VOL);
 BGM.initialized = false;
-/* 所有页面曲目：页面一加载就后台预热进内存，切页才能零等待 */
+/* 所有页面曲目，在后台「安静地、串行地」预热进内存，切页才能零等待。
+   关键：正在播放的曲子排到最后，绝不和自己的流式播放抢带宽。 */
 const BGM_ALL_SRC = [...new Set(Object.values(BGM_MAP))];
+let warmStarted = false;
 function warmAllAudio(){
-  AudioBank.prewarmAll([...BGM_ALL_SRC, ...MP_PRESETS.map(t=>t.src)]);
+  if(warmStarted) return;
+  warmStarted = true;
+  const playing = BGM.cur || (PLAYER.active ? PLAYER.src() : '');
+  const rest = [...BGM_ALL_SRC, ...MP_PRESETS.map(t=>t.src)].filter(u=>u !== playing);
+  /* 等首屏音乐真正开始出声后再预热：播放稳定了才让出带宽 */
+  const begin = ()=>AudioBank.prewarmAll([...rest, playing].filter(Boolean));
+  const el = BGM.el;
+  if(el && el.readyState >= 2) setTimeout(begin, 1200);
+  else{
+    let n = 0;
+    const poll = setInterval(()=>{
+      if((BGM.el && BGM.el.readyState >= 2) || ++n > 40){ clearInterval(poll); setTimeout(begin, 1200); }
+    }, 250);
+  }
 }
 BGM.init = function(){
   const el = this.ensure(); if(!el) return;
   this.initialized = true;
   el.loop = true; el.volume = 0;
   this.kickOnInteract();
-  /* 首次交互后再预热：避免抢首屏渲染带宽；fetch 不需要用户手势也能下 */
+  /* 首次交互后、或稍后延时，启动后台预热（只跑一次） */
   ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev, warmAllAudio, {passive:true, once:true}));
-  setTimeout(warmAllAudio, 600);
+  setTimeout(warmAllAudio, 800);
 };
 BGM.play = function(src){
   if(!this.initialized) this.init();
@@ -7313,11 +7340,7 @@ function bgmRoute(screen){
   try{
     if(screen === 'blog'){ BGM.pause(); PLAYER.enter(); return; }
     PLAYER.leave();
-    if(BGM_MAP[screen]){
-      /* 目标曲优先下载：切过去时大概率已就绪，做得到立马响 */
-      AudioBank.warm(BGM_MAP[screen]);
-      BGM.play(BGM_MAP[screen]);
-    } else BGM.pause();
+    if(BGM_MAP[screen]) BGM.play(BGM_MAP[screen]); else BGM.pause();
   }catch(e){}
 }
 
