@@ -7191,7 +7191,7 @@ const AudioBank = {
 /* 单音轨控制器：一个元素、一个音量、一个 generation。 */
 function createTrack(getEl, vol){
   return {
-    el:null, live:false, cur:'', seq:0, timer:0, vol:vol,
+    el:null, live:false, cur:'', seq:0, timer:0, watch:0, vol:vol,
     ensure(){
       if(!this.el) this.el = getEl();
       return this.el;
@@ -7201,6 +7201,7 @@ function createTrack(getEl, vol){
       ++this.seq;
       this.live = false; this.cur = '';
       clearInterval(this.timer); this.timer = 0;
+      clearTimeout(this.watch);
       const el = this.el; if(!el) return;
       try{ el.pause(); }catch(e){}
       try{ el.removeAttribute('src'); el.load(); }catch(e){}
@@ -7219,24 +7220,33 @@ function createTrack(getEl, vol){
         }, 40);
       });
     },
-    /* 切到 src：先停旧（杜绝重叠），整段下载好才淡入；期间任何新指令都会让 gen 失效。 */
+    /* 切到 src：先停旧（杜绝重叠），直接挂 src 让它流式加载（首声快）。
+       只有 2.5 秒还没数据（CDN 分片加载卡死）才走整段 fetch 兜底。
+       全程只用同一个 el —— 绝不新建，所以永远不会有第二首在响。 */
     switchTo(src){
       const el = this.ensure();
       if(!el || !src) return;
-      if(this.cur === src && this.live && !el.paused) return;
+      if(this.cur === src && this.live && !el.paused && el.readyState > 1) return;
       const gen = ++this.seq;
       this.live = true; this.cur = src;
-      clearInterval(this.timer);
+      clearInterval(this.timer); clearTimeout(this.watch);
       try{ el.pause(); }catch(e){}
       try{ el.removeAttribute('src'); el.load(); }catch(e){}
       el.volume = 0;
-      AudioBank.get(src).then(url=>{
+      el.src = src;
+      const p = el.play(); if(p && p.catch) p.catch(()=>{});
+      this.ramp(this.vol, 500);
+      /* 看门狗：卡住才整段下载；数据来了就取消，gen 保证切页后旧回调作废 */
+      this.watch = setTimeout(()=>{
         if(gen !== this.seq || !this.live || this.cur !== src) return;
-        el.src = url;
-        el.volume = 0;
-        const p = el.play(); if(p && p.catch) p.catch(()=>{});
-        this.ramp(this.vol, 500);
-      }).catch(()=>{});
+        if(el.readyState > 1) return;
+        AudioBank.get(src).then(url=>{
+          if(gen !== this.seq || !this.live || this.cur !== src) return;
+          el.src = url;
+          const q = el.play(); if(q && q.catch) q.catch(()=>{});
+          this.ramp(this.vol, 400);
+        }).catch(()=>{});
+      }, 2500);
     },
     /* 浏览器可能因「还没有交互」自动暂停：之后任意一次点击/按键都补一发。 */
     kickOnInteract(){
