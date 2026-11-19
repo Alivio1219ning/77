@@ -7194,8 +7194,14 @@ const AudioBank = {
   /* 预热：能立即同步判断是否已在内存 */
   readyUrl(url){ return (url && this.ready[url]) || null; },
   warm(url){ this.get(url).catch(()=>{}); },
-  /* 页面一进来就把全部曲目拉进内存，之后切页才做得到「立马响」 */
-  prewarmAll(urls){ [...new Set(urls)].forEach(u=>this.warm(u)); }
+  /* 页面一进来就把全部曲目拉进内存，之后切页才做得到「立马响」。
+     错峰启动（每首隔 220ms）：避免 5 个大文件同时抢带宽把彼此拖慢。 */
+  prewarmAll(urls){
+    const list = [...new Set(urls)];
+    let i = 0;
+    const kick = ()=>{ if(i >= list.length) return; this.warm(list[i++]); setTimeout(kick, 220); };
+    kick();
+  }
 };
 
 /* 单音轨控制器：一个元素、一个音量、一个 generation。 */
@@ -7295,7 +7301,7 @@ BGM.init = function(){
   this.kickOnInteract();
   /* 首次交互后再预热：避免抢首屏渲染带宽；fetch 不需要用户手势也能下 */
   ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev, warmAllAudio, {passive:true, once:true}));
-  setTimeout(warmAllAudio, 1500);
+  setTimeout(warmAllAudio, 600);
 };
 BGM.play = function(src){
   if(!this.initialized) this.init();
@@ -7307,7 +7313,11 @@ function bgmRoute(screen){
   try{
     if(screen === 'blog'){ BGM.pause(); PLAYER.enter(); return; }
     PLAYER.leave();
-    if(BGM_MAP[screen]) BGM.play(BGM_MAP[screen]); else BGM.pause();
+    if(BGM_MAP[screen]){
+      /* 目标曲优先下载：切过去时大概率已就绪，做得到立马响 */
+      AudioBank.warm(BGM_MAP[screen]);
+      BGM.play(BGM_MAP[screen]);
+    } else BGM.pause();
   }catch(e){}
 }
 
