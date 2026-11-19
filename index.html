@@ -7315,26 +7315,31 @@ function warmAllAudio(){
   if(warmStarted) return;
   warmStarted = true;
   const playing = BGM.cur || (PLAYER.active ? PLAYER.src() : '');
+  /* 当前正在播的曲子放进预热队列末尾（只在需要时补一次整段），其余随后串行下。
+     绝不在开局抢带宽：等首屏曲播放满 10 秒、确认稳定后才启动，
+     弱网下宁可切页慢一点，也不能让首屏卡。 */
   const rest = [...BGM_ALL_SRC, ...MP_PRESETS.map(t=>t.src)].filter(u=>u !== playing);
-  /* 等首屏音乐真正开始出声后再预热：播放稳定了才让出带宽 */
-  const begin = ()=>AudioBank.prewarmAll([...rest, playing].filter(Boolean));
+  const begin = ()=>{
+    const cur = BGM.cur || (PLAYER.active ? PLAYER.src() : '');
+    const queue = [...rest.filter(u=>u!==cur), cur].filter(Boolean);
+    AudioBank.prewarmAll(queue);
+  };
   const el = BGM.el;
-  if(el && el.readyState >= 2) setTimeout(begin, 1200);
-  else{
-    let n = 0;
-    const poll = setInterval(()=>{
-      if((BGM.el && BGM.el.readyState >= 2) || ++n > 40){ clearInterval(poll); setTimeout(begin, 1200); }
-    }, 250);
-  }
+  /* 用 currentTime 判断真实播放进度； stalled 时不启动预热，让它先把歌播稳 */
+  let n = 0;
+  const poll = setInterval(()=>{
+    const progressed = el && el.currentTime >= 10;
+    const dead = ++n > 120; // 30s 兜底：即使一直没出声也别无限等
+    if(progressed || dead){ clearInterval(poll); begin(); }
+  }, 250);
 }
 BGM.init = function(){
   const el = this.ensure(); if(!el) return;
   this.initialized = true;
   el.loop = true; el.volume = 0;
   this.kickOnInteract();
-  /* 首次交互后、或稍后延时，启动后台预热（只跑一次） */
+  /* 首次交互后才考虑预热；warmAllAudio 内部还会等首屏播稳 10s 才真正下载 */
   ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev, warmAllAudio, {passive:true, once:true}));
-  setTimeout(warmAllAudio, 800);
 };
 BGM.play = function(src){
   if(!this.initialized) this.init();
