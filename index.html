@@ -7151,10 +7151,9 @@ function initWelcomeText(){
 
    铁律：任何时刻全局最多只有一个 audio 在出声。
    - 每个音轨只用一个 audio 元素，永不新建、永不替换 —— 从根上杜绝旧元素残留播放。
-   - 切页/切歌第一步永远是 halt()：暂停 + 清掉 src + 清缓冲，新曲加载完成才淡入。
-   - 所有异步回调都认 generation(序号)，切页后旧请求回来会直接作废。
-   - 加载统一走「整段 fetch → Blob」并内存缓存：媒体元素自带的分片加载器在某些 CDN 上会卡死
-     （响应头回来、正文一字节不到），整段下载绕开它；缓存命中后切歌是瞬间的。
+   - 切页/切歌第一步永远是 halt()：同步暂停 + 清 src + 清缓冲，旧的立马停。
+   - 所有曲目在后台提前「整段 fetch → Blob」预热进内存；切页时直接从内存取 Blob 播放，
+     几乎是瞬间响，不再等网络。所有异步回调认 generation(序号)，切页后旧请求回来直接作废。
    浏览器要求先有一次交互才能出声，首次点击/按键会补一次 play。
    ============================================================================================================================== */
 const BGM_VOL = 0.34;
@@ -7167,25 +7166,36 @@ const BGM_MAP = {
   game:'assets/audio/preset-bird.mp3'
 };
 
-/* 音轨仓库：同一 URL 只整段下载一次，之后命中内存。blob/data 是本地资源，直接用不缓存。 */
+/* 音轨仓库：每首整段下载一次转成 Blob URL 存内存，之后所有播放都从内存取（瞬间）。
+   blob/data 是本地资源，直接用不缓存。 */
 const AudioBank = {
-  map:Object.create(null),
+  map:Object.create(null),   // url -> 下载中的 Promise
+  ready:Object.create(null), // url -> 已就绪的 blobUrl
   get(url){
     if(!url) return Promise.reject(new Error('empty src'));
     if(url.indexOf('blob:') === 0 || url.indexOf('data:') === 0) return Promise.resolve(url);
+    if(this.ready[url]) return Promise.resolve(this.ready[url]);
     const hit = this.map[url];
     if(hit) return hit;
     const p = fetch(url, {cache:'force-cache'}).then(r=>{
       if(!r.ok) throw new Error('HTTP '+r.status);
       return r.blob();
-    }).then(b=>URL.createObjectURL(b)).catch(e=>{
+    }).then(b=>{
+      const u = URL.createObjectURL(b);
+      this.ready[url] = u;
+      return u;
+    }).catch(e=>{
       delete this.map[url];
       throw e;
     });
     this.map[url] = p;
     return p;
   },
-  warm(url){ this.get(url).catch(()=>{}); }
+  /* 预热：能立即同步判断是否已在内存 */
+  readyUrl(url){ return (url && this.ready[url]) || null; },
+  warm(url){ this.get(url).catch(()=>{}); },
+  /* 页面一进来就把全部曲目拉进内存，之后切页才做得到「立马响」 */
+  prewarmAll(urls){ [...new Set(urls)].forEach(u=>this.warm(u)); }
 };
 
 /* 单音轨控制器：一个元素、一个音量、一个 generation。 */
@@ -7220,9 +7230,10 @@ function createTrack(getEl, vol){
         }, 40);
       });
     },
-    /* 切到 src：先停旧（杜绝重叠），直接挂 src 让它流式加载（首声快）。
-       只有 2.5 秒还没数据（CDN 分片加载卡死）才走整段 fetch 兜底。
-       全程只用同一个 el —— 绝不新建，所以永远不会有第二首在响。 */
+    /* 切到 src：先停旧（同步，杜绝重叠），再立马响新曲。
+       - 内存里已有 Blob（预热过）→ 同步设 src 直接播，零网络等待，最丝滑。
+       - 还没有 → 挂原始 URL 流式播放抢首声，同时后台整段下载；下好了无缝换成 Blob。
+       全程只用同一个 el，绝不新建，永远不会有第二首在响。 */
     switchTo(src){
       const el = this.ensure();
       if(!el || !src) return;
@@ -7233,20 +7244,29 @@ function createTrack(getEl, vol){
       try{ el.pause(); }catch(e){}
       try{ el.removeAttribute('src'); el.load(); }catch(e){}
       el.volume = 0;
+      const cached = AudioBank.readyUrl(src);
+      if(cached){
+        /* 命中内存：同步切换，立即出声 */
+        el.src = cached;
+        const p = el.play(); if(p && p.catch) p.catch(()=>{});
+        this.ramp(this.vol, 260);
+        return;
+      }
+      /* 未命中：先流式抢首声，再看门狗兜底换 Blob */
       el.src = src;
       const p = el.play(); if(p && p.catch) p.catch(()=>{});
-      this.ramp(this.vol, 500);
-      /* 看门狗：卡住才整段下载；数据来了就取消，gen 保证切页后旧回调作废 */
+      this.ramp(this.vol, 300);
       this.watch = setTimeout(()=>{
         if(gen !== this.seq || !this.live || this.cur !== src) return;
-        if(el.readyState > 1) return;
         AudioBank.get(src).then(url=>{
           if(gen !== this.seq || !this.live || this.cur !== src) return;
+          if(el.src === url) return;
+          const at = el.currentTime;
           el.src = url;
           const q = el.play(); if(q && q.catch) q.catch(()=>{});
-          this.ramp(this.vol, 400);
+          if(at > 0 && isFinite(at)){ try{ el.currentTime = at; }catch(e){} }
         }).catch(()=>{});
-      }, 2500);
+      }, 900);
     },
     /* 浏览器可能因「还没有交互」自动暂停：之后任意一次点击/按键都补一发。 */
     kickOnInteract(){
@@ -7263,11 +7283,19 @@ function createTrack(getEl, vol){
 
 const BGM = createTrack(()=>$('#bgm'), BGM_VOL);
 BGM.initialized = false;
+/* 所有页面曲目：页面一加载就后台预热进内存，切页才能零等待 */
+const BGM_ALL_SRC = [...new Set(Object.values(BGM_MAP))];
+function warmAllAudio(){
+  AudioBank.prewarmAll([...BGM_ALL_SRC, ...MP_PRESETS.map(t=>t.src)]);
+}
 BGM.init = function(){
   const el = this.ensure(); if(!el) return;
   this.initialized = true;
   el.loop = true; el.volume = 0;
   this.kickOnInteract();
+  /* 首次交互后再预热：避免抢首屏渲染带宽；fetch 不需要用户手势也能下 */
+  ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev, warmAllAudio, {passive:true, once:true}));
+  setTimeout(warmAllAudio, 1500);
 };
 BGM.play = function(src){
   if(!this.initialized) this.init();
